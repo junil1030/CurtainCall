@@ -12,6 +12,9 @@ enum AppStrings {
     // MARK: - App Title
     enum Title {
         static let appName = "CurtainCall"
+        static let homeViewName = "홈"
+        static let statisticsName = "통계"
+        static let moreName = "더보기"
     }
     
     // MARK: - Placeholder
