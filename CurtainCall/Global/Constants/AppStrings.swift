@@ -1,0 +1,47 @@
+//
+//  AppStrings.swift
+//  CurtainCall
+//
+//  Created by 서준일 on 9/25/25.
+//
+
+import Foundation
+
+enum AppStrings {
+    
+    // MARK: - App Title
+    enum Title {
+        static let appName = "CurtainCall"
+    }
+    
+    // MARK: - Placeholder
+    enum Placeholder {
+
+    }
+    
+    // MARK: - Button
+    enum Button {
+
+    }
+    
+    // MARK: - Alert Message
+    enum Alert {
+
+    }
+    
+    // MARK: - Validation Message
+    enum Validation {
+
+    }
+    
+    // MARK: - Font Names
+    enum FontName {
+        static let nanumSquareRegular = "NanumSquareR"
+        static let nanumSquareBold = "NanumSquareB"
+    }
+    
+    // MARK: - Common
+    enum Common {
+
+    }
+}
