@@ -11,14 +11,14 @@ protocol ViewModelType {
     associatedtype Input
     associatedtype Output
     
-    func tarnsform(input: Input) -> Output
+    func transform(input: Input) -> Output
 }
 
 class BaseViewModel: ViewModelType {
     struct Input {}
     struct Output {}
     
-    func tarnsform(input: Input) -> Output {
+    func transform(input: Input) -> Output {
         return Output()
     }
 }
