@@ -128,7 +128,7 @@ extension CategoryCollectionView: UICollectionViewDelegateFlowLayout {
         let text = category.displayName
         
         // 텍스트 크기 계산
-        let font = UIFont.appCallout
+        let font = UIFont.ccCallout
         let textSize = text.size(withAttributes: [.font: font])
         let width = textSize.width + 24 // 좌우 패딩
         

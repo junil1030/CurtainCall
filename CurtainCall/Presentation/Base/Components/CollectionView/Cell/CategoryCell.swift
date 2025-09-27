@@ -18,7 +18,7 @@ final class CategoryCell: UICollectionViewCell {
     // MARK: - UI Components
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .appCallout
+        label.font = .ccCallout
         label.textAlignment = .center
         label.numberOfLines = 1
         label.textColor = .ccPrimaryText
@@ -75,7 +75,7 @@ final class CategoryCell: UICollectionViewCell {
     private func updateAppearance(isSelected: Bool) {
         UIView.animate(withDuration: 0.2) { [weak self] in
             self?.underlineView.isHidden = !isSelected
-            self?.titleLabel.font = isSelected ? .appCalloutBold : .appCallout
+            self?.titleLabel.font = isSelected ? .ccCalloutBold : .ccCallout
         }
     }
 }

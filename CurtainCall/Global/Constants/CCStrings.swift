@@ -47,4 +47,9 @@ enum CCStrings {
     enum Common {
 
     }
+    
+    // MARK: - Network
+    enum Network {
+        static let apiHeader = "service"
+    }
 }

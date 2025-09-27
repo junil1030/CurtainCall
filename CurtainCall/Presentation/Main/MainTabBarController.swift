@@ -26,10 +26,10 @@ final class MainTabBarController: UITabBarController {
         appearance.backgroundColor = .ccBackground
         
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-            .font: UIFont.appFootnote
+            .font: UIFont.ccFootnote
         ]
         appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-            .font: UIFont.appFootnoteBold
+            .font: UIFont.ccFootnoteBold
         ]
         
         tabBar.standardAppearance = appearance
@@ -48,7 +48,7 @@ final class MainTabBarController: UITabBarController {
         let vc = HomeViewController()
         let nav = UINavigationController(rootViewController: vc)
         nav.tabBarItem = UITabBarItem(
-            title: AppStrings.Title.homeViewName,
+            title: CCStrings.Title.homeViewName,
             image: UIImage(systemName: "house"),
             selectedImage: UIImage(systemName: "house.fill")
         )
@@ -62,7 +62,7 @@ final class MainTabBarController: UITabBarController {
         
         let nav = UINavigationController(rootViewController: vc)
         nav.tabBarItem = UITabBarItem(
-            title: AppStrings.Title.statisticsName,
+            title: CCStrings.Title.statisticsName,
             image: UIImage(systemName: "chart.bar"),
             selectedImage: UIImage(systemName: "chart.bar.fill")
         )
@@ -76,7 +76,7 @@ final class MainTabBarController: UITabBarController {
         
         let nav = UINavigationController(rootViewController: vc)
         nav.tabBarItem = UITabBarItem(
-            title: AppStrings.Title.moreName,
+            title: CCStrings.Title.moreName,
             image: UIImage(systemName: "ellipsis.circle"),
             selectedImage: UIImage(systemName: "ellipsis.circle.fill")
         )
