@@ -2,15 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>KOPIS_API_KEY</key>
+	<string>$(KOPIS_API_KEY)</string>
+	<key>KOPIS_BASE_URL</key>
+	<string>$(KOPIS_BASE_URL)</string>
 	<key>UIAppFonts</key>
-    <array>
-        <string>NanumSquareB.ttf</string>
-        <string>NanumSquareR.ttf</string>
-    </array>
-    <key>KOPIS_API_KEY</key>
-    <string>$(KOPIS_API_KEY)</string>
-    <key>KOPIS_BASE_URL</key>
-    <string>$(KOPIS_BASE_URL)</string>
+	<array>
+		<string>NanumSquareB.ttf</string>
+		<string>NanumSquareR.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
