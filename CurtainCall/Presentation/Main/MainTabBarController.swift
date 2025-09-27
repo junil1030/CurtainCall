@@ -45,7 +45,7 @@ final class MainTabBarController: UITabBarController {
     }
     
     private func createHomeViewController() -> UINavigationController {
-        let vc = ViewController()
+        let vc = HomeViewController()
         let nav = UINavigationController(rootViewController: vc)
         nav.tabBarItem = UITabBarItem(
             title: AppStrings.Title.homeViewName,
@@ -58,7 +58,7 @@ final class MainTabBarController: UITabBarController {
     }
     
     private func createStatisticsViewController() -> UINavigationController {
-        let vc = ViewController()
+        let vc = UIViewController()
         
         let nav = UINavigationController(rootViewController: vc)
         nav.tabBarItem = UITabBarItem(
@@ -72,7 +72,7 @@ final class MainTabBarController: UITabBarController {
     }
     
     private func createMoreViewController() -> UINavigationController {
-        let vc = ViewController()
+        let vc = UIViewController()
         
         let nav = UINavigationController(rootViewController: vc)
         nav.tabBarItem = UITabBarItem(
