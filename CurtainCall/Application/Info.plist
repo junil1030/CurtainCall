@@ -7,6 +7,10 @@
         <string>NanumSquareB.ttf</string>
         <string>NanumSquareR.ttf</string>
     </array>
+    <key>KOPIS_API_KEY</key>
+    <string>$(KOPIS_API_KEY)</string>
+    <key>KOPIS_BASE_URL</key>
+    <string>$(KOPIS_BASE_URL)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
