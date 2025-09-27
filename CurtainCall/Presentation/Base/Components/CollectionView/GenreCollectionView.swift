@@ -1,5 +1,5 @@
 //
-//  CategoryCollectionView.swift
+//  GenreCollectionView.swift
 //  CurtainCall
 //
 //  Created by 서준일 on 9/26/25.
@@ -10,7 +10,7 @@ import RxSwift
 import RxCocoa
 import SnapKit
 
-final class CategoryCollectionView: BaseView {
+final class GenreCollectionView: BaseView {
     
     // MARK: - Properties
     private let disposeBag = DisposeBag()
@@ -122,7 +122,7 @@ final class CategoryCollectionView: BaseView {
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
-extension CategoryCollectionView: UICollectionViewDelegateFlowLayout {
+extension GenreCollectionView: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let category = categoriesRelay.value[indexPath.row]
         let text = category.displayName
