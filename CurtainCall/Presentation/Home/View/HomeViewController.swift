@@ -13,11 +13,26 @@ final class HomeViewController: BaseViewController {
     
     // MARK: - Properties
     private let homeView = HomeView()
+    private let viewModel = HomeViewModel()
     private let disposeBag = DisposeBag()
     
     override func loadView() {
         super.loadView()
         
         view = homeView
+    }
+    
+    override func setupBind() {
+        super.setupBind()
+        
+        let input = HomeViewModel.Input()
+        
+        let output = viewModel.transform(input: input)
+        
+        output.boxOfficeList
+            .drive(with: self) { owner, list in
+                dump(list)
+            }
+            .disposed(by: disposeBag)
     }
 }
