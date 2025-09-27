@@ -31,7 +31,7 @@ final class HomeViewController: BaseViewController {
         
         output.boxOfficeList
             .drive(with: self) { owner, list in
-                dump(list)
+                owner.homeView.updateBoxOfficeList(list)
             }
             .disposed(by: disposeBag)
     }

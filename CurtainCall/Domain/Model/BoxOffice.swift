@@ -14,3 +14,16 @@ struct BoxOffice {
     let posterURL: String
     let perfomanceID: String
 }
+
+extension BoxOffice: CardItemConvertible {
+    func toCardItem() -> CardItem {
+        return CardItem(
+            id: perfomanceID,
+            imageURL: posterURL,
+            title: title,
+            subtitle: location,
+            badge: rank,
+            isFavorite: false  // 추후 찜하기 로직 연동
+        )
+    }
+}
