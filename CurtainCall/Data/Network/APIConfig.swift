@@ -20,8 +20,7 @@ enum APIConfig {
     }
     
     static var baseURL: String {
-        guard let url = Bundle.main.infoDictionary?["KOPIS_BASE_URL"] as? String,
-              !url.isEmpty else {
+        guard let url = Bundle.main.infoDictionary?["KOPIS_BASE_URL"] as? String, !url.isEmpty else {
             Logger.config.error("KOPIS Base URL이 설정되지 않았습니다.")
             fatalError("KOPIS Base URL이 설정되지 않았습니다.")
         }

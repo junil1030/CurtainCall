@@ -31,7 +31,7 @@ final class NetworkManager {
         do {
             let response = try await AF.request(url, method: router.method, parameters: router.params, headers: router.header)
                 .validate(statusCode: 200..<300)
-                .serializingString()
+                .serializingString(encoding: .utf8)
                 .value
             
             #if DEBUG
