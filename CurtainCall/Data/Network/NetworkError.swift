@@ -7,12 +7,12 @@
 
 import Foundation
 
-// MARK: - Network Error
 enum NetworkError: Error, LocalizedError {
     case noInternetConnection
     case timeout
     case connectionFailed
     case serverError(Int)
+    case apiError(APIErrorCode, String)  // 에러코드와 메시지
     case invalidResponse
     case parsingFailed
     case unknown(Error)
@@ -27,6 +27,8 @@ enum NetworkError: Error, LocalizedError {
             return "서버 연결에 실패했습니다."
         case .serverError(let code):
             return "서버 오류가 발생했습니다. (코드: \(code))"
+        case .apiError(let errorCode, _):
+            return errorCode.userFriendlyMessage
         case .invalidResponse:
             return "올바르지 않은 응답입니다."
         case .parsingFailed:
