@@ -35,7 +35,7 @@ final class GenreCollectionView: BaseView {
     private let selectedCategoryRelay = BehaviorRelay<CategoryCode?>(value: CategoryCode.allCases.first)
     
     // MARK: - Public Observables
-    var selectedCategory: Observable<CategoryCode?> {
+    var selectedGenre: Observable<CategoryCode?> {
         return selectedCategoryRelay.asObservable()
     }
     

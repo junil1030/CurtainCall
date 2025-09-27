@@ -20,8 +20,8 @@ final class HomeView: BaseView {
         return cardCollectionView.selectedCard
     }
     
-    var selectedCategory: Observable<CategoryCode?> {
-        return genreCollectionView.selectedCategory
+    var selectedGenre: Observable<CategoryCode?> {
+        return genreCollectionView.selectedGenre
     }
     
     override func setupHierarchy() {
