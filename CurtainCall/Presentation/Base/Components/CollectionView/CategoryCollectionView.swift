@@ -1,5 +1,5 @@
 //
-//  GenreCollectionView.swift
+//  CategoryCollectionView.swift
 //  CurtainCall
 //
 //  Created by 서준일 on 9/26/25.
@@ -10,7 +10,7 @@ import RxSwift
 import RxCocoa
 import SnapKit
 
-final class GenreCollectionView: BaseView {
+final class CategoryCollectionView: BaseView {
     
     // MARK: - Properties
     private let disposeBag = DisposeBag()
@@ -35,7 +35,7 @@ final class GenreCollectionView: BaseView {
     private let selectedCategoryRelay = BehaviorRelay<CategoryCode?>(value: CategoryCode.allCases.first)
     
     // MARK: - Public Observables
-    var selectedGenre: Observable<CategoryCode?> {
+    var selectedCategory: Observable<CategoryCode?> {
         return selectedCategoryRelay.asObservable()
     }
     
@@ -122,7 +122,7 @@ final class GenreCollectionView: BaseView {
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
-extension GenreCollectionView: UICollectionViewDelegateFlowLayout {
+extension CategoryCollectionView: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let category = categoriesRelay.value[indexPath.row]
         let text = category.displayName

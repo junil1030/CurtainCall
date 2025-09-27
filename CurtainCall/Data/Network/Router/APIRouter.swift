@@ -9,7 +9,7 @@ import Foundation
 import Alamofire
 
 enum APIRouter {
-    case boxOffice(startDate: String, endDate: String, genre: GenreCode?, area: AreaCode?)
+    case boxOffice(startDate: String, endDate: String, category: CategoryCode?, area: AreaCode?)
 }
 
 extension APIRouter {
@@ -36,14 +36,14 @@ extension APIRouter {
     
     var params: Parameters {
         switch self {
-        case .boxOffice(let startDate, let endDate, let genre, let area):
+        case .boxOffice(let startDate, let endDate, let category, let area):
             var parameters: Parameters = [
                 "stdate": startDate,
                 "eddate": endDate
             ]
             
-            if let genre = genre {
-                parameters["catecode"] = genre.rawValue
+            if let category = category {
+                parameters["catecode"] = category.rawValue
             }
             
             if let area = area {

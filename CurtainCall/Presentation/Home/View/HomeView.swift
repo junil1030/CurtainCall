@@ -12,7 +12,7 @@ import Kingfisher
 
 final class HomeView: BaseView {
     
-    private let genreCollectionView = GenreCollectionView()
+    private let categoryCollectionView = CategoryCollectionView()
     private let cardCollectionView = CardCollectionView()
     
     // MARK: - Observable
@@ -20,28 +20,28 @@ final class HomeView: BaseView {
         return cardCollectionView.selectedCard
     }
     
-    var selectedGenre: Observable<CategoryCode?> {
-        return genreCollectionView.selectedGenre
+    var selectedCategory: Observable<CategoryCode?> {
+        return categoryCollectionView.selectedCategory
     }
     
     override func setupHierarchy() {
         super.setupHierarchy()
         
-        addSubview(genreCollectionView)
+        addSubview(categoryCollectionView)
         addSubview(cardCollectionView)
     }
     
     override func setupLayout() {
         super.setupLayout()
         
-        genreCollectionView.snp.makeConstraints { make in
+        categoryCollectionView.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview()
             make.top.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(50)
         }
         
         cardCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(genreCollectionView.snp.bottom).offset(16)
+            make.top.equalTo(categoryCollectionView.snp.bottom).offset(16)
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalTo(safeAreaLayoutGuide)
         }

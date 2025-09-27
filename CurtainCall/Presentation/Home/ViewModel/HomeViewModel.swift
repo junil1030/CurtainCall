@@ -50,13 +50,13 @@ final class HomeViewModel: BaseViewModel {
         let startDate = yesterday.toKopisAPIFormatt
         let endDate = yesterday.toKopisAPIFormatt
         
-        loadBoxOffice(startDate: startDate, endDate: endDate, genre: .musical, area: .seoul)
+        loadBoxOffice(startDate: startDate, endDate: endDate, category: .musical, area: .seoul)
     }
     
-    func loadBoxOffice(startDate: String, endDate: String, genre: GenreCode?, area: AreaCode?) {
+    func loadBoxOffice(startDate: String, endDate: String, category: CategoryCode?, area: AreaCode?) {
         isLoadingRelay.accept(true)
         
-        CustomObservable.request(.boxOffice(startDate: startDate, endDate: endDate, genre: genre, area: area), responseType: BoxOfficeResponseDTO.self)
+        CustomObservable.request(.boxOffice(startDate: startDate, endDate: endDate, category: category, area: area), responseType: BoxOfficeResponseDTO.self)
             .subscribe(with: self) { owner, response in
                 owner.isLoadingRelay.accept(false)
                 let boxOffices = BoxOfficeMapper.map(from: response.boxofs.boxof)
