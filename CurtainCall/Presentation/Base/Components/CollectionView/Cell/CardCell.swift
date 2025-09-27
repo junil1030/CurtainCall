@@ -16,23 +16,16 @@ final class CardCell: UICollectionViewCell {
     static let identifier = "CardCell"
     private var disposeBag = DisposeBag()
     
-    // MARK: - UI Components
-    private let containerView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .white
-        view.layer.cornerRadius = 12
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOpacity = 0.1
-        view.layer.shadowOffset = CGSize(width: 0, height: 4)
-        view.layer.shadowRadius = 8
-        return view
-    }()
+    // MARK: - Constants
+    private let minimumTitleFontSize: CGFloat = 14
+    private let maximumTitleFontSize: CGFloat = 20
     
+    // MARK: - UI Components
     private let posterImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 8
+        imageView.layer.cornerRadius = 12
         imageView.backgroundColor = .systemGray6
         return imageView
     }()
@@ -48,10 +41,12 @@ final class CardCell: UICollectionViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .ccHeadlineBold
+        label.font = .ccTitle3Bold
         label.textColor = .ccPrimaryText
-        label.numberOfLines = 2
+        label.numberOfLines = 1
         label.textAlignment = .center
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
         return label
     }()
     
@@ -97,44 +92,39 @@ final class CardCell: UICollectionViewCell {
     
     // MARK: - Setup Methods
     private func setupUI() {
-        contentView.addSubview(containerView)
-        
         [posterImageView, rankLabel, titleLabel, subtitleLabel, favoriteButton].forEach {
-            containerView.addSubview($0)
+            contentView.addSubview($0)
         }
         
         setupConstraints()
     }
     
     private func setupConstraints() {
-        containerView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(8)
-        }
-        
         posterImageView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview().inset(12)
-            make.height.equalTo(posterImageView.snp.width).multipliedBy(1.4) // 포스터 비율
+            make.top.leading.trailing.equalToSuperview().inset(8)
+            make.bottom.equalTo(titleLabel.snp.top).offset(-8)
         }
         
         rankLabel.snp.makeConstraints { make in
-            make.bottom.leading.equalTo(posterImageView).inset(2)
-            make.width.height.equalTo(50)
+            make.bottom.leading.equalTo(posterImageView).inset(8)
+            make.width.height.lessThanOrEqualTo(50)
         }
         
         favoriteButton.snp.makeConstraints { make in
-            make.bottom.trailing.equalTo(posterImageView).inset(8)
-            make.width.height.equalTo(32)
+            make.bottom.trailing.equalTo(posterImageView).inset(12)
+            make.width.height.equalTo(36)
         }
         
         titleLabel.snp.makeConstraints { make in
-            make.top.equalTo(posterImageView.snp.bottom).offset(12)
             make.leading.trailing.equalToSuperview().inset(12)
+            make.height.equalTo(28) // 한 줄 고정 높이
+            make.bottom.equalTo(subtitleLabel.snp.top).offset(-4)
         }
         
         subtitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(4)
             make.leading.trailing.equalToSuperview().inset(12)
-            make.bottom.lessThanOrEqualToSuperview().inset(12)
+            make.height.equalTo(20) // 부제목 고정 높이
+            make.bottom.equalToSuperview().inset(8)
         }
     }
     
@@ -153,7 +143,16 @@ final class CardCell: UICollectionViewCell {
                     .transition(.fade(0.3)),
                     .cacheOriginalImage
                 ]
-            )
+            ) { [weak self] result in
+                switch result {
+                case .success:
+                    self?.posterImageView.addBottomGradient()
+                case .failure:
+                    break
+                }
+            }
+        } else {
+            posterImageView.addBottomGradient()
         }
         
         // 찜하기 버튼 이벤트 (추후 구현)

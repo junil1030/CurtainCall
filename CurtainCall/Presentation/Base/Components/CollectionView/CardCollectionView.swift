@@ -95,22 +95,37 @@ final class CardCollectionView: BaseView {
     
     // MARK: - Compositional Layout
      private func createLayout() -> UICollectionViewLayout {
+         
+         let screenWidth = UIScreen.main.bounds.width
+         
+         let cardWidth = screenWidth * 0.75
+         let posterHeight = cardWidth * (4.0 / 3.0)
+         let textAreaHeight: CGFloat = 60
+         let cardHeight = posterHeight + textAreaHeight
+         
          let itemSize = NSCollectionLayoutSize(
-             widthDimension: .absolute(250),
-             heightDimension: .absolute(380)
+             widthDimension: .absolute(cardWidth),
+             heightDimension: .absolute(cardHeight)
          )
          let item = NSCollectionLayoutItem(layoutSize: itemSize)
          
          let groupSize = NSCollectionLayoutSize(
-            widthDimension: .absolute(250),
-            heightDimension: .absolute(380)
+             widthDimension: .absolute(cardWidth),
+             heightDimension: .absolute(cardHeight)
          )
          let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
          
          let section = NSCollectionLayoutSection(group: group)
-         section.orthogonalScrollingBehavior = .continuous
+         section.orthogonalScrollingBehavior = .groupPaging
          section.interGroupSpacing = 16
-         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20)
+         
+         let sideSpacing = (screenWidth - cardWidth) / 2
+         section.contentInsets = NSDirectionalEdgeInsets(
+             top: 0,
+             leading: sideSpacing,
+             bottom: 0,
+             trailing: sideSpacing
+         )
          
          return UICollectionViewCompositionalLayout(section: section)
      }

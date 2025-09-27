@@ -43,7 +43,7 @@ final class HomeView: BaseView {
         cardCollectionView.snp.makeConstraints { make in
             make.top.equalTo(categoryCollectionView.snp.bottom).offset(16)
             make.horizontalEdges.equalToSuperview()
-            make.height.equalTo(400)
+            make.bottom.equalTo(safeAreaLayoutGuide)
         }
     }
     
