@@ -52,4 +52,9 @@ final class HomeView: BaseView {
         let cardItems = boxOffices.map { $0.toCardItem() }
         cardCollectionView.updateCards(with: cardItems)
     }
+    
+    func scrollToFirstCard() {
+        cardCollectionView.scrollToFirst()
+    }
+
 }

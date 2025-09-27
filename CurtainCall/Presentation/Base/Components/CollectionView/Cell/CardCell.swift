@@ -138,7 +138,7 @@ final class CardCell: UICollectionViewCell {
         if let url = data.imageURL.safeImageURL {
             posterImageView.kf.setImage(
                 with: url,
-                placeholder: UIImage(systemName: "photo"),
+                placeholder: UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal),
                 options: [
                     .transition(.fade(0.3)),
                     .cacheOriginalImage

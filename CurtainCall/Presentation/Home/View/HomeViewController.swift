@@ -25,7 +25,10 @@ final class HomeViewController: BaseViewController {
     override func setupBind() {
         super.setupBind()
         
-        let input = HomeViewModel.Input()
+        let input = HomeViewModel.Input(
+            selectedCard: homeView.selectedCard,
+            selectedCategory: homeView.selectedCategory
+        )
         
         let output = viewModel.transform(input: input)
         
@@ -34,5 +37,11 @@ final class HomeViewController: BaseViewController {
                 owner.homeView.updateBoxOfficeList(list)
             }
             .disposed(by: disposeBag)
+        
+        output.scrollToFirst
+             .emit(with: self) { owner, _ in
+                 owner.homeView.scrollToFirstCard()
+             }
+             .disposed(by: disposeBag)
     }
 }

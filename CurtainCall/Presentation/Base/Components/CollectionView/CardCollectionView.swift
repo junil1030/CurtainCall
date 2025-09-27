@@ -143,6 +143,16 @@ final class CardCollectionView: BaseView {
     func updateCards(with data: [CardItem]) {
         cardDataRelay.accept(data)
     }
+
+    func scrollToFirst() {
+        guard !cardDataRelay.value.isEmpty else { return }
+        
+        let firstIndexPath = IndexPath(item: 0, section: 0)
+        
+        Task { @MainActor in
+            self.collectionView.scrollToItem(at: firstIndexPath, at: .centeredHorizontally, animated: true)
+        }
+    }
 }
 
 // MARK: - UICollectionViewDelegate
