@@ -1,5 +1,5 @@
 //
-//  AppStrings.swift
+//  CCStrings.swift
 //  CurtainCall
 //
 //  Created by 서준일 on 9/25/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum AppStrings {
+enum CCStrings {
     
     // MARK: - App Title
     enum Title {
