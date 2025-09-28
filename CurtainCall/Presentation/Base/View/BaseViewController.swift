@@ -21,7 +21,10 @@ class BaseViewController: UIViewController {
         navigationItem.backButtonTitle = ""
     }
     
-    func setupStyle() {}
+    func setupStyle() {
+        navigationController?.navigationBar.tintColor = .ccNavigationTint
+        navigationController?.navigationBar.backgroundColor = .ccBackground
+    }
     
     func setupBind() {}
     

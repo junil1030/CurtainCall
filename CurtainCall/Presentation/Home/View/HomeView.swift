@@ -13,11 +13,16 @@ import Kingfisher
 final class HomeView: BaseView {
     
     private let categoryCollectionView = CategoryCollectionView()
+    private let filterButtonContainer = FilterButtonContainer()
     private let cardCollectionView = CardCollectionView()
     
     // MARK: - Observable
     var selectedCard: Observable<CardItem> {
         return cardCollectionView.selectedCard
+    }
+    
+    var filterState: Observable<FilterButtonContainer.FilterState> {
+        return filterButtonContainer.filterState
     }
     
     var selectedCategory: Observable<CategoryCode?> {
@@ -28,6 +33,7 @@ final class HomeView: BaseView {
         super.setupHierarchy()
         
         addSubview(categoryCollectionView)
+        addSubview(filterButtonContainer)
         addSubview(cardCollectionView)
     }
     
@@ -40,8 +46,14 @@ final class HomeView: BaseView {
             make.height.equalTo(50)
         }
         
+        filterButtonContainer.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview()
+            make.top.equalTo(categoryCollectionView.snp.bottom).offset(8)
+            make.height.equalTo(100)
+        }
+        
         cardCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(categoryCollectionView.snp.bottom).offset(16)
+            make.top.equalTo(filterButtonContainer.snp.bottom).offset(8)
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalTo(safeAreaLayoutGuide)
         }
