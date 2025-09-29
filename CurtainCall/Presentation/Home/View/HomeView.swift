@@ -12,6 +12,7 @@ import Kingfisher
 
 final class HomeView: BaseView {
     
+    private let greetingBannerView = GreetingBannerView()
     private let categoryCollectionView = CategoryCollectionView()
     private let filterButtonContainer = FilterButtonContainer()
     private let cardCollectionView = CardCollectionView()
@@ -32,6 +33,7 @@ final class HomeView: BaseView {
     override func setupHierarchy() {
         super.setupHierarchy()
         
+        addSubview(greetingBannerView)
         addSubview(categoryCollectionView)
         addSubview(filterButtonContainer)
         addSubview(cardCollectionView)
@@ -40,9 +42,14 @@ final class HomeView: BaseView {
     override func setupLayout() {
         super.setupLayout()
         
-        categoryCollectionView.snp.makeConstraints { make in
+        greetingBannerView.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview()
             make.top.equalTo(safeAreaLayoutGuide)
+        }
+        
+        categoryCollectionView.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview()
+            make.top.equalTo(greetingBannerView.snp.bottom).offset(4)
             make.height.equalTo(50)
         }
         
@@ -69,4 +76,13 @@ final class HomeView: BaseView {
         cardCollectionView.scrollToFirst()
     }
 
+    // TODO: 사용자 정보 연동 시 사용
+    func updateUserInfo(nickname: String?, profileImage: UIImage?) {
+        if let nickname = nickname {
+            greetingBannerView.updateNickname(nickname)
+        }
+        if let image = profileImage {
+            greetingBannerView.updateProfileImage(image)
+        }
+    }
 }
