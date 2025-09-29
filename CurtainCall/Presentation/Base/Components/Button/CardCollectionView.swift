@@ -82,7 +82,6 @@ final class CardCollectionView: BaseView {
     // MARK: - Setup Methods
     private func setupCollectionView() {
         collectionView.register(CardCell.self, forCellWithReuseIdentifier: CardCell.identifier)
-        collectionView.delegate = self
     }
     
     private func bindCollectionView() {
@@ -98,7 +97,7 @@ final class CardCollectionView: BaseView {
          
          let screenWidth = UIScreen.main.bounds.width
          
-         let cardWidth = screenWidth * 0.75
+         let cardWidth = screenWidth * 0.65
          let posterHeight = cardWidth * (4.0 / 3.0)
          let textAreaHeight: CGFloat = 60
          let cardHeight = posterHeight + textAreaHeight
@@ -127,6 +126,26 @@ final class CardCollectionView: BaseView {
              trailing: sideSpacing
          )
          
+         section.visibleItemsInvalidationHandler = { [weak self] visibleItems, offset, environment in
+             guard let _ = self else { return }
+             
+             let containerWidth = environment.container.contentSize.width
+             let centerX = offset.x + containerWidth / 2
+             
+             visibleItems.forEach { item in
+                 let itemCenterX = item.frame.midX
+                 let distance = abs(itemCenterX - centerX)
+                 
+                 // 거리에 따라 스케일 계산 (0.85 ~ 1.0)
+                 let normalizedDistance = min(distance / (cardWidth + 16), 1.0)
+                 let scale = 1.0 - (normalizedDistance * 0.15)
+                 
+                 // transform 적용
+                 let transform = CGAffineTransform(scaleX: scale, y: scale)
+                 item.transform = transform
+             }
+         }
+         
          return UICollectionViewCompositionalLayout(section: section)
      }
     
@@ -152,13 +171,5 @@ final class CardCollectionView: BaseView {
         Task { @MainActor in
             self.collectionView.scrollToItem(at: firstIndexPath, at: .centeredHorizontally, animated: true)
         }
-    }
-}
-
-// MARK: - UICollectionViewDelegate
-extension CardCollectionView: UICollectionViewDelegate {
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        // 추후 transform 애니메이션 구현 예정
-        // TODO: 중앙 카드 크게, 양옆 카드 작게 하는 애니메이션
     }
 }
