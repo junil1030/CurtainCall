@@ -59,16 +59,17 @@ final class CardCell: UICollectionViewCell {
         return label
     }()
     
-    private let favoriteButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "heart"), for: .normal)
-        button.setImage(UIImage(systemName: "heart.fill"), for: .selected)
-        button.tintColor = .ccPrimary
-        button.backgroundColor = .white.withAlphaComponent(0.9)
-        button.layer.cornerRadius = 16
-        button.clipsToBounds = true
-        return button
-    }()
+    private let favoriteButton = FavoriteButton()
+//    private let favoriteButton: UIButton = {
+//        let button = UIButton(type: .system)
+//        button.setImage(UIImage(systemName: "heart"), for: .normal)
+//        button.setImage(UIImage(systemName: "heart.fill"), for: .selected)
+//        button.tintColor = .ccPrimary
+//        button.backgroundColor = .black.withAlphaComponent(0.5)
+//        button.layer.cornerRadius = 16
+//        button.clipsToBounds = true
+//        return button
+//    }()
     
     // MARK: - Init
     override init(frame: CGRect) {
@@ -87,7 +88,7 @@ final class CardCell: UICollectionViewCell {
         titleLabel.text = nil
         subtitleLabel.text = nil
         rankLabel.text = nil
-        favoriteButton.isSelected = false
+        favoriteButton.setFavorite(false)
     }
     
     // MARK: - Setup Methods
@@ -156,9 +157,9 @@ final class CardCell: UICollectionViewCell {
         }
         
         // 찜하기 버튼 이벤트 (추후 구현)
-        favoriteButton.rx.tap
+        favoriteButton.tapEvent
             .subscribe(with: self) { owner, _ in
-                owner.favoriteButton.isSelected.toggle()
+                print("좋아요 버튼 클릭")
             }
             .disposed(by: disposeBag)
     }
