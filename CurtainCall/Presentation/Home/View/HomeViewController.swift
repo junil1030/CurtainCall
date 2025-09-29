@@ -71,7 +71,7 @@ final class HomeViewController: BaseViewController {
     private func setupNavigationBar() {
         let titleLabel = UILabel()
         titleLabel.text = "커튼콜"
-        titleLabel.font = .ccLargeTitleBold
+        titleLabel.font = .ccTitle1Bold
         titleLabel.textColor = .ccPrimary
         
         let leftBarButtonItem = UIBarButtonItem(customView: titleLabel)
