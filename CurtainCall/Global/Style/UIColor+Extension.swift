@@ -46,6 +46,9 @@ extension UIColor {
     /// 버튼 위 텍스트 (흰색)
     static let ccButtonText = UIColor.white
     
+    /// 배너 텍스트 (흰색)
+    static let ccBannerText = UIColor.white
+    
     // MARK: - Button Colors
     /// 활성화 버튼 배경
     static let ccButtonBackground = UIColor.ccPrimary

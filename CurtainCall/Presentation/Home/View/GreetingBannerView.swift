@@ -120,7 +120,7 @@ final class GreetingBannerView: BaseView {
     private let greetingLabel: UILabel = {
         let label = UILabel()
         label.font = .ccCallout
-        label.textColor = .ccPrimaryText
+        label.textColor = .ccBannerText
         label.numberOfLines = 1
         return label
     }()
@@ -128,7 +128,7 @@ final class GreetingBannerView: BaseView {
     private let nicknameLabel: UILabel = {
         let label = UILabel()
         label.font = .ccTitle2Bold
-        label.textColor = .ccPrimaryText
+        label.textColor = .ccBannerText
         label.numberOfLines = 1
         return label
     }()
@@ -136,7 +136,7 @@ final class GreetingBannerView: BaseView {
     private let suggestionLabel: UILabel = {
         let label = UILabel()
         label.font = .ccSubheadline
-        label.textColor = .ccSecondaryText
+        label.textColor = .ccBannerText
         label.numberOfLines = 1
         return label
     }()
@@ -178,7 +178,8 @@ final class GreetingBannerView: BaseView {
     
     override func setupLayout() {
         containerView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(16)
+            make.horizontalEdges.equalToSuperview().inset(16)
+            make.verticalEdges.equalToSuperview().inset(4)
             make.height.equalTo(100)
         }
         

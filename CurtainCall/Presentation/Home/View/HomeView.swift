@@ -55,12 +55,12 @@ final class HomeView: BaseView {
         
         filterButtonContainer.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview()
-            make.top.equalTo(categoryCollectionView.snp.bottom).offset(8)
+            make.top.equalTo(categoryCollectionView.snp.bottom).offset(4)
             make.height.equalTo(100)
         }
         
         cardCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(filterButtonContainer.snp.bottom).offset(8)
+            make.top.equalTo(filterButtonContainer.snp.bottom).offset(4)
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalTo(safeAreaLayoutGuide)
         }
