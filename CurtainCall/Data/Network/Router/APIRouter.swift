@@ -10,6 +10,7 @@ import Alamofire
 
 enum APIRouter {
     case boxOffice(startDate: String, endDate: String, category: CategoryCode?, area: AreaCode?)
+    case detailPerformance(performanceID: String)
 }
 
 extension APIRouter {
@@ -17,19 +18,21 @@ extension APIRouter {
         switch self {
         case .boxOffice:
             return "boxoffice"
+        case .detailPerformance(let performanceID):
+            return "pblprfr/\(performanceID)"
         }
     }
     
     var header: HTTPHeaders {
         switch self {
-        case .boxOffice:
+        case .boxOffice, .detailPerformance:
             return [CCStrings.Network.apiHeader: APIConfig.kopisAPIKey]
         }
     }
     
     var method: HTTPMethod {
         switch self {
-        case .boxOffice:
+        case .boxOffice, .detailPerformance:
             return .get
         }
     }
@@ -51,6 +54,9 @@ extension APIRouter {
             }
             
             return parameters
+            
+        case .detailPerformance:
+            return [:]
         }
     }
 }
