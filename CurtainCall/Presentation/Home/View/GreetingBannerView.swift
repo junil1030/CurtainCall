@@ -180,7 +180,7 @@ final class GreetingBannerView: BaseView {
         containerView.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview().inset(16)
             make.verticalEdges.equalToSuperview().inset(4)
-            make.height.equalTo(100)
+//            make.height.equalTo(100)
         }
         
         textStackView.snp.makeConstraints { make in

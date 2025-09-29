@@ -65,6 +65,14 @@ final class HomeViewController: BaseViewController {
                 print("로딩 상태: \(isLoading)")
             }
             .disposed(by: disposeBag)
+        
+        homeView.selectedCard
+            .subscribe(with: self) { owner, cardItem in
+                print("선택된 카드: \(cardItem.title)")
+                print("공연 ID: \(cardItem.id)")
+                // 여기서 상세화면으로 이동하거나 다른 처리
+            }
+            .disposed(by: disposeBag)
     }
     
     // MARK: - Private Methods

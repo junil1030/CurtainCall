@@ -60,16 +60,6 @@ final class CardCell: UICollectionViewCell {
     }()
     
     private let favoriteButton = FavoriteButton()
-//    private let favoriteButton: UIButton = {
-//        let button = UIButton(type: .system)
-//        button.setImage(UIImage(systemName: "heart"), for: .normal)
-//        button.setImage(UIImage(systemName: "heart.fill"), for: .selected)
-//        button.tintColor = .ccPrimary
-//        button.backgroundColor = .black.withAlphaComponent(0.5)
-//        button.layer.cornerRadius = 16
-//        button.clipsToBounds = true
-//        return button
-//    }()
     
     // MARK: - Init
     override init(frame: CGRect) {
