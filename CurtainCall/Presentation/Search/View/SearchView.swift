@@ -49,6 +49,10 @@ final class SearchView: BaseView {
                     
                     return cell
                     
+                case .empty:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EmptySearchCell.identifier, for: indexPath) as! EmptySearchCell
+                    return cell
+                    
                 default:
                     return UICollectionViewCell()
                 }
@@ -117,13 +121,30 @@ final class SearchView: BaseView {
     private func deleteRecentSearch(_ recentSearch: RecentSearch) {
         var snapshot = dataSource.snapshot()
         snapshot.deleteItems([.recentSearch(recentSearch)])
-        dataSource.apply(snapshot, animatingDifferences: true)
-    }
+        
+        // 최근 검색어가 모두 삭제되면 섹션 자체를 삭제하고 empty 섹션 표시
+        let remainingItems = snapshot.itemIdentifiers(inSection: .recentSearch)
+        if remainingItems.isEmpty {
+            snapshot.deleteSections([.recentSearch])
+            dataSource.apply(snapshot, animatingDifferences: true)
+            showEmptySection()
+        } else {
+            dataSource.apply(snapshot, animatingDifferences: true)
+        }    }
     
     private func deleteAllRecentSearches() {
         var snapshot = dataSource.snapshot()
-        let items = snapshot.itemIdentifiers(inSection: .recentSearch)
-        snapshot.deleteItems(items)
+        snapshot.deleteSections([.recentSearch])
+        dataSource.apply(snapshot, animatingDifferences: true)
+        
+        // empty 섹션 표시
+        showEmptySection()
+    }
+    
+    private func showEmptySection() {
+        var snapshot = dataSource.snapshot()
+        snapshot.appendSections([.empty])
+        snapshot.appendItems([.empty], toSection: .empty)
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 }
@@ -131,9 +152,22 @@ final class SearchView: BaseView {
 // MARK: -  Base Layout & Base SnapShot
 extension SearchView {
     private func createLayout() -> UICollectionViewLayout {
-        UICollectionViewCompositionalLayout { sectionIndex, environment in
-            return self.createDefaultSection()
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionIndex, environment in
+            guard let self = self else { return nil }
+            
+            let sections = self.dataSource.snapshot().sectionIdentifiers
+            let section = sections[sectionIndex]
+            
+            switch section {
+            case .recentSearch:
+                return self.createRecentSearchSection()
+            case .empty:
+                return self.createEmptySection()
+            default:
+                return self.createDefaultSection()
+            }
         }
+        return layout
     }
     
     private func createDefaultSection() -> NSCollectionLayoutSection {
@@ -160,9 +194,11 @@ extension SearchView {
 // MARK: - Register Cell & HeaderView
 extension SearchView {
     private func setupCollectionView() {
-        
+        // Cell
         collectionView.register(RecentSearchCell.self, forCellWithReuseIdentifier: RecentSearchCell.identifier)
+        collectionView.register(EmptySearchCell.self, forCellWithReuseIdentifier: EmptySearchCell.identifier)
         
+        // HeaderView
         collectionView.register(
             RecentSearchHeaderView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
@@ -193,7 +229,7 @@ extension SearchView {
         // 헤더 추가
         let headerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(44)
+            heightDimension: .absolute(44)
         )
         let header = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: headerSize,
@@ -204,6 +240,26 @@ extension SearchView {
         
         return section
     }
+    
+    private func createEmptySection() -> NSCollectionLayoutSection {
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .estimated(100)
+        )
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .estimated(100)
+        )
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        
+        let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 100, leading: 16, bottom: 16, trailing: 16)
+        
+        return section
+    }
+
 }
 
 // MARK: - SnapShot
