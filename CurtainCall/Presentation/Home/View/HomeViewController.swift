@@ -73,6 +73,13 @@ final class HomeViewController: BaseViewController {
                 owner.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
+        
+        searchButton.rx.tap
+            .subscribe(with: self) { owner, _ in
+                let vc = SearchViewController()
+                owner.navigationController?.pushViewController(vc, animated: true)
+            }
+            .disposed(by: disposeBag)
     }
     
     // MARK: - Private Methods
