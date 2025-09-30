@@ -24,11 +24,11 @@ struct PerformanceDetailDTO: ParselyType {
     let prfpdfrom: String       // 공연시작일
     let prfpdto: String         // 공연종료일
     let fcltynm: String         // 공연장명
-    let prfcast: String         // 공연출연진
+    let prfcast: String?         // 공연출연진
     let prfcrew: String         // 공연제작진
     let prfruntime: String      // 공연런타임
     let prfage: String          // 관람연령
-    let entrpsnm: String        // 제작사
+    let entrpsnm: String?        // 제작사
     let entrpsnmP: String?       // 기획제작사
     let entrpsnmA: String?       // 주최
     let entrpsnmH: String?       // 주관

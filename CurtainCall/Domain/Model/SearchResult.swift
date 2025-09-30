@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct SearchResult {
+struct SearchResult: Hashable {
     let id: String              // 공연ID
     let title: String           // 공연명
     let startDate: String       // 공연시작일
@@ -18,4 +18,14 @@ struct SearchResult {
     let genre: String           // 장르
     let isOpenRun: Bool         // 오픈런 여부
     let state: String           // 공연상태
+    
+    // Hashable 구현
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    // Equatable 구현
+    static func == (lhs: SearchResult, rhs: SearchResult) -> Bool {
+        return lhs.id == rhs.id
+    }
 }

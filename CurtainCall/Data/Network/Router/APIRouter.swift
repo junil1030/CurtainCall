@@ -11,7 +11,6 @@ import Alamofire
 enum APIRouter {
     case boxOffice(startDate: String, endDate: String, category: CategoryCode?, area: AreaCode?)
     case detailPerformance(performanceID: String)
-    // 검색할 때 사용할 것들: stdate, eddate, cpage, rows는 10으로 고정, shprfnm(공연명)
     case searchPerformance(startDate: String, endDate: String, page: String, keyword: String)
 }
 
@@ -63,7 +62,7 @@ extension APIRouter {
             return [:]
             
         case .searchPerformance(let startDate, let endDate, let page, let keyword):
-            var parameters: Parameters = [
+            let parameters: Parameters = [
                 "stdate": startDate,
                 "eddate": endDate,
                 "cpage": page,

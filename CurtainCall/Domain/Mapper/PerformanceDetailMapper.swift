@@ -17,7 +17,8 @@ struct PerformanceDetailMapper {
         // MARK: - 변경 필요
         let detailPosterURL = dto.styurls?.styurl ?? []
         
-        let castArray = dto.prfcast.split(separator: ",")
+        let castString = dto.prfcast ?? ""
+        let castArray = castString.split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
         
