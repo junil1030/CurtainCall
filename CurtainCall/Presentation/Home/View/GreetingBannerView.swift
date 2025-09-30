@@ -65,7 +65,7 @@ final class GreetingBannerView: BaseView {
                 return [
                     "오늘은 어떤 공연을 만나볼까요?",
                     "아침부터 공연 찾기! 어때요?",
-                    "오늘의 뮤지컬은 어떠세요?"
+                    "오늘은 뮤지컬 어떠세요?"
                 ]
             case .lunch:
                 return [
