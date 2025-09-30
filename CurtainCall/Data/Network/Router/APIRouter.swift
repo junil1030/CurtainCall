@@ -11,6 +11,8 @@ import Alamofire
 enum APIRouter {
     case boxOffice(startDate: String, endDate: String, category: CategoryCode?, area: AreaCode?)
     case detailPerformance(performanceID: String)
+    // 검색할 때 사용할 것들: stdate, eddate, cpage, rows는 10으로 고정, shprfnm(공연명)
+    case searchPerformance(startDate: String, endDate: String, page: String, keyword: String)
 }
 
 extension APIRouter {
@@ -20,19 +22,21 @@ extension APIRouter {
             return "boxoffice"
         case .detailPerformance(let performanceID):
             return "pblprfr/\(performanceID)"
+        case .searchPerformance:
+            return "pblprfr"
         }
     }
     
     var header: HTTPHeaders {
         switch self {
-        case .boxOffice, .detailPerformance:
+        case .boxOffice, .detailPerformance, .searchPerformance:
             return [CCStrings.Network.apiHeader: APIConfig.kopisAPIKey]
         }
     }
     
     var method: HTTPMethod {
         switch self {
-        case .boxOffice, .detailPerformance:
+        case .boxOffice, .detailPerformance, .searchPerformance:
             return .get
         }
     }
@@ -57,6 +61,17 @@ extension APIRouter {
             
         case .detailPerformance:
             return [:]
+            
+        case .searchPerformance(let startDate, let endDate, let page, let keyword):
+            var parameters: Parameters = [
+                "stdate": startDate,
+                "eddate": endDate,
+                "cpage": page,
+                "rows": "10",
+                "shprfnm": keyword
+            ]
+            
+            return parameters
         }
     }
 }
