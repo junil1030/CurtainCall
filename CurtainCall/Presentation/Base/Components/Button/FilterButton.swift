@@ -16,7 +16,7 @@ final class FilterButton: UIButton {
     enum ButtonType {
         case reset
         case dropdown(items: [DropdownItem])
-        case datePicker
+        case datePicker(allowFuture: Bool = false)
     }
     
     struct DropdownItem {

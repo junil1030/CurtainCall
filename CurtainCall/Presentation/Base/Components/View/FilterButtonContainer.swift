@@ -19,6 +19,11 @@ final class FilterButtonContainer: BaseView {
         case monthly = "월간"
     }
     
+    enum ScreenType {
+        case home       // 홈 화면 (과거만)
+        case search     // 검색 화면 (미래 가능)
+    }
+    
     struct FilterState {
         let area: AreaCode?
         let dateType: DateRangeType
@@ -41,6 +46,7 @@ final class FilterButtonContainer: BaseView {
     
     // MARK: - Properties
     private let disposeBag = DisposeBag()
+    private let screenType: ScreenType
     
     // MARK: - UI Components
     private let stackView: UIStackView = {
@@ -84,8 +90,9 @@ final class FilterButtonContainer: BaseView {
     }()
     
     private lazy var dateSelectorButton: FilterButton = {
+        let allowFuture = (screenType == .search)
         let button = FilterButton(
-            type: .datePicker,
+            type: .datePicker(allowFuture: allowFuture),
             title: formatDateTitle(.daily, Date().yesterday)
         )
         return button
@@ -108,6 +115,16 @@ final class FilterButtonContainer: BaseView {
         return filterStateRelay.asObservable()
     }
     
+    // MARK: - Init
+    init(screenType: ScreenType = .home) {
+        self.screenType = screenType
+        super.init(frame: .zero)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - BaseView Override Methods
     override func setupHierarchy() {
         addSubview(stackView)
@@ -125,7 +142,6 @@ final class FilterButtonContainer: BaseView {
             make.height.equalTo(44)
         }
         
-        // 날짜 선택 버튼을 두 번째 줄에 배치
         dateSelectorButton.snp.makeConstraints { make in
             make.top.equalTo(stackView.snp.bottom).offset(8)
             make.leading.trailing.equalToSuperview().inset(16)
@@ -150,7 +166,6 @@ final class FilterButtonContainer: BaseView {
     
     // MARK: - Binding Methods
     private func bindButtons() {
-        // 초기화 버튼
         resetButton.selectedValue
             .compactMap { $0 as? String }
             .filter { $0 == "reset" }
@@ -159,7 +174,6 @@ final class FilterButtonContainer: BaseView {
             }
             .disposed(by: disposeBag)
         
-        // 지역 버튼 (임시로 첫 번째 아이템 선택)
         areaButton.selectedValue
             .subscribe(with: self) { owner, selectedValue in
                 if let areaCode = selectedValue as? AreaCode {
@@ -168,7 +182,6 @@ final class FilterButtonContainer: BaseView {
             }
             .disposed(by: disposeBag)
         
-        // 날짜 타입 버튼 - UIMenu 선택 처리
         dateTypeButton.selectedValue
             .compactMap { $0 as? DateRangeType }
             .subscribe(with: self) { owner, selectedDateType in
@@ -176,7 +189,6 @@ final class FilterButtonContainer: BaseView {
             }
             .disposed(by: disposeBag)
         
-        // 날짜 선택 버튼
         dateSelectorButton.selectedValue
             .compactMap { $0 as? Date }
             .subscribe(with: self) { owner, selectedDate in
@@ -186,7 +198,6 @@ final class FilterButtonContainer: BaseView {
     }
     
     private func bindStateChanges() {
-        // 지역 변경 감지
         selectedAreaRelay
             .subscribe(with: self) { owner, area in
                 let title = area?.displayName ?? "전국"
@@ -195,7 +206,6 @@ final class FilterButtonContainer: BaseView {
             }
             .disposed(by: disposeBag)
         
-        // 날짜 타입 변경 감지
         selectedDateTypeRelay
             .subscribe(with: self) { owner, dateType in
                 owner.dateTypeButton.setTitle(dateType.rawValue)
@@ -208,7 +218,6 @@ final class FilterButtonContainer: BaseView {
             }
             .disposed(by: disposeBag)
         
-        // 날짜 변경 감지
         selectedDateRelay
             .withLatestFrom(selectedDateTypeRelay) { ($0, $1) }
             .subscribe(with: self) { owner, data in
@@ -226,7 +235,6 @@ final class FilterButtonContainer: BaseView {
         selectedDateTypeRelay.accept(.daily)
         selectedDateRelay.accept(Date().yesterday)
         
-        // 초기화 상태로 필터 업데이트
         let resetState = FilterState(isReset: true)
         filterStateRelay.accept(resetState)
     }
@@ -238,16 +246,6 @@ final class FilterButtonContainer: BaseView {
     private func handleDateTypeSelection(_ dateType: DateRangeType) {
         selectedDateTypeRelay.accept(dateType)
     }
-    
-//    private func handleDateTypeToggle() {
-//        let currentType = selectedDateTypeRelay.value
-//        let allTypes = DateRangeType.allCases
-//        
-//        if let currentIndex = allTypes.firstIndex(of: currentType) {
-//            let nextIndex = (currentIndex + 1) % allTypes.count
-//            selectedDateTypeRelay.accept(allTypes[nextIndex])
-//        }
-//    }
     
     private func handleDateSelection(_ date: Date) {
         selectedDateRelay.accept(date)
@@ -270,12 +268,6 @@ final class FilterButtonContainer: BaseView {
         )
         
         filterStateRelay.accept(state)
-    }
-    
-    private func updateDateRangeForType(_ dateType: DateRangeType) {
-        let currentDate = selectedDateRelay.value
-        let adjustedDate = getValidDateForType(dateType, currentDate: currentDate)
-        selectedDateRelay.accept(adjustedDate)
     }
     
     private func calculateDateRange(for dateType: DateRangeType, selectedDate: Date) -> (String, String) {
@@ -310,22 +302,11 @@ final class FilterButtonContainer: BaseView {
                 return (dateString, dateString)
             }
             
-            // 30일 제한 적용
-            let maxDay = calendar.date(byAdding: .day, value: 29, to: firstDay) // 1일부터 30일까지
+            let maxDay = calendar.date(byAdding: .day, value: 29, to: firstDay)
             let endDate = min(lastDayOfMonth, maxDay ?? lastDayOfMonth)
             
             return (firstDay.toKopisAPIFormatt, endDate.toKopisAPIFormatt)
         }
-    }
-    
-    private func getValidDateForType(_ dateType: DateRangeType, currentDate: Date) -> Date {
-        let now = Date()
-        let isAfternoon = Calendar.current.component(.hour, from: now) >= 12
-        
-        // 오후 12시 이전이면 오늘 선택 불가
-        let maxDate = isAfternoon ? now : now.daysBefore(1)
-        
-        return min(currentDate, maxDate)
     }
     
     private func formatDateTitle(_ dateType: DateRangeType, _ date: Date) -> String {
