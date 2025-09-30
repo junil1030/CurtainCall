@@ -76,8 +76,8 @@ final class HomeViewController: BaseViewController {
         
         searchButton.rx.tap
             .subscribe(with: self) { owner, _ in
-//                let vc = SearchViewController()
-//                owner.navigationController?.pushViewController(vc, animated: true)
+                let vc = SearchViewController()
+                owner.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
     }
