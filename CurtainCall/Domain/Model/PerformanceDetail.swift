@@ -12,11 +12,16 @@ struct PerformanceDetail {
     let title: String
     let startDate: String
     let endDate: String
+    let area: String
     let location: String
     let posterURL: String
-    let detailPosterURL: String
-    let cast: String
+    let detailPosterURL: [String]
+    let cast: [String]
     let bookingSites: [BookingSite]
+    
+    var castText: String {
+        return cast.joined(separator: ", ")
+    }
 }
 
 struct BookingSite: Hashable {

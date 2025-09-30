@@ -68,9 +68,9 @@ final class HomeViewController: BaseViewController {
         
         homeView.selectedCard
             .subscribe(with: self) { owner, cardItem in
-                print("선택된 카드: \(cardItem.title)")
-                print("공연 ID: \(cardItem.id)")
-                // 여기서 상세화면으로 이동하거나 다른 처리
+                let vm = DetailViewModel(performanceID: cardItem.id)
+                let vc = DetailViewController(viewModel: vm)
+                owner.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
     }

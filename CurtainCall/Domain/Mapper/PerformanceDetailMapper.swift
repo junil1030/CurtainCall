@@ -14,17 +14,23 @@ struct PerformanceDetailMapper {
             BookingSite(name: relateDTO.relatenm, url: relateDTO.relateurl)
         } ?? []
         
-        let detailPosterURL = dto.styurls?.styurl ?? dto.poster
+        // MARK: - 변경 필요
+        let detailPosterURL = dto.styurls?.styurl ?? []
+        
+        let castArray = dto.prfcast.split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
         
         return PerformanceDetail(
             id: dto.mt20id,
             title: dto.prfnm,
             startDate: dto.prfpdfrom,
             endDate: dto.prfpdto,
+            area: dto.area,
             location: dto.fcltynm,
-            posterURL: dto.poster,
+            posterURL: dto.poster ?? "",
             detailPosterURL: detailPosterURL,
-            cast: dto.prfcast,
+            cast: castArray,
             bookingSites: bookingSites
         )
     }
