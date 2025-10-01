@@ -48,6 +48,7 @@ final class SearchViewController: BaseViewController {
             .drive(with: self) { owner, results in
                 // TODO: 검색 결과로 콜렉션뷰 업데이트
                 print("검색 결과: \(results.count)개")
+                owner.searchView.updateSearchResults(results: results)
             }
             .disposed(by: disposeBag)
         

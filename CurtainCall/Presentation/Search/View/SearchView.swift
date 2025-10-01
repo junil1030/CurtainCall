@@ -14,6 +14,7 @@ final class SearchView: BaseView {
     
     // MARK: - Properties
     private let disposebag = DisposeBag()
+    private var currentKeyword: String = ""
     
     // MARK: - UI Components
     private let searchBar: UISearchBar = {
@@ -49,6 +50,11 @@ final class SearchView: BaseView {
                     
                     return cell
                     
+                case .searchResult(let searchResult):
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.identifier, for: indexPath) as! SearchResultCell
+                    cell.configure(with: searchResult)
+                    return cell
+                    
                 case .empty:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EmptySearchCell.identifier, for: indexPath) as! EmptySearchCell
                     return cell
@@ -62,7 +68,8 @@ final class SearchView: BaseView {
         dataSource.supplementaryViewProvider =  { [weak self] collectionView, kind, indexPath in
             guard let self = self else { return UICollectionReusableView() }
             
-            let section = SearchSection.allCases[indexPath.section]
+            let sections = self.dataSource.snapshot().sectionIdentifiers
+            let section = sections[indexPath.section]
             
             switch section {
             case .recentSearch:
@@ -73,6 +80,15 @@ final class SearchView: BaseView {
                         owner.deleteAllRecentSearches()
                     }
                     .disposed(by: header.disposeBag)
+                
+                return header
+                
+            case .searchResult:
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: SearchResultHeaderView.identifier, for: indexPath) as! SearchResultHeaderView
+                
+                let snapshot = self.dataSource.snapshot()
+                let resultCount = snapshot.itemIdentifiers(inSection: .searchResult).count
+                header.configure(keyword: self.currentKeyword, count: resultCount)
                 
                 return header
                 
@@ -117,6 +133,27 @@ final class SearchView: BaseView {
         applyInitialSnapshot()
     }
     
+    // MARK: - Public Methods
+    func updateSearchResults(results: [SearchResult]) {
+        currentKeyword = searchBar.text ?? ""
+        
+        var snapshot = NSDiffableDataSourceSnapshot<SearchSection, SearchItem>()
+        
+        // 기존 섹션 제거
+        if dataSource.snapshot().sectionIdentifiers.contains(.recentSearch) {
+            var currentSnapshot = dataSource.snapshot()
+            currentSnapshot.deleteSections([.recentSearch, .empty])
+            dataSource.apply(currentSnapshot, animatingDifferences: false)
+        }
+        
+        // 검색 결과 섹션 추가
+        snapshot.appendSections([.searchResult])
+        let items = results.map { SearchItem.searchResult($0) }
+        snapshot.appendItems(items, toSection: .searchResult)
+        
+        dataSource.apply(snapshot, animatingDifferences: true)
+    }
+    
     // MARK: - Private Methods
     private func deleteRecentSearch(_ recentSearch: RecentSearch) {
         var snapshot = dataSource.snapshot()
@@ -130,7 +167,8 @@ final class SearchView: BaseView {
             showEmptySection()
         } else {
             dataSource.apply(snapshot, animatingDifferences: true)
-        }    }
+        }
+    }
     
     private func deleteAllRecentSearches() {
         var snapshot = dataSource.snapshot()
@@ -161,6 +199,8 @@ extension SearchView {
             switch section {
             case .recentSearch:
                 return self.createRecentSearchSection()
+            case .searchResult:
+                return self.createSearchResultSection()
             case .empty:
                 return self.createEmptySection()
             default:
@@ -197,12 +237,18 @@ extension SearchView {
         // Cell
         collectionView.register(RecentSearchCell.self, forCellWithReuseIdentifier: RecentSearchCell.identifier)
         collectionView.register(EmptySearchCell.self, forCellWithReuseIdentifier: EmptySearchCell.identifier)
+        collectionView.register(SearchResultCell.self, forCellWithReuseIdentifier: SearchResultCell.identifier)
         
         // HeaderView
         collectionView.register(
             RecentSearchHeaderView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: RecentSearchHeaderView.identifier
+        )
+        collectionView.register(
+            SearchResultHeaderView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: SearchResultHeaderView.identifier
         )
     }
 }
@@ -256,6 +302,41 @@ extension SearchView {
         
         let section = NSCollectionLayoutSection(group: group)
         section.contentInsets = NSDirectionalEdgeInsets(top: 100, leading: 16, bottom: 16, trailing: 16)
+        
+        return section
+    }
+
+    private func createSearchResultSection() -> NSCollectionLayoutSection {
+        // 화면 높이의 약 3.5개가 들어갈 수 있도록 계산
+        let screenHeight = UIScreen.main.bounds.height
+        let cellHeight = (screenHeight - 200) / 3.5 // 상단바 등을 고려한 대략적인 높이
+        
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .absolute(cellHeight)
+        )
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .absolute(cellHeight)
+        )
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        
+        let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 16, trailing: 16)
+        
+        // 헤더 추가
+        let headerSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .absolute(44)
+        )
+        let header = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: headerSize,
+            elementKind: UICollectionView.elementKindSectionHeader,
+            alignment: .top
+        )
+        section.boundarySupplementaryItems = [header]
         
         return section
     }

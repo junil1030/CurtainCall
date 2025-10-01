@@ -48,7 +48,7 @@ final class SearchViewModel: BaseViewModel {
             .disposed(by: disposeBag)
         
         return Output(
-            searchResults: searchResultsRelay.asDriver(),
+            searchResults: searchResultsRelay.skip(1).asDriver(onErrorJustReturn: []),
             isLoading: isLoadingRelay.asDriver(),
             error: errorRelay.asSignal()
         )
