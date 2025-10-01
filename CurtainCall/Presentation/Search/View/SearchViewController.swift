@@ -37,8 +37,13 @@ final class SearchViewController: BaseViewController {
     override func setupBind() {
         super.setupBind()
         
+        let searchKeyword = Observable.merge(
+            searchView.searchButtonTapped.compactMap { $0 },
+            searchView.searchTriggered
+        )
+        
         let input = SearchViewModel.Input(
-            searchButtonTapped: searchView.searchButtonTapped,
+            searchKeyword: searchKeyword,
             filterStateChanged: searchView.filterState,
             getCurrentKeyword: Observable.just(searchView.getCurrentKeyword())
                 .concat(searchView.filterState.map { [weak self] _ in
@@ -72,6 +77,20 @@ final class SearchViewController: BaseViewController {
             .emit(with: self) { owner, error in
                 // TODO: 에러 알럿 표시
                 print("에러: \(error.localizedDescription)")
+            }
+            .disposed(by: disposeBag)
+        
+        searchView.selectedSearchResult
+            .bind(with: self) { owner, searchResult in
+                let vm = DetailViewModel(performanceID: searchResult.id)
+                let vc = DetailViewController(viewModel: vm)
+                owner.navigationController?.pushViewController(vc, animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        searchView.selectedRecentKeyowrd
+            .bind(with: self) { owner, recentSearch in
+                owner.searchView.performSearch(with: recentSearch.keyword)
             }
             .disposed(by: disposeBag)
     }

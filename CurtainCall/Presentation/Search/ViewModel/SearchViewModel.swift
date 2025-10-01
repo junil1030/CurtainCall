@@ -24,7 +24,7 @@ final class SearchViewModel: BaseViewModel {
     
     // MARK: - Input / Output
     struct Input {
-        let searchButtonTapped: Observable<String?>
+        let searchKeyword: Observable<String>
         let filterStateChanged: Observable<FilterButtonContainer.FilterState>
         let getCurrentKeyword: Observable<String>
     }
@@ -39,8 +39,7 @@ final class SearchViewModel: BaseViewModel {
     func transform(input: Input) -> Output {
         
         // 검색 버튼 탭 처리
-        input.searchButtonTapped
-            .compactMap { $0 } // nil 제거
+        input.searchKeyword
             .withUnretained(self)
             .filter { owner, keyword in
                 return owner.isValidKeyword(keyword)

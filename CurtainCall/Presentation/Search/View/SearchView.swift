@@ -18,6 +18,9 @@ final class SearchView: BaseView {
     
     // MARK: - Subjects
     private let filterStateSubject = PublishSubject<FilterButtonContainer.FilterState>()
+    private let recentKeywordSubject = PublishSubject<RecentSearch>()
+    private let searchResultSubject = PublishSubject<SearchResult>()
+    private let searchTriggerSubject = PublishSubject<String>()
     
     // MARK: - UI Components
     private let searchBar: UISearchBar = {
@@ -116,8 +119,20 @@ final class SearchView: BaseView {
             .map { [weak searchBar] in searchBar?.text }
     }
     
+    var searchTriggered: Observable<String> {
+        return searchTriggerSubject.asObservable()
+    }
+    
     var filterState: Observable<FilterButtonContainer.FilterState> {
         return filterStateSubject.asObservable()
+    }
+    
+    var selectedRecentKeyowrd: Observable<RecentSearch> {
+        return recentKeywordSubject.asObservable()
+    }
+    
+    var selectedSearchResult: Observable<SearchResult> {
+        return searchResultSubject.asObservable()
     }
 
     // MARK: - BaseView Override Emthods
@@ -144,7 +159,12 @@ final class SearchView: BaseView {
         
         backgroundColor = .ccBackground
         setupCollectionView()
+        setupCollectionViewDelegate()
         applyInitialSnapshot()
+    }
+    
+    private func setupCollectionViewDelegate() {
+        collectionView.delegate = self
     }
     
     // MARK: - Public Methods
@@ -173,11 +193,16 @@ final class SearchView: BaseView {
             // 스냅샷 적용 후 헤더 뷰 업데이트
             self?.updateSearchResultHeader(keyword: keyword, count: results.count)
         }
-
     }
     
     func getCurrentKeyword() -> String {
         return searchBar.text ?? ""
+    }
+    
+    func performSearch(with keyword: String) {
+        searchBar.text = keyword
+        searchBar.resignFirstResponder()
+        searchTriggerSubject.onNext(keyword)
     }
     
     // MARK: - Private Methods
@@ -421,5 +446,18 @@ extension SearchView {
         snapshot.appendItems(items, toSection: .recentSearch)
         
         dataSource.apply(snapshot, animatingDifferences: false)
+    }
+}
+
+extension SearchView: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        guard let item = dataSource.itemIdentifier(for: indexPath) else { return }
+        
+        if case .recentSearch(let recentSearch) = item {
+            recentKeywordSubject.onNext(recentSearch)
+        } else if case .searchResult(let searchResult) = item {
+            searchResultSubject.onNext(searchResult)
+        }
     }
 }
