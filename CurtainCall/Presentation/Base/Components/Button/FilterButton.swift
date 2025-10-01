@@ -195,7 +195,14 @@ final class FilterButton: UIButton {
     private func handleDatePickerAction() {
         guard let parentView = findParentViewController()?.view else { return }
         
-        let datePickerView = DatePickerView(initialDate: Date().yesterday)
+        let allowFuture: Bool
+        if case .datePicker(let allowFutureValue) = filterButtonType {
+            allowFuture = allowFutureValue
+        } else {
+            allowFuture = false
+        }
+        
+        let datePickerView = DatePickerView(initialDate: Date().yesterday, allowFuture: allowFuture)
         currentDatePicker = datePickerView
         
         // 날짜 선택 처리

@@ -14,6 +14,7 @@ final class DatePickerView: UIView {
     
     // MARK: - Properties
     private let disposeBag = DisposeBag()
+    private let allowFuture: Bool
     
     // MARK: - UI Components
     private let containerView: UIView = {
@@ -43,11 +44,13 @@ final class DatePickerView: UIView {
         picker.locale = Locale(identifier: "ko_KR")
         picker.timeZone = TimeZone(identifier: "Asia/Seoul")
         
-        // 최대 날짜 설정 (오후 12시 기준)
-        let now = Date()
-        let currentHour = Calendar.current.component(.hour, from: now)
-        let maxDate = currentHour >= 12 ? now : now.daysBefore(1)
-        picker.maximumDate = maxDate
+        // allowFuture에 따라 최대 날짜 설정
+        if !allowFuture {
+            let now = Date()
+            let currentHour = Calendar.current.component(.hour, from: now)
+            let maxDate = currentHour >= 12 ? now : now.daysBefore(1)
+            picker.maximumDate = maxDate
+        }
         
         return picker
     }()
@@ -61,7 +64,8 @@ final class DatePickerView: UIView {
     }
     
     // MARK: - Init
-    init(initialDate: Date = Date().yesterday) {
+    init(initialDate: Date = Date().yesterday, allowFuture: Bool = false) {
+        self.allowFuture = allowFuture
         super.init(frame: .zero)
         
         datePicker.date = initialDate
