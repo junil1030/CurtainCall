@@ -30,7 +30,7 @@ final class DetailPosterCell: BaseCollectionViewCell {
     
     private let posterImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.backgroundColor = .systemGray6
         return imageView
@@ -50,6 +50,9 @@ final class DetailPosterCell: BaseCollectionViewCell {
         disposeBag = DisposeBag()
         posterImageView.image = nil
         isExpanded = false
+        posterImageView.snp.updateConstraints { make in
+            make.height.equalTo(collapsedHeight)
+        }
     }
     
     override func setupHierarchy() {
@@ -66,7 +69,8 @@ final class DetailPosterCell: BaseCollectionViewCell {
         super.setupLayout()
         
         containerView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.top.leading.trailing.equalToSuperview()
+            make.bottom.lessThanOrEqualToSuperview()
         }
         
         titleLabel.snp.makeConstraints { make in
@@ -94,7 +98,17 @@ final class DetailPosterCell: BaseCollectionViewCell {
                 switch result {
                 case .success(let value):
                     let screenWidth = UIScreen.main.bounds.width - 40
-                    self.imageHeight = value.image.size.height * screenWidth / value.image.size.width
+                    let calculatedHeight = value.image.size.height * screenWidth / value.image.size.width
+                    self.imageHeight = calculatedHeight
+                    
+                    // expanded 상태라면 로드 직후 반영
+                    if self.isExpanded {
+                        self.posterImageView.snp.updateConstraints { make in
+                            make.height.equalTo(self.imageHeight)
+                        }
+                        self.superview?.layoutIfNeeded()
+                    }
+                    
                 case .failure:
                     break
                 }
@@ -113,8 +127,15 @@ final class DetailPosterCell: BaseCollectionViewCell {
         }
         
         UIView.animate(withDuration: 0.3) { [weak self] in
-            self?.toggleButton.setTitle(buttonTitle, for: .normal)
-            self?.contentView.layoutIfNeeded()
+            guard let self = self else { return }
+            self.toggleButton.setTitle(buttonTitle, for: .normal)
+            self.contentView.setNeedsLayout()
+            self.superview?.layoutIfNeeded()
+        }
+        
+        if let collectionView = self.superview as? UICollectionView {
+            collectionView.performBatchUpdates(nil)
+            collectionView.collectionViewLayout.invalidateLayout()
         }
     }
 }

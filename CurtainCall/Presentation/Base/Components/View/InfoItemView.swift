@@ -30,7 +30,7 @@ final class InfoItemView: BaseView {
         let stack = UIStackView()
         stack.axis = .horizontal
         stack.spacing = 12
-        stack.alignment = .center
+        stack.alignment = .top
         stack.distribution = .fill
         return stack
     }()

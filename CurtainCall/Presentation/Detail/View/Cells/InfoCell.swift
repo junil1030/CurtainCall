@@ -23,6 +23,7 @@ final class InfoCell: BaseCollectionViewCell {
         
         infoItemView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
+            make.bottom.lessThanOrEqualToSuperview()
         }
     }
     
