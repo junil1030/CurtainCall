@@ -72,7 +72,7 @@ final class MainTabBarController: UITabBarController {
     }
     
     private func createMoreViewController() -> UINavigationController {
-        let vc = UIViewController()
+        let vc = MoreViewController()
         
         let nav = UINavigationController(rootViewController: vc)
         nav.tabBarItem = UITabBarItem(
