@@ -16,6 +16,9 @@ final class SearchView: BaseView {
     private let disposebag = DisposeBag()
     private var currentKeyword: String = ""
     
+    // MARK: - Subjects
+    private let filterStateSubject = PublishSubject<FilterButtonContainer.FilterState>()
+    
     // MARK: - UI Components
     private let searchBar: UISearchBar = {
        let searchBar = UISearchBar()
@@ -50,6 +53,13 @@ final class SearchView: BaseView {
                     
                     return cell
                     
+                case .filter:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchFilterButtonCell.identifier, for: indexPath) as! SearchFilterButtonCell
+                    cell.filterState
+                        .bind(to: self.filterStateSubject)
+                        .disposed(by: cell.disposeBag)
+                    return cell
+                    
                 case .searchResult(let searchResult):
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.identifier, for: indexPath) as! SearchResultCell
                     cell.configure(with: searchResult)
@@ -59,8 +69,8 @@ final class SearchView: BaseView {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EmptySearchCell.identifier, for: indexPath) as! EmptySearchCell
                     return cell
                     
-                default:
-                    return UICollectionViewCell()
+//                default:
+//                    return UICollectionViewCell()
                 }
             }
         
@@ -105,6 +115,10 @@ final class SearchView: BaseView {
         return searchBar.rx.searchButtonClicked
             .map { [weak searchBar] in searchBar?.text }
     }
+    
+    var filterState: Observable<FilterButtonContainer.FilterState> {
+        return filterStateSubject.asObservable()
+    }
 
     // MARK: - BaseView Override Emthods
     override func setupHierarchy() {
@@ -134,8 +148,8 @@ final class SearchView: BaseView {
     }
     
     // MARK: - Public Methods
-    func updateSearchResults(results: [SearchResult]) {
-        currentKeyword = searchBar.text ?? ""
+    func updateSearchResults(results: [SearchResult], keyword: String) {
+        currentKeyword = keyword
         
         var snapshot = NSDiffableDataSourceSnapshot<SearchSection, SearchItem>()
         
@@ -146,12 +160,24 @@ final class SearchView: BaseView {
             dataSource.apply(currentSnapshot, animatingDifferences: false)
         }
         
+        // 필터 섹션 추가
+        snapshot.appendSections([.filter])
+        snapshot.appendItems([.filter], toSection: .filter)
+        
         // 검색 결과 섹션 추가
         snapshot.appendSections([.searchResult])
         let items = results.map { SearchItem.searchResult($0) }
         snapshot.appendItems(items, toSection: .searchResult)
         
-        dataSource.apply(snapshot, animatingDifferences: true)
+        dataSource.apply(snapshot, animatingDifferences: true) { [weak self] in
+            // 스냅샷 적용 후 헤더 뷰 업데이트
+            self?.updateSearchResultHeader(keyword: keyword, count: results.count)
+        }
+
+    }
+    
+    func getCurrentKeyword() -> String {
+        return searchBar.text ?? ""
     }
     
     // MARK: - Private Methods
@@ -185,6 +211,19 @@ final class SearchView: BaseView {
         snapshot.appendItems([.empty], toSection: .empty)
         dataSource.apply(snapshot, animatingDifferences: true)
     }
+    
+    private func updateSearchResultHeader(keyword: String, count: Int) {
+        // 검색 결과 섹션의 인덱스 찾기
+        guard let sectionIndex = dataSource.snapshot().indexOfSection(.searchResult),
+              let headerView = collectionView.supplementaryView(
+                forElementKind: UICollectionView.elementKindSectionHeader,
+                at: IndexPath(item: 0, section: sectionIndex)
+              ) as? SearchResultHeaderView else {
+            return
+        }
+        
+        headerView.configure(keyword: keyword, count: count)
+    }
 }
 
 // MARK: -  Base Layout & Base SnapShot
@@ -199,12 +238,14 @@ extension SearchView {
             switch section {
             case .recentSearch:
                 return self.createRecentSearchSection()
+            case .filter:
+                return self.createFilterSection()
             case .searchResult:
                 return self.createSearchResultSection()
             case .empty:
                 return self.createEmptySection()
-            default:
-                return self.createDefaultSection()
+//            default:
+//                return self.createDefaultSection()
             }
         }
         return layout
@@ -238,6 +279,7 @@ extension SearchView {
         collectionView.register(RecentSearchCell.self, forCellWithReuseIdentifier: RecentSearchCell.identifier)
         collectionView.register(EmptySearchCell.self, forCellWithReuseIdentifier: EmptySearchCell.identifier)
         collectionView.register(SearchResultCell.self, forCellWithReuseIdentifier: SearchResultCell.identifier)
+        collectionView.register(SearchFilterButtonCell.self, forCellWithReuseIdentifier: SearchFilterButtonCell.identifier)
         
         // HeaderView
         collectionView.register(
@@ -286,6 +328,26 @@ extension SearchView {
         
         return section
     }
+    
+    private func createFilterSection() -> NSCollectionLayoutSection {
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .absolute(100)
+        )
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .absolute(100)
+        )
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        
+        let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 0)
+        
+        return section
+    }
+
     
     private func createEmptySection() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(

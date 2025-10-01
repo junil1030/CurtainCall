@@ -16,13 +16,17 @@ final class SearchViewModel: BaseViewModel {
     private let currentPage = BehaviorRelay<Int>(value: 1)
     
     // MARK: - Streams
-    private let searchResultsRelay = BehaviorRelay<[SearchResult]>(value: [])
+    private let searchResultsRelay = PublishRelay<[SearchResult]>()
     private let isLoadingRelay = BehaviorRelay<Bool>(value: false)
     private let errorRelay = PublishRelay<NetworkError>()
+    private let currentKeywordRelay = BehaviorRelay<String>(value: "")
+    private let currentFilterStateRelay = BehaviorRelay<FilterButtonContainer.FilterState>(value: FilterButtonContainer.FilterState())
     
     // MARK: - Input / Output
     struct Input {
         let searchButtonTapped: Observable<String?>
+        let filterStateChanged: Observable<FilterButtonContainer.FilterState>
+        let getCurrentKeyword: Observable<String>
     }
     
     struct Output {
@@ -37,18 +41,37 @@ final class SearchViewModel: BaseViewModel {
         // 검색 버튼 탭 처리
         input.searchButtonTapped
             .compactMap { $0 } // nil 제거
-            .filter { [weak self] keyword in
-                self?.isValidKeyword(keyword) ?? false
-            }
             .withUnretained(self)
-            .subscribe(onNext: { owner, keyword in
-                owner.currentPage.accept(1) // 새 검색 시 페이지 초기화
-                owner.performSearch(keyword: keyword, page: 1)
-            })
+            .filter { owner, keyword in
+                return owner.isValidKeyword(keyword)
+            }
+            .bind { owner, keyword in
+                owner.currentKeywordRelay.accept(keyword)
+                owner.currentPage.accept(1)
+                let filterState = owner.currentFilterStateRelay.value
+                owner.performSearch(keyword: keyword, filterState: filterState, page: 1)
+            }
             .disposed(by: disposeBag)
         
+        input.filterStateChanged
+            .skip(1) // 초기값 스킵
+            .withLatestFrom(input.getCurrentKeyword) { ($0, $1) }
+            .withUnretained(self)
+            .filter { owner, data in
+                let (_, keyword) = data
+                return owner.isValidKeyword(keyword)
+            }
+            .bind { owner, data in
+                let (filterState, keyword) = data
+                owner.currentFilterStateRelay.accept(filterState)
+                owner.currentPage.accept(1)
+                owner.performSearch(keyword: keyword, filterState: filterState, page: 1)
+            }
+            .disposed(by: disposeBag)
+
+        
         return Output(
-            searchResults: searchResultsRelay.skip(1).asDriver(onErrorJustReturn: []),
+            searchResults: searchResultsRelay.asDriver(onErrorJustReturn: []),
             isLoading: isLoadingRelay.asDriver(),
             error: errorRelay.asSignal()
         )
@@ -63,17 +86,11 @@ final class SearchViewModel: BaseViewModel {
     }
     
     /// 검색 수행
-    private func performSearch(keyword: String, page: Int) {
+    private func performSearch(keyword: String, filterState: FilterButtonContainer.FilterState, page: Int) {
         isLoadingRelay.accept(true)
         
-        // 날짜 범위 설정 (현재 날짜 기준 ±1년)
-        let today = Date()
-        let calendar = Calendar.current
-        let startDate = calendar.date(byAdding: .year, value: -1, to: today) ?? today
-        let endDate = calendar.date(byAdding: .year, value: 1, to: today) ?? today
-        
-        let startDateString = startDate.toKopisAPIFormatt
-        let endDateString = endDate.toKopisAPIFormatt
+        let startDateString = filterState.startDate
+        let endDateString = filterState.endDate
         let pageString = String(page)
         
         CustomObservable.request(
@@ -100,5 +117,4 @@ final class SearchViewModel: BaseViewModel {
             owner.searchResultsRelay.accept([])
         }
         .disposed(by: disposeBag)
-    }
-}
+    }}

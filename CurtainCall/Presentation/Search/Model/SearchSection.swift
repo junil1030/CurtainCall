@@ -12,7 +12,7 @@ enum SearchSection: Int, CaseIterable {
     case searchResult
     case filter
     case empty
-    case noResult
+//    case noResult
 }
 
 enum SearchItem: Hashable {
@@ -20,5 +20,5 @@ enum SearchItem: Hashable {
     case searchResult(SearchResult)
     case filter
     case empty
-    case noResult
+//    case noResult
 }

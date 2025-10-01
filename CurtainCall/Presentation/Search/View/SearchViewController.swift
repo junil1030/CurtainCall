@@ -38,7 +38,13 @@ final class SearchViewController: BaseViewController {
         super.setupBind()
         
         let input = SearchViewModel.Input(
-            searchButtonTapped: searchView.searchButtonTapped
+            searchButtonTapped: searchView.searchButtonTapped,
+            filterStateChanged: searchView.filterState,
+            getCurrentKeyword: Observable.just(searchView.getCurrentKeyword())
+                .concat(searchView.filterState.map { [weak self] _ in
+                    self?.searchView.getCurrentKeyword() ?? ""
+                })
+
         )
         
         let output = viewModel.transform(input: input)
@@ -48,7 +54,8 @@ final class SearchViewController: BaseViewController {
             .drive(with: self) { owner, results in
                 // TODO: 검색 결과로 콜렉션뷰 업데이트
                 print("검색 결과: \(results.count)개")
-                owner.searchView.updateSearchResults(results: results)
+                let keyword = owner.searchView.getCurrentKeyword()
+                owner.searchView.updateSearchResults(results: results, keyword: keyword)
             }
             .disposed(by: disposeBag)
         
