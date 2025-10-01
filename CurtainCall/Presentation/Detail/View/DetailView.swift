@@ -176,8 +176,21 @@ final class DetailView: BaseView {
         
         // 정보 섹션 (날짜, 장소, 캐스트)
         snapshot.appendSections([.info])
-        let dateInfo = InfoData(symbol: "calendar", text: "\(detail.startDate) ~ \(detail.endDate)")
-        let locationInfo = InfoData(symbol: "map", text: "\(detail.area) > \(detail.location)")
+        let dateInfo: InfoData
+        let locationInfo: InfoData
+        
+        if let startDate = detail.startDate, let endDate = detail.endDate {
+            dateInfo = InfoData(symbol: "calendar", text: "\(startDate) ~ \(endDate)")
+        } else {
+            dateInfo = InfoData(symbol: "calendar", text: "공연 날짜에 대한 정보가 없어요")
+        }
+        
+        if let area = detail.area, let location = detail.location {
+            locationInfo = InfoData(symbol: "map", text: "\(area) > \(location)")
+        } else {
+            locationInfo = InfoData(symbol: "map", text: "장소에 대한 정보가 없어요")
+        }
+        
         let castInfo = InfoData(symbol: "person.3", text: detail.castText)
         snapshot.appendItems([.info(dateInfo), .info(locationInfo), .info(castInfo)], toSection: .info)
         

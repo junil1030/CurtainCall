@@ -21,13 +21,13 @@ struct PerformanceDetailDatabaseDTO: ParselyType {
 struct PerformanceDetailDTO: ParselyType {
     let mt20id: String          // 공연ID
     let prfnm: String           // 공연명
-    let prfpdfrom: String       // 공연시작일
-    let prfpdto: String         // 공연종료일
-    let fcltynm: String         // 공연장명
+    let prfpdfrom: String?       // 공연시작일
+    let prfpdto: String?         // 공연종료일
+    let fcltynm: String?         // 공연장명
     let prfcast: String?         // 공연출연진
-    let prfcrew: String         // 공연제작진
-    let prfruntime: String      // 공연런타임
-    let prfage: String          // 관람연령
+    let prfcrew: String?         // 공연제작진
+    let prfruntime: String?      // 공연런타임
+    let prfage: String?          // 관람연령
     let entrpsnm: String?        // 제작사
     let entrpsnmP: String?       // 기획제작사
     let entrpsnmA: String?       // 주최
@@ -36,7 +36,7 @@ struct PerformanceDetailDTO: ParselyType {
     let pcseguidance: String?    // 티켓가격
     let poster: String?          // 포스터 이미지
     let sty: String?             // 줄거리
-    let area: String            // 지역
+    let area: String?            // 지역
     let genrenm: String?         // 장르
     let openrun: String?         // 오픈런 여부 (Y/N)
     let visit: String?           // 방문여부 (Y/N)

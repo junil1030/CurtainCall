@@ -17,7 +17,7 @@ struct PerformanceDetailMapper {
         // MARK: - 변경 필요
         let detailPosterURL = dto.styurls?.styurl ?? []
         
-        let castString = dto.prfcast ?? ""
+        let castString = dto.prfcast ?? "출연진에 대한 정보가 없어요"
         let castArray = castString.split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
@@ -28,7 +28,7 @@ struct PerformanceDetailMapper {
             startDate: dto.prfpdfrom,
             endDate: dto.prfpdto,
             area: dto.area,
-            location: dto.fcltynm,
+            location: dto.fcltynm ,
             posterURL: dto.poster ?? "",
             detailPosterURL: detailPosterURL,
             cast: castArray,
