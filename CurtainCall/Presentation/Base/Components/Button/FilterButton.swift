@@ -31,8 +31,8 @@ final class FilterButton: UIButton {
     
     // MARK: - Properties
     private let filterButtonType: ButtonType
-    private var currentDatePicker: DatePickerView?
     private let disposeBag = DisposeBag()
+    private var currentSelectedDate: Date = Date().yesterday
     
     // MARK: - UIComponents
     private let title: UILabel = {
@@ -193,7 +193,7 @@ final class FilterButton: UIButton {
     }
     
     private func handleDatePickerAction() {
-        guard let parentView = findParentViewController()?.view else { return }
+        guard let parentViewController = findParentViewController() else { return }
         
         let allowFuture: Bool
         if case .datePicker(let allowFutureValue) = filterButtonType {
@@ -202,29 +202,28 @@ final class FilterButton: UIButton {
             allowFuture = false
         }
         
-        let datePickerView = DatePickerView(initialDate: Date().yesterday, allowFuture: allowFuture)
-        currentDatePicker = datePickerView
+        let datePickerVC = CustomDatePickerView(initialDate: currentSelectedDate, allowFuture: allowFuture)
         
-        // 날짜 선택 처리
-        datePickerView.selectedDate
-            .subscribe(with: self) { owner, selectedDate in
-                owner.handleDateSelection(selectedDate)
+        datePickerVC.selectedDate
+            .bind(with: self) { owner, date in
+                owner.currentSelectedDate = date
+                owner.handleDateSelection(date)
             }
             .disposed(by: disposeBag)
-        datePickerView.show(in: parentView)
+        
+        // Modal로 표시
+        if let sheet = datePickerVC.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+        }
+        
+        parentViewController.present(datePickerVC, animated: true)
     }
     
     private func handleDateSelection(_ date: Date) {
         selectedValueRelay.accept(date)
-        hideDatePicker()
     }
-
-    private func hideDatePicker() {
-        currentDatePicker?.hide { [weak self] in
-            self?.currentDatePicker = nil
-        }
-    }
-
+    
     private func findParentViewController() -> UIViewController? {
         var responder: UIResponder? = self
         while let nextResponder = responder?.next {
