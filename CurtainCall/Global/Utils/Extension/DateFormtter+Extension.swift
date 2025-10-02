@@ -9,10 +9,33 @@ import Foundation
 
 extension DateFormatter {
     
-    // MARK: - Static Formatters
-    static let kopisAPIFormat: DateFormatter = {
+    // MARK: - Shared Instance
+    static let shared: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd"
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
         return formatter
     }()
+    
+    enum FormatType {
+        case kopisAPI           // yyyyMMdd
+        case dateWithWeekday    // yyyy.MM.dd(E)
+        case time24Hour         // HH:mm
+        
+        var pattern: String {
+            switch self {
+            case .kopisAPI:
+                return "yyyyMMdd"
+            case .dateWithWeekday:
+                return "yyyy.MM.dd(E)"
+            case .time24Hour:
+                return "HH:mm"
+            }
+        }
+    }
+    
+    static func string(from date: Date, format: FormatType) -> String {
+        shared.dateFormat = format.pattern
+        return shared.string(from: date)
+    }
 }

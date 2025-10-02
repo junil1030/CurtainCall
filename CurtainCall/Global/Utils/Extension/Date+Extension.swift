@@ -9,7 +9,15 @@ import Foundation
 
 extension Date {
     var toKopisAPIFormatt: String {
-        return DateFormatter.kopisAPIFormat.string(from: self)
+        return DateFormatter.string(from: self, format: .kopisAPI)
+    }
+    
+    var toDateWithWeekday: String {
+        return DateFormatter.string(from: self, format: .dateWithWeekday)
+    }
+    
+    var toTime24Hour: String {
+        return DateFormatter.string(from: self, format: .time24Hour)
     }
     
     // MARK: - 날짜 계산
