@@ -17,6 +17,7 @@ final class FilterButton: UIButton {
         case reset
         case dropdown(items: [DropdownItem])
         case datePicker(allowFuture: Bool = false)
+        case timePicker
     }
     
     struct DropdownItem {
@@ -137,9 +138,7 @@ final class FilterButton: UIButton {
         switch filterButtonType {
         case .reset:
             iconImageView.image = UIImage(systemName: "arrow.trianglehead.clockwise.rotate.90")
-        case .dropdown:
-            iconImageView.image = UIImage(systemName: "chevron.down")
-        case .datePicker:
+        case .dropdown, .datePicker, .timePicker:
             iconImageView.image = UIImage(systemName: "chevron.down")
         }
     }
@@ -160,6 +159,13 @@ final class FilterButton: UIButton {
             rx.tap
                 .subscribe(with: self) { owner, _ in
                     owner.handleDatePickerAction()
+                }
+                .disposed(by: disposeBag)
+            
+        case .timePicker:
+            rx.tap
+                .subscribe(with: self) { owner, _ in
+                    owner.handleTimePickerAction()
                 }
                 .disposed(by: disposeBag)
         }
@@ -222,6 +228,26 @@ final class FilterButton: UIButton {
     
     private func handleDateSelection(_ date: Date) {
         selectedValueRelay.accept(date)
+    }
+    
+    private func handleTimePickerAction() {
+        guard let parentViewController = findParentViewController() else { return }
+        
+        let timePickerVC = CustomTimePickerView(initialDate: Date())
+        
+        timePickerVC.selectedTime
+            .bind(with: self) { owner, time in
+                owner.currentSelectedDate = time
+                owner.handleDateSelection(time)
+            }
+            .disposed(by: disposeBag)
+        
+        if let sheet = timePickerVC.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+        }
+        
+        parentViewController.present(timePickerVC, animated: true)
     }
     
     private func findParentViewController() -> UIViewController? {
