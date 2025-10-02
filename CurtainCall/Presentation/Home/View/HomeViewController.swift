@@ -90,8 +90,8 @@ final class HomeViewController: BaseViewController {
         
         favoriteButton.rx.tap
             .bind(with: self) { owner, _ in
-                // 찜 목록 화면 진입
-                print("찜 목록 화면 진입")
+                let vc = FavoriteViewController()
+                owner.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
     }
