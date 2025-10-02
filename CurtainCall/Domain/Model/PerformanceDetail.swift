@@ -14,6 +14,7 @@ struct PerformanceDetail {
     let endDate: String?
     let area: String?
     let location: String?
+    let genre: String?              // 장르 추가
     let posterURL: String
     let detailPosterURL: [String]
     let cast: [String]

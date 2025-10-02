@@ -28,7 +28,8 @@ struct PerformanceDetailMapper {
             startDate: dto.prfpdfrom,
             endDate: dto.prfpdto,
             area: dto.area,
-            location: dto.fcltynm ,
+            location: dto.fcltynm,
+            genre: dto.genrenm,         // 장르 매핑 추가
             posterURL: dto.poster ?? "",
             detailPosterURL: detailPosterURL,
             cast: castArray,

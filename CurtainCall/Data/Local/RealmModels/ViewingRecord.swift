@@ -14,6 +14,7 @@ class ViewingRecord: Object {
     @Persisted var title: String                              // 공연명
     @Persisted var posterURL: String                          // 포스터 URL
     @Persisted var location: String                           // 공연장
+    @Persisted var genre: String                              // 장르 (GenreCode의 rawValue 저장)
     @Persisted var viewingDate: Date                          // 관람한 날짜
     @Persisted var rating: Int = 0                            // 별점 (0~5, 0은 미평가)
     @Persisted var seat: String = ""                          // 좌석 정보
@@ -22,18 +23,14 @@ class ViewingRecord: Object {
     @Persisted var createdAt: Date                            // 기록 생성일
     @Persisted var updatedAt: Date                            // 기록 수정일
     
-    convenience init(
-        performanceId: String,
-        title: String,
-        posterURL: String,
-        location: String,
-        viewingDate: Date
-    ) {
+    // PerformanceDetail에서 생성하는 헬퍼
+    convenience init(from detail: PerformanceDetail, viewingDate: Date) {
         self.init()
-        self.performanceId = performanceId
-        self.title = title
-        self.posterURL = posterURL
-        self.location = location
+        self.performanceId = detail.id
+        self.title = detail.title
+        self.posterURL = detail.posterURL
+        self.location = detail.location ?? "정보없음"
+        self.genre = detail.genre ?? "정보없음"
         self.viewingDate = viewingDate
         self.createdAt = Date()
         self.updatedAt = Date()

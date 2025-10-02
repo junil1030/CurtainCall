@@ -29,7 +29,14 @@ final class NetworkManager {
         #endif
         
         do {
-            let response = try await AF.request(url, method: router.method, parameters: router.params, headers: router.header)
+            // Session 설정 개선
+            let configuration = URLSessionConfiguration.default
+            configuration.timeoutIntervalForRequest = 30
+            configuration.timeoutIntervalForResource = 60
+            
+            let session = Session(configuration: configuration)
+            
+            let response = try await session.request(url, method: router.method, parameters: router.params, headers: router.header)
                 .validate(statusCode: 200..<300)
                 .serializingString(encoding: .utf8)
                 .value
