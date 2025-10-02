@@ -20,10 +20,11 @@ final class MainTabBarController: UITabBarController {
         tabBar.backgroundColor = .white
         tabBar.tintColor = .ccTabSelected
         tabBar.unselectedItemTintColor = .ccTabUnselected
+        tabBar.backgroundImage = UIImage()
         
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .ccBackground
+        appearance.backgroundColor = .clear
         
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
             .font: UIFont.ccFootnote

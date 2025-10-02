@@ -23,7 +23,7 @@ class BaseViewController: UIViewController {
     
     func setupStyle() {
         navigationController?.navigationBar.tintColor = .ccNavigationTint
-        navigationController?.navigationBar.backgroundColor = .ccBackground
+        navigationController?.navigationBar.backgroundColor = .clear
     }
     
     func setupBind() {}
