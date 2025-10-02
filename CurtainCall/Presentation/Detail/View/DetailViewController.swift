@@ -96,6 +96,14 @@ final class DetailViewController: BaseViewController {
             }
             .disposed(by: disposeBag)
         
+        output.pushRecord
+            .emit(with: self) { owner, detail in
+                let vm = WatchRecordViewModel(performanceDetail: detail)
+                let vc = WatchRecordViewController(viewModel: vm)
+                owner.navigationController?.pushViewController(vc, animated: true)
+            }
+            .disposed(by: disposeBag)
+        
         // 에러 처리
         output.error
             .emit(with: self) { owner, error in

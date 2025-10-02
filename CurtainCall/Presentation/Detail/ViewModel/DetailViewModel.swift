@@ -14,12 +14,14 @@ final class DetailViewModel: BaseViewModel {
     // MARK: - Properties
     private let performanceID: String
     private let disposeBag = DisposeBag()
+    private var performanceDetail: PerformanceDetail?
     
     // MARK: - Streams
     private let performanceDetailRelay = BehaviorRelay<PerformanceDetail?>(value: nil)
     private let isFavoriteRelay = BehaviorRelay<Bool>(value: false)
     private let isLoadingRelay = BehaviorRelay<Bool>(value: false)
     private let openSafariRelay = PublishRelay<URL>()
+    private let pushRecordRelay = PublishRelay<PerformanceDetail>()
     private let errorRelay = PublishRelay<NetworkError>()
     
     // MARK: - Input / Output
@@ -34,6 +36,7 @@ final class DetailViewModel: BaseViewModel {
         let isFavorite: Driver<Bool>
         let isLoading: Driver<Bool>
         let openSafari: Signal<URL>
+        let pushRecord: Signal<PerformanceDetail>
         let error: Signal<NetworkError>
     }
     
@@ -60,8 +63,8 @@ final class DetailViewModel: BaseViewModel {
         input.recordButtonTapped
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
-                print("기록하기 버튼 클릭: \(owner.performanceID)")
-                // TODO: 기록하기 화면으로 이동
+                guard let detail = owner.performanceDetail else { return }
+                owner.pushRecordRelay.accept(detail)
             })
             .disposed(by: disposeBag)
         
@@ -80,6 +83,7 @@ final class DetailViewModel: BaseViewModel {
             isFavorite: isFavoriteRelay.asDriver(),
             isLoading: isLoadingRelay.asDriver(),
             openSafari: openSafariRelay.asSignal(),
+            pushRecord: pushRecordRelay.asSignal(),
             error: errorRelay.asSignal()
         )
     }
@@ -93,8 +97,8 @@ final class DetailViewModel: BaseViewModel {
             owner.isLoadingRelay.accept(false)
             
             let detailDTO = response.dbs.db
-            let performanceDetail = PerformanceDetailMapper.map(from: detailDTO)
-            owner.performanceDetailRelay.accept(performanceDetail)
+            owner.performanceDetail = PerformanceDetailMapper.map(from: detailDTO)
+            owner.performanceDetailRelay.accept(owner.performanceDetail)
             
         } onFailure: { owner, error in
             owner.isLoadingRelay.accept(false)
