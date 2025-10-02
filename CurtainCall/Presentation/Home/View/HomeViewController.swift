@@ -24,6 +24,13 @@ final class HomeViewController: BaseViewController {
         action: nil
     )
     
+    private let favoriteButton = UIBarButtonItem(
+        image: UIImage(systemName: "heart"),
+        style: .plain,
+        target: nil,
+        action: nil
+    )
+    
     override func loadView() {
         super.loadView()
         
@@ -67,7 +74,7 @@ final class HomeViewController: BaseViewController {
             .disposed(by: disposeBag)
         
         homeView.selectedCard
-            .subscribe(with: self) { owner, cardItem in
+            .bind(with: self) { owner, cardItem in
                 let vm = DetailViewModel(performanceID: cardItem.id)
                 let vc = DetailViewController(viewModel: vm)
                 owner.navigationController?.pushViewController(vc, animated: true)
@@ -75,9 +82,16 @@ final class HomeViewController: BaseViewController {
             .disposed(by: disposeBag)
         
         searchButton.rx.tap
-            .subscribe(with: self) { owner, _ in
+            .bind(with: self) { owner, _ in
                 let vc = SearchViewController()
                 owner.navigationController?.pushViewController(vc, animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        favoriteButton.rx.tap
+            .bind(with: self) { owner, _ in
+                // 찜 목록 화면 진입
+                print("찜 목록 화면 진입")
             }
             .disposed(by: disposeBag)
     }
@@ -93,6 +107,7 @@ final class HomeViewController: BaseViewController {
         navigationItem.leftBarButtonItem = leftBarButtonItem
         
         searchButton.tintColor = .ccPrimary
-        navigationItem.rightBarButtonItem = searchButton
+        favoriteButton.tintColor = .ccPrimary
+        navigationItem.rightBarButtonItems = [searchButton, favoriteButton]
     }
 }
