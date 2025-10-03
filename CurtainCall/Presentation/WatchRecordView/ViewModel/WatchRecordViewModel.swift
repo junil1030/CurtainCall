@@ -16,8 +16,8 @@ final class WatchRecordViewModel: BaseViewModel {
     private let performanceDetail: PerformanceDetail
     
     // MARK: - Streams
-    private let viewingDateRelay = PublishRelay<Date>()
-    private let viewingTimeRelay = PublishRelay<Date>()
+    private let viewingDateRelay = BehaviorRelay<Date>(value: Date())
+    private let viewingTimeRelay = BehaviorRelay<Date>(value: Date())
     private let companionRelay = PublishRelay<String>()
     private let seatRelay = PublishRelay<String>()
     private let ratingRelay = PublishRelay<Int>()

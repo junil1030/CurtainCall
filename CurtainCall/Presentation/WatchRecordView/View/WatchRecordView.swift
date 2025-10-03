@@ -113,23 +113,19 @@ final class WatchRecordView: BaseView {
                 
                 // 이벤트 바인딩
                 cell.dateButtonTapped
-                    .bind(with: self) { owner, date in
-                        owner.dateButtonTappedSubject.onNext(date)
-                    }
-                    .disposed(by: disposeBag)
+                    .bind(to: dateButtonTappedSubject)
+                    .disposed(by: cell.disposeBag)
                 
                 cell.timeButtonTapped
-                    .bind(with: self) { owner, date in
-                        owner.dateButtonTappedSubject.onNext(date)
-                    }
-                    .disposed(by: disposeBag)
+                    .bind(to: timeButtonTappedSubject)
+                    .disposed(by: cell.disposeBag)
                 
                 cell.companionSelected
-                    .bind(to: self.companionSelectedSubject)
+                    .bind(to: companionSelectedSubject)
                     .disposed(by: cell.disposeBag)
                 
                 cell.seatTextChanged
-                    .bind(to: self.seatTextChangedSubject)
+                    .bind(to: seatTextChangedSubject)
                     .disposed(by: cell.disposeBag)
                 
                 return cell
@@ -139,11 +135,11 @@ final class WatchRecordView: BaseView {
                 
                 // 이벤트 바인딩
                 cell.ratingChanged
-                    .bind(to: self.ratingChangedSubject)
+                    .bind(to: ratingChangedSubject)
                     .disposed(by: cell.disposeBag)
                 
                 cell.reviewTextChanged
-                    .bind(to: self.reviewTextChangedSubject)
+                    .bind(to: reviewTextChangedSubject)
                     .disposed(by: cell.disposeBag)
                 
                 return cell
