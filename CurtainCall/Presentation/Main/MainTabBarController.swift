@@ -42,7 +42,7 @@ final class MainTabBarController: UITabBarController {
         let statisticsVC = createStatisticsViewController()
         let moreVC = createMoreViewController()
         
-        viewControllers = [homeVC, statisticsVC, moreVC]
+        viewControllers = [homeVC, statisticsVC, moreVC] 
     }
     
     private func createHomeViewController() -> UINavigationController {
@@ -59,9 +59,12 @@ final class MainTabBarController: UITabBarController {
     }
     
     private func createStatisticsViewController() -> UINavigationController {
-        let vc = UIViewController()
+        let repository = ViewingRecordRepository()
+        let fetchStatsUseCase = FetchStatsUseCase(repository: repository)
+        let viewModel = StatsViewModel(useCase: fetchStatsUseCase)
+        let statsViewController = StatsViewController(viewModel: viewModel)
         
-        let nav = UINavigationController(rootViewController: vc)
+        let nav = UINavigationController(rootViewController: statsViewController)
         nav.tabBarItem = UITabBarItem(
             title: CCStrings.Title.statisticsName,
             image: UIImage(systemName: "chart.bar"),
