@@ -10,11 +10,17 @@ import RxSwift
 import SnapKit
 import Kingfisher
 
+protocol CardCellDelegate: AnyObject {
+    func cardCell(_ cell: CardCell, didTapFavoriteButton performanceID: String)
+}
+
 final class CardCell: UICollectionViewCell {
     
     // MARK: - Properties
     static let identifier = "CardCell"
     private var disposeBag = DisposeBag()
+    weak var delegate: CardCellDelegate?
+    private var currentPerformanceID: String?
     
     // MARK: - Constants
     private let minimumTitleFontSize: CGFloat = 14
@@ -88,6 +94,7 @@ final class CardCell: UICollectionViewCell {
         }
         
         setupConstraints()
+        bindFavoriteButton()
     }
     
     private func setupConstraints() {
@@ -119,17 +126,26 @@ final class CardCell: UICollectionViewCell {
         }
     }
     
+    private func bindFavoriteButton() {
+        favoriteButton.tapEvent
+            .subscribe(with: self) { owner, _ in
+                guard let performanceID = owner.currentPerformanceID else { return }
+                owner.delegate?.cardCell(owner, didTapFavoriteButton: performanceID)
+            }
+            .disposed(by: disposeBag)
+    }
+    
     // MARK: - Configure
     func configure(with data: CardItem) {
+        currentPerformanceID = data.id
         titleLabel.text = data.title
         subtitleLabel.text = data.subtitle
         rankLabel.text = data.badge
+        favoriteButton.setFavorite(data.isFavorite)
         
         // 포스터 이미지 로드
         if let url = data.imageURL.safeImageURL {
-            posterImageView.kf.setImage(
-                with: url,
-                placeholder: UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal),
+            posterImageView.kf.setImage(with: url, placeholder: UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal),
                 options: [
                     .transition(.fade(0.3)),
                     .cacheOriginalImage
@@ -145,12 +161,10 @@ final class CardCell: UICollectionViewCell {
         } else {
             posterImageView.addBottomGradient()
         }
-        
-        // 찜하기 버튼 이벤트 (추후 구현)
-        favoriteButton.tapEvent
-            .subscribe(with: self) { owner, _ in
-                print("좋아요 버튼 클릭")
-            }
-            .disposed(by: disposeBag)
+    }
+    
+    // MARK: - Public Methods
+    func updateFavoriteStatus(_ isFavorite: Bool) {
+        favoriteButton.setFavorite(isFavorite)
     }
 }
