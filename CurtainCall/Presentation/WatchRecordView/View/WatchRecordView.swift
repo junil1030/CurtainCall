@@ -29,17 +29,24 @@ final class WatchRecordView: BaseView {
     private var performanceDetail: PerformanceDetail?
     
     // MARK: - Subjects
-    private let dateButtonTappedSubject = PublishSubject<Void>()
-    private let timeButtonTappedSubject = PublishSubject<Void>()
+    private let saveButtonTappedSubject = PublishSubject<Void>()
+    private let dateButtonTappedSubject = PublishSubject<Date>()
+    private let timeButtonTappedSubject = PublishSubject<Date>()
     private let companionSelectedSubject = PublishSubject<String>()
     private let seatTextChangedSubject = PublishSubject<String>()
+    private let ratingChangedSubject = PublishSubject<Int>()
+    private let reviewTextChangedSubject = PublishSubject<String>()
     
     // MARK: - Observables
-    var dateButtonTapped: Observable<Void> {
+    var saveButtonTapped: Observable<Void> {
+        return saveButtonTappedSubject.asObservable()
+    }
+    
+    var dateButtonTapped: Observable<Date> {
         return dateButtonTappedSubject.asObservable()
     }
     
-    var timeButtonTapped: Observable<Void> {
+    var timeButtonTapped: Observable<Date> {
         return timeButtonTappedSubject.asObservable()
     }
     
@@ -51,6 +58,14 @@ final class WatchRecordView: BaseView {
         return seatTextChangedSubject.asObservable()
     }
     
+    var ratingChanged: Observable<Int> {
+        return ratingChangedSubject.asObservable()
+    }
+    
+    var reviewTextChanged: Observable<String> {
+        return reviewTextChangedSubject.asObservable()
+    }
+    
     // MARK: - UI Components
     private lazy var collectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
@@ -58,6 +73,16 @@ final class WatchRecordView: BaseView {
         cv.showsVerticalScrollIndicator = false
         cv.keyboardDismissMode = .onDrag
         return cv
+    }()
+    
+    private let saveButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("저장하기", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .ccHeadlineBold
+        button.backgroundColor = .ccPrimary
+        button.layer.cornerRadius = 12
+        return button
     }()
     
     // MARK: - DataSource
@@ -88,12 +113,16 @@ final class WatchRecordView: BaseView {
                 
                 // 이벤트 바인딩
                 cell.dateButtonTapped
-                    .bind(to: self.dateButtonTappedSubject)
-                    .disposed(by: cell.disposeBag)
+                    .bind(with: self) { owner, date in
+                        owner.dateButtonTappedSubject.onNext(date)
+                    }
+                    .disposed(by: disposeBag)
                 
                 cell.timeButtonTapped
-                    .bind(to: self.timeButtonTappedSubject)
-                    .disposed(by: cell.disposeBag)
+                    .bind(with: self) { owner, date in
+                        owner.dateButtonTappedSubject.onNext(date)
+                    }
+                    .disposed(by: disposeBag)
                 
                 cell.companionSelected
                     .bind(to: self.companionSelectedSubject)
@@ -106,8 +135,18 @@ final class WatchRecordView: BaseView {
                 return cell
                 
             case .rating:
-                // TODO: 나중에 구현
-                return UICollectionViewCell()
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RatingReviewCell.identifier, for: indexPath) as! RatingReviewCell
+                
+                // 이벤트 바인딩
+                cell.ratingChanged
+                    .bind(to: self.ratingChangedSubject)
+                    .disposed(by: cell.disposeBag)
+                
+                cell.reviewTextChanged
+                    .bind(to: self.reviewTextChangedSubject)
+                    .disposed(by: cell.disposeBag)
+                
+                return cell
                 
             case .memo:
                 // TODO: 나중에 구현
@@ -123,11 +162,19 @@ final class WatchRecordView: BaseView {
         super.setupHierarchy()
         
         addSubview(collectionView)
+        addSubview(saveButton)
     }
     
     override func setupLayout() {
         collectionView.snp.makeConstraints { make in
-            make.edges.equalTo(safeAreaLayoutGuide)
+            make.horizontalEdges.top.equalTo(safeAreaLayoutGuide)
+            make.bottom.equalTo(saveButton.snp.top)
+        }
+        
+        saveButton.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(16)
+            make.height.equalTo(56)
         }
     }
     
@@ -136,6 +183,8 @@ final class WatchRecordView: BaseView {
         
         setupCollectionView()
         applyInitialSnapshot()
+        setupKeyboardHandling()
+        bindActions()
     }
     
     // MARK: - Configure
@@ -157,18 +206,55 @@ extension WatchRecordView {
             PerformanceInfoCell.self,
             forCellWithReuseIdentifier: PerformanceInfoCell.identifier
         )
+        
         collectionView.register(
             ViewingInfoInputCell.self,
             forCellWithReuseIdentifier: ViewingInfoInputCell.identifier
+        )
+        
+        collectionView.register(
+            RatingReviewCell.self,
+            forCellWithReuseIdentifier: RatingReviewCell.identifier
         )
     }
     
     private func applyInitialSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
         snapshot.appendSections([.main])
-        snapshot.appendItems([.performanceInfo, .viewingInfo], toSection: .main)
+        snapshot.appendItems([.performanceInfo, .viewingInfo, .rating], toSection: .main)
         
         dataSource.apply(snapshot, animatingDifferences: false)
+    }
+    
+    private func setupKeyboardHandling() {
+        // 키보드 높이 감지
+        NotificationCenter.default.rx
+            .notification(UIResponder.keyboardWillShowNotification)
+            .compactMap { notification -> CGFloat? in
+                guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+                    return nil
+                }
+                return keyboardFrame.height
+            }
+            .subscribe(with: self) { owner, keyboardHeight in
+                owner.collectionView.contentInset.bottom = keyboardHeight
+                owner.collectionView.verticalScrollIndicatorInsets.bottom = keyboardHeight
+            }
+            .disposed(by: disposeBag)
+        
+        NotificationCenter.default.rx
+            .notification(UIResponder.keyboardWillHideNotification)
+            .subscribe(with: self) { owner, _ in
+                owner.collectionView.contentInset.bottom = 0
+                owner.collectionView.verticalScrollIndicatorInsets.bottom = 0
+            }
+            .disposed(by: disposeBag)
+    }
+    
+    private func bindActions() {
+        saveButton.rx.tap
+            .bind(to: saveButtonTappedSubject)
+            .disposed(by: disposeBag)
     }
 }
 

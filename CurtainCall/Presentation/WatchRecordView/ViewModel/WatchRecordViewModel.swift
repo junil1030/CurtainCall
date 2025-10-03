@@ -16,10 +16,12 @@ final class WatchRecordViewModel: BaseViewModel {
     private let performanceDetail: PerformanceDetail
     
     // MARK: - Streams
-    private let viewingDateRelay = BehaviorRelay<Date>(value: Date())
-    private let viewingTimeRelay = BehaviorRelay<Date>(value: Date())
-    private let companionRelay = BehaviorRelay<CompanionType?>(value: nil)
-    private let seatRelay = BehaviorRelay<String>(value: "")
+    private let viewingDateRelay = PublishRelay<Date>()
+    private let viewingTimeRelay = PublishRelay<Date>()
+    private let companionRelay = PublishRelay<String>()
+    private let seatRelay = PublishRelay<String>()
+    private let ratingRelay = PublishRelay<Int>()
+    private let reviewRelay = PublishRelay<String>()
     
     // MARK: - Types
     enum CompanionType: String, CaseIterable {
@@ -34,17 +36,15 @@ final class WatchRecordViewModel: BaseViewModel {
     struct Input {
         let viewingDateSelected: Observable<Date>
         let viewingTimeSelected: Observable<Date>
-        let companionSelected: Observable<CompanionType>
+        let companionSelected: Observable<String>
         let seatTextChanged: Observable<String>
+        let ratingChanged: Observable<Int>
+        let reviewTextChanged: Observable<String>
         let saveButtonTapped: Observable<Void>
     }
     
     struct Output {
         let performanceDetail: Driver<PerformanceDetail>
-        let viewingDate: Driver<Date>
-        let viewingTime: Driver<Date>
-        let companion: Driver<CompanionType?>
-        let seat: Driver<String>
         let saveSuccess: Signal<Void>
         let error: Signal<Error>
     }
@@ -77,57 +77,64 @@ final class WatchRecordViewModel: BaseViewModel {
             .bind(to: seatRelay)
             .disposed(by: disposeBag)
         
+        input.ratingChanged
+            .bind(to: ratingRelay)
+            .disposed(by: disposeBag)
+        
+        input.reviewTextChanged
+            .bind(to: reviewRelay)
+            .disposed(by: disposeBag)
+        
         // 저장 버튼 탭 처리
         input.saveButtonTapped
             .withLatestFrom(Observable.combineLatest(
                 viewingDateRelay,
                 viewingTimeRelay,
                 companionRelay,
-                seatRelay
+                seatRelay,
+                ratingRelay,
+                reviewRelay
             ))
             .subscribe(with: self) { owner, data in
-                let (date, time, _, seat) = data
+                let (date, time, companion, seat, rating, review) = data
                 
-                // 날짜와 시간 결합
-                let calendar = Calendar.current
-                let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
-                let timeComponents = calendar.dateComponents([.hour, .minute], from: time)
-                
-                var combinedComponents = DateComponents()
-                combinedComponents.year = dateComponents.year
-                combinedComponents.month = dateComponents.month
-                combinedComponents.day = dateComponents.day
-                combinedComponents.hour = timeComponents.hour
-                combinedComponents.minute = timeComponents.minute
-                
-                guard let viewingDateTime = calendar.date(from: combinedComponents) else {
-                    errorRelay.accept(NSError(domain: "WatchRecordViewModel", code: -1, userInfo: [
-                        NSLocalizedDescriptionKey: "날짜 형식이 올바르지 않습니다."
-                    ]))
-                    return
-                }
-                
-                // ViewingRecord 생성 및 저장
-                let record = ViewingRecord(from: owner.performanceDetail, viewingDate: viewingDateTime)
-                record.seat = seat
-                
-                // TODO: Repository를 통해 저장
-                do {
-                    let repository = ViewingRecordRepository()
-                    try repository.addRecord(record)
-                    saveSuccessRelay.accept(())
-                } catch {
-                    errorRelay.accept(error)
-                }
+                print(data)
+//                // 날짜와 시간 결합
+//                let calendar = Calendar.current
+//                let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+//                let timeComponents = calendar.dateComponents([.hour, .minute], from: time)
+//                
+//                var combinedComponents = DateComponents()
+//                combinedComponents.year = dateComponents.year
+//                combinedComponents.month = dateComponents.month
+//                combinedComponents.day = dateComponents.day
+//                combinedComponents.hour = timeComponents.hour
+//                combinedComponents.minute = timeComponents.minute
+//                
+//                guard let viewingDateTime = calendar.date(from: combinedComponents) else {
+//                    errorRelay.accept(NSError(domain: "WatchRecordViewModel", code: -1, userInfo: [
+//                        NSLocalizedDescriptionKey: "날짜 형식이 올바르지 않습니다."
+//                    ]))
+//                    return
+//                }
+//                
+//                // ViewingRecord 생성 및 저장
+//                let record = ViewingRecord(from: owner.performanceDetail, viewingDate: viewingDateTime)
+//                record.seat = seat
+//                
+//                // TODO: Repository를 통해 저장
+//                do {
+//                    let repository = ViewingRecordRepository()
+//                    try repository.addRecord(record)
+//                    saveSuccessRelay.accept(())
+//                } catch {
+//                    errorRelay.accept(error)
+//                }
             }
             .disposed(by: disposeBag)
         
         return Output(
             performanceDetail: .just(performanceDetail),
-            viewingDate: viewingDateRelay.asDriver(),
-            viewingTime: viewingTimeRelay.asDriver(),
-            companion: companionRelay.asDriver(),
-            seat: seatRelay.asDriver(),
             saveSuccess: saveSuccessRelay.asSignal(),
             error: errorRelay.asSignal()
         )

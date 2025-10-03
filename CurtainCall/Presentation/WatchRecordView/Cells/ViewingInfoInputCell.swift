@@ -15,17 +15,17 @@ final class ViewingInfoInputCell: BaseCollectionViewCell {
     var disposeBag = DisposeBag()
     
     // MARK: - Subjects
-    private let dateButtonTappedSubject = PublishSubject<Void>()
-    private let timeButtonTappedSubject = PublishSubject<Void>()
+    private let dateButtonTappedSubject = PublishSubject<Date>()
+    private let timeButtonTappedSubject = PublishSubject<Date>()
     private let companionSelectedSubject = PublishSubject<String>()
     private let seatTextChangedSubject = PublishSubject<String>()
     
     // MARK: - Observables
-    var dateButtonTapped: Observable<Void> {
+    var dateButtonTapped: Observable<Date> {
         return dateButtonTappedSubject.asObservable()
     }
     
-    var timeButtonTapped: Observable<Void> {
+    var timeButtonTapped: Observable<Date> {
         return timeButtonTappedSubject.asObservable()
     }
     
@@ -249,7 +249,7 @@ final class ViewingInfoInputCell: BaseCollectionViewCell {
             .compactMap { $0 as? Date }
             .subscribe(with: self) { owner, date in
                 owner.updateDateButton(date: date)
-                owner.dateButtonTappedSubject.onNext(())
+                owner.dateButtonTappedSubject.onNext(date)
             }
             .disposed(by: disposeBag)
         
@@ -258,7 +258,7 @@ final class ViewingInfoInputCell: BaseCollectionViewCell {
             .compactMap { $0 as? Date }
             .subscribe(with: self) { owner, date in
                 owner.updateTimeButton(date: date)
-                owner.timeButtonTappedSubject.onNext(())
+                owner.timeButtonTappedSubject.onNext(date)
             }
             .disposed(by: disposeBag)
         

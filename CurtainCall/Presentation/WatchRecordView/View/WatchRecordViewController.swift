@@ -16,11 +16,6 @@ final class WatchRecordViewController: BaseViewController {
     private let viewModel: WatchRecordViewModel
     private let disposeBag = DisposeBag()
     
-    // MARK: - Subjects
-    private let viewingDateSelectedSubject = PublishSubject<Date>()
-    private let viewingTimeSelectedSubject = PublishSubject<Date>()
-    private let companionSelectedSubject = PublishSubject<WatchRecordViewModel.CompanionType>()
-    
     // MARK: - Init
     init(viewModel: WatchRecordViewModel) {
         self.viewModel = viewModel
@@ -48,40 +43,21 @@ final class WatchRecordViewController: BaseViewController {
         super.setupBind()
         
         let input = WatchRecordViewModel.Input(
-            viewingDateSelected: viewingDateSelectedSubject.asObservable(),
-            viewingTimeSelected: viewingTimeSelectedSubject.asObservable(),
-            companionSelected: companionSelectedSubject.asObservable(),
+            viewingDateSelected: watchRecordView.dateButtonTapped,
+            viewingTimeSelected: watchRecordView.timeButtonTapped,
+            companionSelected: watchRecordView.companionSelected,
             seatTextChanged: watchRecordView.seatTextChanged,
-            saveButtonTapped: Observable.never() // TODO: 저장 버튼 추가 시 연결
+            ratingChanged: watchRecordView.ratingChanged,
+            reviewTextChanged: watchRecordView.reviewTextChanged,
+            saveButtonTapped: watchRecordView.saveButtonTapped
         )
         
         let output = viewModel.transform(input: input)
         
-        // 공연 상세 정보 바인딩
         output.performanceDetail
             .drive(with: self) { owner, detail in
                 owner.watchRecordView.configure(with: detail)
             }
-            .disposed(by: disposeBag)
-        
-        // 날짜 버튼 탭 처리
-        watchRecordView.dateButtonTapped
-            .subscribe(with: self) { owner, _ in
-                owner.showDatePicker()
-            }
-            .disposed(by: disposeBag)
-        
-        // 시간 버튼 탭 처리
-        watchRecordView.timeButtonTapped
-            .subscribe(with: self) { owner, _ in
-                owner.showTimePicker()
-            }
-            .disposed(by: disposeBag)
-        
-        // 함께한 사람 선택 처리
-        watchRecordView.companionSelected
-            .compactMap { WatchRecordViewModel.CompanionType(rawValue: $0) }
-            .bind(to: companionSelectedSubject)
             .disposed(by: disposeBag)
         
         // 저장 성공
@@ -97,39 +73,6 @@ final class WatchRecordViewController: BaseViewController {
                 owner.showErrorAlert(error: error)
             }
             .disposed(by: disposeBag)
-    }
-    
-    // MARK: - Private Methods
-    private func showDatePicker() {
-        let datePickerVC = CustomDatePickerView(initialDate: Date(), allowFuture: false)
-        
-        datePickerVC.selectedDate
-            .take(1)
-            .bind(to: viewingDateSelectedSubject)
-            .disposed(by: disposeBag)
-        
-        if let sheet = datePickerVC.sheetPresentationController {
-            sheet.detents = [.medium()]
-            sheet.prefersGrabberVisible = true
-        }
-        
-        present(datePickerVC, animated: true)
-    }
-    
-    private func showTimePicker() {
-        let timePickerVC = CustomTimePickerView(initialDate: Date())
-        
-        timePickerVC.selectedTime
-            .take(1)
-            .bind(to: viewingTimeSelectedSubject)
-            .disposed(by: disposeBag)
-        
-        if let sheet = timePickerVC.sheetPresentationController {
-            sheet.detents = [.medium()]
-            sheet.prefersGrabberVisible = true
-        }
-        
-        present(timePickerVC, animated: true)
     }
     
     private func showSuccessAlert() {
