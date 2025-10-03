@@ -86,7 +86,10 @@ final class SearchViewController: BaseViewController {
         
         searchView.selectedSearchResult
             .bind(with: self) { owner, searchResult in
-                let vm = DetailViewModel(performanceID: searchResult.id)
+                let repository = FavoriteRepository()
+                let toggleFavoriteUseCase = ToggleFavoriteUseCase(repository: repository)
+                let checkFavoriteUseCase = CheckFavoriteStatusUseCase(repository: repository)
+                let vm = DetailViewModel(performanceID: searchResult.id, toggleFavoriteUseCase: toggleFavoriteUseCase, checkFavoriteStatusUseCase: checkFavoriteUseCase)
                 let vc = DetailViewController(viewModel: vm)
                 owner.navigationController?.pushViewController(vc, animated: true)
             }
