@@ -9,22 +9,22 @@ import Foundation
 
 protocol FavoriteRepositoryProtocol {
     // Read
-    func getFavorites() -> [FavoritePerformance]
-    func getFavoritesByGenre(_ genre: String) -> [FavoritePerformance]
-    func getFavoritesByArea(_ area: String) -> [FavoritePerformance]
-    func getFavorite(id: String) -> FavoritePerformance?
+    func getFavorites() -> [FavoriteDTO]
+    func getFavoritesByGenre(_ genre: String) -> [FavoriteDTO]
+    func getFavoritesByArea(_ area: String) -> [FavoriteDTO]
+    func getFavorite(id: String) -> FavoriteDTO?
     func isFavorite(id: String) -> Bool
     func getFavoriteCount() -> Int
     
     // Toggle
-    func toggleFavorite(_ performance: PerformanceDetail) throws -> Bool
+    func toggleFavorite(_ dto: FavoriteDTO) throws -> Bool
     
     // Delete
     func removeFavorite(id: String) throws
     func clearAllFavorites() throws
     
     // Search
-    func searchFavorites(keyword: String) -> [FavoritePerformance]
+    func searchFavorites(keyword: String) -> [FavoriteDTO]
     
     // Statistics
     func getFavoriteStatistics() -> FavoriteStatistics
