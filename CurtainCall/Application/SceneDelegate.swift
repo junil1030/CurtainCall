@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import RealmSwift
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -19,6 +20,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let mainTabBarController = MainTabBarController()
         window?.rootViewController = mainTabBarController
         window?.makeKeyAndVisible()
+        
+        seedDummyViewingRecordsIfNeeded()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -49,6 +52,54 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
     }
 
-
+    private func seedDummyViewingRecordsIfNeeded() {
+        let realm = try! Realm()
+        
+        // 이미 데이터가 있으면 skip
+        if realm.objects(ViewingRecord.self).isEmpty == false {
+            return
+        }
+        
+        let titles = [
+            "레미제라블", "햄릿", "오페라의 유령", "위키드", "맘마미아",
+            "노트르담 드 파리", "캣츠", "지킬앤하이드", "아이다", "라이온킹"
+        ]
+        
+        let posters = [
+            "https://example.com/poster1.jpg",
+            "https://example.com/poster2.jpg",
+            "https://example.com/poster3.jpg"
+        ]
+        
+        let areas = ["서울", "경기", "대학로", "인천"]
+        let locations = ["블루스퀘어", "세종문화회관", "샤롯데씨어터", "LG아트센터"]
+        let genres = ["뮤지컬", "연극", "서양음악(클래식)", "무용(서양/한국무용)"]
+        let companions = ["혼자", "친구", "가족", "연인"]
+        let casts = ["홍길동", "김철수", "이영희", "박보검", "아이유"]
+        
+        try! realm.write {
+            for i in 1...100 {
+                let record = ViewingRecord()
+                record.performanceId = UUID().uuidString
+                record.title = titles.randomElement()!
+                record.posterURL = posters.randomElement()!
+                record.area = areas.randomElement()!
+                record.location = locations.randomElement()!
+                record.genre = genres.randomElement()!
+                record.viewingDate = Date().addingTimeInterval(Double.random(in: -60*60*24*365 ... 0))
+                record.rating = Int.random(in: 0...5)
+                record.seat = "R석 \(Int.random(in: 1...30))열 \(Int.random(in: 1...50))번"
+                record.companion = companions.randomElement()!
+                record.cast = casts.shuffled().prefix(Int.random(in: 1...3)).joined(separator: ", ")
+                record.memo = "감상평 예시 \(i)"
+                record.createdAt = Date()
+                record.updatedAt = Date()
+                
+                realm.add(record)
+            }
+        }
+        
+        print("✅ Dummy ViewingRecords inserted")
+    }
 }
 
