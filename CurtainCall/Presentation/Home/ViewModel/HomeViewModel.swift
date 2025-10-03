@@ -15,17 +15,23 @@ final class HomeViewModel: BaseViewModel {
     private let networkManager = NetworkManager.shared
     private let disposeBag = DisposeBag()
     
+    // MARK: - UseCases
+    private let toggleFavoriteUseCase: ToggleFavoriteUseCase
+    private let checkMultipleFavoriteStatusUseCase: CheckMultipleFavoriteStatusUseCase
+    
     // MARK: - Input / Output
     struct Input {
         let selectedCard: Observable<CardItem>
         let selectedCategory: Observable<CategoryCode?>
         let filterState: Observable<FilterButtonContainer.FilterState>
+        let favoriteButtonTapped: Observable<String>
     }
     
     struct Output {
         let boxOfficeList: Driver<[BoxOffice]>
         let scrollToFirst: Signal<Void>
         let isLoading: Driver<Bool>
+        let favoriteStatusChanged: Signal<(String, Bool)>
     }
     
     // MARK: - Stream
@@ -33,9 +39,12 @@ final class HomeViewModel: BaseViewModel {
     private let isLoadingRelay = BehaviorRelay<Bool>(value: false)
     private let errorRelay = PublishRelay<NetworkError>()
     private let scrollToFirstRelay = PublishRelay<Void>()
+    private let favoriteStatusChangedRelay = PublishRelay<(String, Bool)>()
     
     // MARK: - Init
-    override init() {
+    init(toggleFavoriteUseCase: ToggleFavoriteUseCase, checkMultipleFavoriteStatusUseCase: CheckMultipleFavoriteStatusUseCase) {
+        self.toggleFavoriteUseCase = toggleFavoriteUseCase
+        self.checkMultipleFavoriteStatusUseCase = checkMultipleFavoriteStatusUseCase
         super.init()
         
         loadInitialData()
@@ -76,10 +85,18 @@ final class HomeViewModel: BaseViewModel {
             }
             .disposed(by: disposeBag)
         
+        input.favoriteButtonTapped
+            .withUnretained(self)
+            .subscribe(onNext: { owner, performanceID in
+                owner.handleFavoriteToggle(performanceID: performanceID)
+            })
+            .disposed(by: disposeBag)
+        
         return Output(
             boxOfficeList: boxOfficeListRelay.asDriver(),
             scrollToFirst: scrollToFirstRelay.asSignal(),
-            isLoading: isLoadingRelay.asDriver()
+            isLoading: isLoadingRelay.asDriver(),
+            favoriteStatusChanged: favoriteStatusChangedRelay.asSignal()
         )
     }
     
@@ -128,5 +145,40 @@ final class HomeViewModel: BaseViewModel {
                 owner.boxOfficeListRelay.accept([])
             }
             .disposed(by: disposeBag)
+    }
+    
+    // 여러 BoxOffice의 좋아요 상태를 한 번에 확인
+    private func checkFavoriteStatuses(for boxOffices: [BoxOffice]) {
+        let performanceIDs = boxOffices.map { $0.performanceID }
+        let favoriteStatuses = checkMultipleFavoriteStatusUseCase.execute(performanceIDs)
+        
+        // 각 공연의 좋아요 상태를 Signal로 방출
+        for (performanceID, isFavorite) in favoriteStatuses {
+            favoriteStatusChangedRelay.accept((performanceID, isFavorite))
+        }
+    }
+    
+    // 좋아요 토글 처리
+    private func handleFavoriteToggle(performanceID: String) {
+        // 현재 BoxOffice 리스트에서 해당 공연 찾기
+        guard let boxOffice = boxOfficeListRelay.value.first(where: { $0.performanceID == performanceID }) else {
+            print("BoxOffice를 찾을 수 없습니다: \(performanceID)")
+            return
+        }
+        
+        // BoxOffice → FavoriteDTO 변환
+        let favoriteDTO = BoxOfficeToFavoriteDTOMapper.map(from: boxOffice)
+        
+        // UseCase 실행
+        let result = toggleFavoriteUseCase.execute(favoriteDTO)
+        
+        switch result {
+        case .success(let isFavorite):
+            favoriteStatusChangedRelay.accept((performanceID, isFavorite))
+            
+        case .failure(let error):
+            print("좋아요 토글 실패: \(error.localizedDescription)")
+            // TODO: 에러 처리 (Toast 또는 Alert)
+        }
     }
 }
