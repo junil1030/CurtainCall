@@ -18,6 +18,7 @@ final class HomeView: BaseView {
     // MARK: - Subject
     private let selectedCategorySubject = PublishSubject<CategoryCode?>()
     private let filterStateSubject = PublishSubject<FilterButtonContainer.FilterState>()
+    private let favoriteButtonTappedSubject = PublishSubject<String>()
     
     // MARK: - Observables
     var selectedCard: Observable<CardItem> {
@@ -37,6 +38,10 @@ final class HomeView: BaseView {
     
     var filterState: Observable<FilterButtonContainer.FilterState> {
         return filterStateSubject.asObservable()
+    }
+    
+    var favoriteButtonTapped: Observable<String> {
+        return favoriteButtonTappedSubject.asObservable()
     }
     
     // MARK: - UI Components
@@ -91,6 +96,7 @@ final class HomeView: BaseView {
                     withReuseIdentifier: CardCell.identifier,
                     for: indexPath
                 ) as! CardCell
+                cell.delegate = self
                 cell.configure(with: cardItem)
                 return cell
             }
@@ -292,5 +298,27 @@ final class HomeView: BaseView {
         }
         
         collectionView.scrollToItem(at: firstBoxOfficeIndexPath, at: .centeredHorizontally, animated: true)
+    }
+    
+    // 좋아요 상태 업데이트 메서드 추가
+    func updateFavoriteStatus(performanceID: String, isFavorite: Bool) {
+        guard let indexPath = dataSource.indexPath(for: .boxOffice(CardItem(
+            id: performanceID,
+            imageURL: "",
+            title: "",
+            subtitle: "",
+            badge: "",
+            isFavorite: false
+        ))) else { return }
+        
+        if let cell = collectionView.cellForItem(at: indexPath) as? CardCell {
+            cell.updateFavoriteStatus(isFavorite)
+        }
+    }
+}
+
+extension HomeView: CardCellDelegate {
+    func cardCell(_ cell: CardCell, didTapFavoriteButton performanceID: String) {
+        favoriteButtonTappedSubject.onNext(performanceID)
     }
 }
