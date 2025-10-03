@@ -16,6 +16,10 @@ final class DetailViewModel: BaseViewModel {
     private let disposeBag = DisposeBag()
     private var performanceDetail: PerformanceDetail?
     
+    // MARK: - UseCases
+    private let toggleFavoriteUseCase: ToggleFavoriteUseCase
+    private let checkFavoriteStatusUseCase: CheckFavoriteStatusUseCase
+    
     // MARK: - Streams
     private let performanceDetailRelay = BehaviorRelay<PerformanceDetail?>(value: nil)
     private let isFavoriteRelay = BehaviorRelay<Bool>(value: false)
@@ -41,8 +45,10 @@ final class DetailViewModel: BaseViewModel {
     }
     
     // MARK: - Init
-    init(performanceID: String) {
+    init(performanceID: String, toggleFavoriteUseCase: ToggleFavoriteUseCase, checkFavoriteStatusUseCase: CheckFavoriteStatusUseCase) {
         self.performanceID = performanceID
+        self.toggleFavoriteUseCase = toggleFavoriteUseCase
+        self.checkFavoriteStatusUseCase = checkFavoriteStatusUseCase
         super.init()
         
         loadPerformanceDetail()
@@ -111,19 +117,27 @@ final class DetailViewModel: BaseViewModel {
     }
     
     private func checkFavoriteStatus() {
-        // TODO: Realm에서 찜 상태 확인
-        print("찜 상태 확인: \(performanceID)")
-        isFavoriteRelay.accept(false)
+        let isFavorite = checkFavoriteStatusUseCase.execute(performanceID)
+        isFavoriteRelay.accept(isFavorite)
     }
     
     private func toggleFavorite() {
-        let currentStatus = isFavoriteRelay.value
-        let newStatus = !currentStatus
+        guard let detail = performanceDetail else { return }
         
-        print("찜하기 토글: \(performanceID), 새 상태: \(newStatus)")
+        // PerformanceDetail → FavoriteDTO 변환
+        let favoriteDTO = PerformanceDetailToFavoriteDTOMapper.map(from: detail)
         
-        // TODO: Realm에 저장/삭제
-        isFavoriteRelay.accept(newStatus)
+        // UseCase 실행
+        let result = toggleFavoriteUseCase.execute(favoriteDTO)
+        
+        switch result {
+        case .success(let isFavorite):
+            isFavoriteRelay.accept(isFavorite)
+            
+        case .failure(let error):
+            print("찜하기 토글 실패: \(error.localizedDescription)")
+            // TODO: 에러 처리 (Toast 또는 Alert)
+        }
     }
     
     private func openBookingSite(urlString: String) {
