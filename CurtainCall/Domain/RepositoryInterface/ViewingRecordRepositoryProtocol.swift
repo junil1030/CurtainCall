@@ -30,4 +30,35 @@ protocol ViewingRecordRepositoryProtocol {
     
     // Statistics
     func getStatistics() -> ViewingStatistics
+    
+    // MARK: - Statistics for Stats Screen
+    /// 기간별 통계 데이터 조회
+    func getStatsByPeriod(from startDate: Date, to endDate: Date) -> PeriodStatistics
+    
+    /// 요일별 관람 횟수 조회 (주간 트렌드용)
+    func getWeekdayStats(from startDate: Date, to endDate: Date) -> [WeekdayStats]
+    
+    /// 주차별 관람 횟수 조회 (월간 트렌드용)
+    func getWeeklyStats(from startDate: Date, to endDate: Date) -> [WeeklyStats]
+    
+    /// 월별 관람 횟수 조회 (연간 트렌드용)
+    func getMonthlyStats(from startDate: Date, to endDate: Date) -> [MonthlyStats]
+    
+    /// 장르별 관람 횟수 조회
+    func getGenreStats(from startDate: Date, to endDate: Date) -> [GenreStats]
+    
+    /// 동행인별 관람 횟수 조회
+    func getCompanionStats(from startDate: Date, to endDate: Date) -> [CompanionStats]
+    
+    /// 지역별 관람 횟수 조회
+    func getLocationStats(from startDate: Date, to endDate: Date) -> [AreaStats]
+    
+    /// 최다 요일 조회 (주간용)
+    func getMostFrequentWeekday(from startDate: Date, to endDate: Date) -> String?
+    
+    /// 최다 장르 조회 (월간용)
+    func getMostFrequentGenre(from startDate: Date, to endDate: Date) -> String?
+    
+    /// 최다 관람 월 조회 (연간용)
+    func getMostFrequentMonth(from startDate: Date, to endDate: Date) -> String?
 }

@@ -13,11 +13,13 @@ class ViewingRecord: Object {
     @Persisted var performanceId: String                      // 공연 ID
     @Persisted var title: String                              // 공연명
     @Persisted var posterURL: String                          // 포스터 URL
+    @Persisted var area: String                               // 지역
     @Persisted var location: String                           // 공연장
     @Persisted var genre: String                              // 장르 (GenreCode의 rawValue 저장)
     @Persisted var viewingDate: Date                          // 관람한 날짜
     @Persisted var rating: Int = 0                            // 별점 (0~5, 0은 미평가)
     @Persisted var seat: String = ""                          // 좌석 정보
+    @Persisted var companion: String = ""                     // 동행인 정보
     @Persisted var cast: String = ""                          // 관람한 출연진
     @Persisted var memo: String = ""                          // 감상평/메모
     @Persisted var createdAt: Date                            // 기록 생성일
