@@ -51,7 +51,7 @@ protocol ViewingRecordRepositoryProtocol {
     func getCompanionStats(from startDate: Date, to endDate: Date) -> [CompanionStats]
     
     /// 지역별 관람 횟수 조회
-    func getLocationStats(from startDate: Date, to endDate: Date) -> [AreaStats]
+    func getAreaStats(from startDate: Date, to endDate: Date) -> [AreaStats]
     
     /// 최다 요일 조회 (주간용)
     func getMostFrequentWeekday(from startDate: Date, to endDate: Date) -> String?
