@@ -12,13 +12,30 @@ struct BoxOffice {
     let title: String
     let location: String
     let posterURL: String
-    let perfomanceID: String
+    let performanceID: String
+    
+    // 찜목록을 위한 추가 필드
+    let genre: String
+    let area: String
+    let performancePeriod: String
+    
+    var startDate: String {
+        return performancePeriod.split(separator: "~")
+            .first?
+            .trimmingCharacters(in: .whitespaces) ?? "정보없음"
+    }
+    
+    var endDate: String {
+        return performancePeriod.split(separator: "~")
+            .last?
+            .trimmingCharacters(in: .whitespaces) ?? "정보없음"
+    }
 }
 
 extension BoxOffice: CardItemConvertible {
     func toCardItem() -> CardItem {
         return CardItem(
-            id: perfomanceID,
+            id: performanceID,
             imageURL: posterURL,
             title: title,
             subtitle: location,

@@ -9,7 +9,16 @@ import Foundation
 
 struct BoxOfficeMapper {
     static func map(from dto: BoxOfficeItemDTO) -> BoxOffice {
-        return BoxOffice(rank: dto.rnum, title: dto.prfnm, location: dto.prfplcnm, posterURL: dto.poster, perfomanceID: dto.mt20id)
+        return BoxOffice(
+            rank: dto.rnum,
+            title: dto.prfnm,
+            location: dto.prfplcnm,
+            posterURL: dto.poster,
+            performanceID: dto.mt20id,
+            genre: dto.cate,
+            area: dto.area,
+            performancePeriod: dto.prfpd
+        )
     }
     
     static func map(from dtos: [BoxOfficeItemDTO]) -> [BoxOffice] {
