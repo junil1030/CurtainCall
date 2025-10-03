@@ -332,6 +332,8 @@ extension StatsView {
             elementKind: "trend-title",
             alignment: .top
         )
+        header.pinToVisibleBounds = true
+        
         section.boundarySupplementaryItems = [header]
         
         return section
@@ -362,6 +364,8 @@ extension StatsView {
             elementKind: "genre-title",
             alignment: .top
         )
+        header.pinToVisibleBounds = true
+        
         section.boundarySupplementaryItems = [header]
         
         return section
@@ -400,6 +404,8 @@ extension StatsView {
             elementKind: "companion-title",
             alignment: .top
         )
+        header.pinToVisibleBounds = true
+        
         section.boundarySupplementaryItems = [header]
         
         return section
@@ -430,6 +436,8 @@ extension StatsView {
             elementKind: "area-title",
             alignment: .top
         )
+        header.pinToVisibleBounds = true
+        
         section.boundarySupplementaryItems = [header]
         
         return section
