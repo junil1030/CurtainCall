@@ -13,7 +13,7 @@ final class HomeViewController: BaseViewController {
     
     // MARK: - Properties
     private let homeView = HomeView()
-    private let viewModel = HomeViewModel()
+    private let viewModel: HomeViewModel
     private let disposeBag = DisposeBag()
     
     // MARK: - UI Components
@@ -30,6 +30,16 @@ final class HomeViewController: BaseViewController {
         target: nil,
         action: nil
     )
+    
+    // MARK: - Init
+    init(viewModel: HomeViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func loadView() {
         super.loadView()
@@ -48,7 +58,8 @@ final class HomeViewController: BaseViewController {
         let input = HomeViewModel.Input(
             selectedCard: homeView.selectedCard,
             selectedCategory: homeView.selectedCategory,
-            filterState: homeView.filterState
+            filterState: homeView.filterState,
+            favoriteButtonTapped: homeView.favoriteButtonTapped
         )
         
         let output = viewModel.transform(input: input)
@@ -56,6 +67,14 @@ final class HomeViewController: BaseViewController {
         output.boxOfficeList
             .drive(with: self) { owner, list in
                 owner.homeView.updateBoxOfficeList(list)
+            }
+            .disposed(by: disposeBag)
+        
+        // 좋아요 상태 변경 처리 추가
+        output.favoriteStatusChanged
+            .emit(with: self) { owner, data in
+                let (performanceID, isFavorite) = data
+                owner.homeView.updateFavoriteStatus(performanceID: performanceID, isFavorite: isFavorite)
             }
             .disposed(by: disposeBag)
         
@@ -75,7 +94,10 @@ final class HomeViewController: BaseViewController {
         
         homeView.selectedCard
             .bind(with: self) { owner, cardItem in
-                let vm = DetailViewModel(performanceID: cardItem.id)
+                let repository = FavoriteRepository()
+                let toggleFavoriteUseCase = ToggleFavoriteUseCase(repository: repository)
+                let checkFavoriteUseCase = CheckFavoriteStatusUseCase(repository: repository)
+                let vm = DetailViewModel(performanceID: cardItem.id, toggleFavoriteUseCase: toggleFavoriteUseCase, checkFavoriteStatusUseCase: checkFavoriteUseCase)
                 let vc = DetailViewController(viewModel: vm)
                 owner.navigationController?.pushViewController(vc, animated: true)
             }

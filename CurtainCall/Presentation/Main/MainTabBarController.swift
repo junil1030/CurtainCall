@@ -42,11 +42,19 @@ final class MainTabBarController: UITabBarController {
         let statisticsVC = createStatisticsViewController()
         let moreVC = createMoreViewController()
         
-        viewControllers = [homeVC, statisticsVC, moreVC] 
+        viewControllers = [homeVC, statisticsVC, moreVC]
     }
     
     private func createHomeViewController() -> UINavigationController {
-        let vc = HomeViewController()
+        let repository = FavoriteRepository()
+        let toggleFavoriteUseCase = ToggleFavoriteUseCase(repository: repository)
+        let checkMultipleFavoriteStatusUseCase = CheckMultipleFavoriteStatusUseCase(repository: repository)
+        let viewModel = HomeViewModel(
+            toggleFavoriteUseCase: toggleFavoriteUseCase,
+            checkMultipleFavoriteStatusUseCase: checkMultipleFavoriteStatusUseCase
+        )
+        
+        let vc = HomeViewController(viewModel: viewModel)
         let nav = UINavigationController(rootViewController: vc)
         nav.tabBarItem = UITabBarItem(
             title: CCStrings.Title.homeViewName,
