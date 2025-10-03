@@ -15,51 +15,54 @@ final class FavoriteRepository: FavoriteRepositoryProtocol {
     private let realmManager = RealmManager.shared
     
     // MARK: - Read
-    func getFavorites() -> [FavoritePerformance] {
+    func getFavorites() -> [FavoriteDTO] {
         do {
             let realm = try realmManager.getRealm()
             let favorites = realm.objects(FavoritePerformance.self)
                 .sorted(byKeyPath: "createdAt", ascending: false)
             
-            return Array(favorites)
+            return FavoriteRealmMapper.toDTOs(from: Array(favorites))
         } catch {
             Logger.data.error("찜 목록 조회 실패: \(error.localizedDescription)")
             return []
         }
     }
     
-    func getFavoritesByGenre(_ genre: String) -> [FavoritePerformance] {
+    func getFavoritesByGenre(_ genre: String) -> [FavoriteDTO] {
         do {
             let realm = try realmManager.getRealm()
             let favorites = realm.objects(FavoritePerformance.self)
                 .filter("genre == %@", genre)
                 .sorted(byKeyPath: "createdAt", ascending: false)
             
-            return Array(favorites)
+            return FavoriteRealmMapper.toDTOs(from: Array(favorites))
         } catch {
             Logger.data.error("장르별 찜 목록 조회 실패: \(error.localizedDescription)")
             return []
         }
     }
     
-    func getFavoritesByArea(_ area: String) -> [FavoritePerformance] {
+    func getFavoritesByArea(_ area: String) -> [FavoriteDTO] {
         do {
             let realm = try realmManager.getRealm()
             let favorites = realm.objects(FavoritePerformance.self)
                 .filter("area == %@", area)
                 .sorted(byKeyPath: "createdAt", ascending: false)
             
-            return Array(favorites)
+            return FavoriteRealmMapper.toDTOs(from: Array(favorites))
         } catch {
             Logger.data.error("지역별 찜 목록 조회 실패: \(error.localizedDescription)")
             return []
         }
     }
     
-    func getFavorite(id: String) -> FavoritePerformance? {
+    func getFavorite(id: String) -> FavoriteDTO? {
         do {
             let realm = try realmManager.getRealm()
-            return realm.object(ofType: FavoritePerformance.self, forPrimaryKey: id)
+            guard let favorite = realm.object(ofType: FavoritePerformance.self, forPrimaryKey: id) else {
+                return nil
+            }
+            return FavoriteRealmMapper.toDTO(from: favorite)
         } catch {
             Logger.data.error("찜 단건 조회 실패: \(error.localizedDescription)")
             return nil
@@ -81,23 +84,23 @@ final class FavoriteRepository: FavoriteRepositoryProtocol {
     }
     
     // MARK: - Toggle (Primary Method)
-    func toggleFavorite(_ performance: PerformanceDetail) throws -> Bool {
-        let performanceId = performance.id
+    func toggleFavorite(_ dto: FavoriteDTO) throws -> Bool {
+        let performanceId = dto.id
         
         do {
-            if let existingFavorite = getFavorite(id: performanceId) {
+            if let existingFavorite = try getRealmFavorite(id: performanceId) {
                 // 이미 찜한 경우 -> 삭제
                 try realmManager.write { realm in
                     realm.delete(existingFavorite)
-                    Logger.data.info("찜 삭제 성공: \(performance.title)")
+                    Logger.data.info("찜 삭제 성공: \(dto.title)")
                 }
                 return false
             } else {
                 // 찜하지 않은 경우 -> 추가
-                let favorite = FavoritePerformance(from: performance)
+                let favorite = FavoriteRealmMapper.toRealmModel(from: dto)
                 try realmManager.write { realm in
                     realm.add(favorite)
-                    Logger.data.info("찜 추가 성공: \(performance.title)")
+                    Logger.data.info("찜 추가 성공: \(dto.title)")
                 }
                 return true
             }
@@ -141,14 +144,14 @@ final class FavoriteRepository: FavoriteRepositoryProtocol {
     }
     
     // MARK: - Search
-    func searchFavorites(keyword: String) -> [FavoritePerformance] {
+    func searchFavorites(keyword: String) -> [FavoriteDTO] {
         do {
             let realm = try realmManager.getRealm()
             let favorites = realm.objects(FavoritePerformance.self)
                 .filter("title CONTAINS[c] %@ OR location CONTAINS[c] %@", keyword, keyword)
                 .sorted(byKeyPath: "createdAt", ascending: false)
             
-            return Array(favorites)
+            return FavoriteRealmMapper.toDTOs(from: Array(favorites))
         } catch {
             Logger.data.error("찜 검색 실패: \(error.localizedDescription)")
             return []
@@ -192,6 +195,14 @@ final class FavoriteRepository: FavoriteRepositoryProtocol {
             Logger.data.error("찜 통계 조회 실패: \(error.localizedDescription)")
             return FavoriteStatistics(totalCount: 0, genreCount: [:], areaCount: [:])
         }
+    }
+    
+    // MARK: - Private Helpers
+    
+    /// Realm 모델을 직접 조회 (내부 사용)
+    private func getRealmFavorite(id: String) throws -> FavoritePerformance? {
+        let realm = try realmManager.getRealm()
+        return realm.object(ofType: FavoritePerformance.self, forPrimaryKey: id)
     }
 }
 
