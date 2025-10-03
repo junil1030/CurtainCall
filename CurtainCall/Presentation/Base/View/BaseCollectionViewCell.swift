@@ -29,5 +29,8 @@ class BaseCollectionViewCell: UICollectionViewCell {
     
     func setupLayout() {}
     
-    func setupStyle() {}
+    func setupStyle() {
+        backgroundColor = .clear
+        contentView.backgroundColor = .clear
+    }
 }
