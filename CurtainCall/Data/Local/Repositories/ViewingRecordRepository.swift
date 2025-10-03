@@ -350,16 +350,15 @@ extension ViewingRecordRepository {
             
             for record in records {
                 let genre: String
-                if let genreCode = GenreCode(rawValue: record.genre) {
+                if let genreCode = CategoryCode.allCases.first(where: { $0.displayName == record.genre }) {
                     genre = genreCode.displayName
                 } else {
-                    genre = "기타"
+                    genre = record.genre.isEmpty ? "기타" : record.genre
                 }
                 genreCounts[genre, default: 0] += 1
             }
             
             let totalCount = records.count
-            
             return genreCounts
                 .filter { $0.value > 0 } // 1편 이상만
                 .map { genre, count in
