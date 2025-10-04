@@ -7,26 +7,29 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
 final class FavoriteViewController: BaseViewController {
     
     // MARK: - Properties
     private let favoriteView = FavoriteView()
+    private let viewModel: FavoriteViewModel
     private let disposeBag = DisposeBag()
     
-    override func loadView() {
-        view = favoriteView
-    }
-    
     // MARK: - Init
-    init() {
+    init(viewModel: FavoriteViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
         
         hidesBottomBarWhenPushed = true
     }
     
-   required init?(coder: NSCoder) {
+    required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func loadView() {
+        view = favoriteView
     }
     
     override func setupLayout() {
@@ -38,42 +41,56 @@ final class FavoriteViewController: BaseViewController {
     override func setupBind() {
         super.setupBind()
         
-        // 정렬 필터
-        favoriteView.sortType
-            .subscribe(onNext: { sortType in
-                print("정렬 변경: \(sortType.rawValue)")
-                // TODO: 정렬 로직 구현
-            })
+        let input = FavoriteViewModel.Input(
+            sortTypeChanged: favoriteView.sortType,
+            genreSelected: favoriteView.selectedGenre,
+            areaSelected: favoriteView.selectedArea,
+            favoriteButtonTapped: favoriteView.favoriteButtonTapped
+        )
+        
+        let output = viewModel.transform(input: input)
+        
+        // 찜한 공연 리스트와 빈 상태 함께 처리
+        Driver.combineLatest(output.favoritesList, output.isEmpty)
+            .drive(with: self) { owner, data in
+                let (favorites, isEmpty) = data
+                owner.favoriteView.updateFavorites(favorites, isEmpty: isEmpty)
+            }
             .disposed(by: disposeBag)
         
-        // 장르 필터
-        favoriteView.selectedGenre
-            .subscribe(onNext: { genre in
-                if let genre = genre {
-                    print("장르 선택: \(genre.displayName)")
-                } else {
-                    print("전체 장르 선택")
-                }
-                // TODO: 장르 필터링 로직 구현
-            })
+        // 통계 정보와 월별 개수 함께 처리
+        Driver.combineLatest(output.statistics, output.monthlyCount)
+            .drive(with: self) { owner, data in
+                let (statistics, monthlyCount) = data
+                owner.favoriteView.updateStatistics(
+                    totalCount: statistics.totalCount,
+                    monthlyCount: monthlyCount
+                )
+            }
             .disposed(by: disposeBag)
         
-        // 지역 필터
-        favoriteView.selectedArea
-            .subscribe(onNext: { area in
-                if let area = area {
-                    print("지역 선택: \(area.displayName)")
-                } else {
-                    print("전체 지역 선택")
-                }
-                // TODO: 지역 필터링 로직 구현
-            })
+        // 찜 해제 완료 시그널
+        output.favoriteRemoved
+            .emit(with: self) { owner, performanceID in
+                print("찜 해제 완료: \(performanceID)")
+                // TODO: 토스트 메시지 표시 (선택사항)
+            }
             .disposed(by: disposeBag)
         
-        // 편집 버튼
-        favoriteView.editButtonTapped
-            .bind(with: self) { owner, _ in
-                print("편집 버튼 탭")
+        // 카드 탭 - 상세 화면 이동
+        favoriteView.selectedCard
+            .bind(with: self) { owner, cardItem in
+                let repository = FavoriteRepository()
+                let toggleUseCase = ToggleFavoriteUseCase(repository: repository)
+                let checkUseCase = CheckFavoriteStatusUseCase(repository: repository)
+                
+                let vm = DetailViewModel(
+                    performanceID: cardItem.id,
+                    toggleFavoriteUseCase: toggleUseCase,
+                    checkFavoriteStatusUseCase: checkUseCase
+                )
+                let vc = DetailViewController(viewModel: vm)
+                owner.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
     }
