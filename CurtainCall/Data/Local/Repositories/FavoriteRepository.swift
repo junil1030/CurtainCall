@@ -197,6 +197,31 @@ final class FavoriteRepository: FavoriteRepositoryProtocol {
         }
     }
     
+    func getMonthlyFavoriteCount() -> Int {
+        do {
+            let realm = try realmManager.getRealm()
+            
+            // 이번 달 시작일과 종료일 계산
+            let calendar = Calendar.current
+            let now = Date()
+            
+            guard let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: now)),
+                  let endOfMonth = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: startOfMonth) else {
+                Logger.data.error("이번 달 날짜 계산 실패")
+                return 0
+            }
+            
+            // 이번 달에 추가된 찜 조회
+            let monthlyFavorites = realm.objects(FavoritePerformance.self)
+                .filter("createdAt >= %@ AND createdAt <= %@", startOfMonth, endOfMonth)
+            
+            return monthlyFavorites.count
+        } catch {
+            Logger.data.error("이번 달 찜 개수 조회 실패: \(error.localizedDescription)")
+            return 0
+        }
+    }
+    
     // MARK: - Private Helpers
     
     /// Realm 모델을 직접 조회 (내부 사용)

@@ -15,6 +15,7 @@ protocol FavoriteRepositoryProtocol {
     func getFavorite(id: String) -> FavoriteDTO?
     func isFavorite(id: String) -> Bool
     func getFavoriteCount() -> Int
+    func getMonthlyFavoriteCount() -> Int
     
     // Toggle
     func toggleFavorite(_ dto: FavoriteDTO) throws -> Bool
