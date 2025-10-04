@@ -6,11 +6,9 @@
 //
 
 enum FavoriteSection: Int, CaseIterable {
-    case filter
     case cards
 }
 
 enum FavoriteItem: Hashable {
-    case filter
     case favorite(CardItem)
 }

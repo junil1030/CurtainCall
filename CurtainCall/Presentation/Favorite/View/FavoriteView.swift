@@ -15,12 +15,11 @@ final class FavoriteView: BaseView {
     private let disposeBag = DisposeBag()
     
     // MARK: - Subjects
-    private let sortButtonTappedSubject = PublishSubject<FavoriteFilterCell.SortType>()
-    private let genreButtonTappedSubject = PublishSubject<GenreCode?>()
-    private let areaButtonTappedSubject = PublishSubject<AreaCode?>()
     private let favoriteButtonTappedSubject = PublishSubject<String>()
     
     // MARK: - UI Components
+    private let headerView = FavoriteHeaderView()
+    
     private lazy var collectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         cv.backgroundColor = .ccBackground
@@ -37,27 +36,6 @@ final class FavoriteView: BaseView {
             guard let self = self else { return UICollectionViewCell() }
                 
                 switch item {
-                case .filter:
-                    let cell = collectionView.dequeueReusableCell(
-                        withReuseIdentifier: FavoriteFilterCell.identifier,
-                        for: indexPath
-                    ) as! FavoriteFilterCell
-                    
-                    // 각 버튼 이벤트를 개별적으로 바인딩
-                    cell.sortButtonTapped
-                        .bind(to: self.sortButtonTappedSubject)
-                        .disposed(by: cell.disposeBag)
-                    
-                    cell.genreButtonTapped
-                        .bind(to: self.genreButtonTappedSubject)
-                        .disposed(by: cell.disposeBag)
-                    
-                    cell.areaButtonTapped
-                        .bind(to: self.areaButtonTappedSubject)
-                        .disposed(by: cell.disposeBag)
-                    
-                    return cell
-                    
                 case .favorite(let cardItem):
                     let cell = collectionView.dequeueReusableCell(
                         withReuseIdentifier: FavoriteCardCell.identifier,
@@ -69,35 +47,20 @@ final class FavoriteView: BaseView {
                 }
         }
         
-        // 헤더 등록
-        dataSource.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
-            guard let self = self else { return UICollectionReusableView() }
-            
-            let header = collectionView.dequeueReusableSupplementaryView(
-                ofKind: kind,
-                withReuseIdentifier: FavoriteHeaderView.identifier,
-                for: indexPath
-            ) as! FavoriteHeaderView
-            
-            header.configure(totalCount: self.currentTotalCount, monthlyCount: self.currentMonthlyCount)
-            
-            return header
-        }
-        
         return dataSource
     }()
     
-    // MARK: - Public Observables (개별 버튼 이벤트)
-    var sortButtonTapped: Observable<FavoriteFilterCell.SortType> {
-        return sortButtonTappedSubject.asObservable()
+    // MARK: - Public Observables
+    var sortButtonTapped: Observable<FavoriteHeaderView.SortType> {
+        return headerView.sortButtonTapped
     }
     
     var genreButtonTapped: Observable<GenreCode?> {
-        return genreButtonTappedSubject.asObservable()
+        return headerView.genreButtonTapped
     }
     
     var areaButtonTapped: Observable<AreaCode?> {
-        return areaButtonTappedSubject.asObservable()
+        return headerView.areaButtonTapped
     }
     
     var favoriteButtonTapped: Observable<String> {
@@ -117,13 +80,20 @@ final class FavoriteView: BaseView {
     
     // MARK: - BaseView Override Methods
     override func setupHierarchy() {
+        addSubview(headerView)
         addSubview(collectionView)
         collectionView.addSubview(emptyStateView)
     }
     
     override func setupLayout() {
+        headerView.snp.makeConstraints { make in
+            make.top.equalTo(safeAreaLayoutGuide)
+            make.leading.trailing.equalToSuperview()
+        }
+        
         collectionView.snp.makeConstraints { make in
-            make.edges.equalTo(safeAreaLayoutGuide)
+            make.top.equalTo(headerView.snp.bottom)
+            make.leading.trailing.bottom.equalToSuperview()
         }
         
         emptyStateView.snp.makeConstraints { make in
@@ -168,20 +138,8 @@ final class FavoriteView: BaseView {
     }
     
     func updateStatistics(totalCount: Int, monthlyCount: Int) {
-        // 헤더 업데이트를 위한 스냅샷 재적용
-        var snapshot = dataSource.snapshot()
-        snapshot.reloadSections([.filter])
-        
-        // supplementaryViewProvider에서 사용할 데이터 저장
-        currentTotalCount = totalCount
-        currentMonthlyCount = monthlyCount
-        
-        dataSource.apply(snapshot, animatingDifferences: false)
+        headerView.configure(totalCount: totalCount, monthlyCount: monthlyCount)
     }
-    
-    // MARK: - Private Properties (헤더 데이터 저장용)
-    private var currentTotalCount: Int = 0
-    private var currentMonthlyCount: Int = 0
 }
 
 // MARK: - FavoriteCardCellDelegate
@@ -200,8 +158,6 @@ extension FavoriteView {
             }
             
             switch section {
-            case .filter:
-                return self.createFilterSection()
             case .cards:
                 return self.createCardsSection()
             }
@@ -211,75 +167,20 @@ extension FavoriteView {
 
     private func applyInitialSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<FavoriteSection, FavoriteItem>()
-        
-        // 필터 섹션
-        snapshot.appendSections([.filter])
-        snapshot.appendItems([.filter], toSection: .filter)
-        
-        // 카드 섹션
         snapshot.appendSections([.cards])
-        
         dataSource.apply(snapshot, animatingDifferences: false)
     }
 }
 
-// MARK: - Register Cell & HeaderView
+// MARK: - Register Cell
 extension FavoriteView {
     private func setupCollectionView() {
-        // Cell 등록
-        collectionView.register(FavoriteFilterCell.self, forCellWithReuseIdentifier: FavoriteFilterCell.identifier)
         collectionView.register(FavoriteCardCell.self, forCellWithReuseIdentifier: FavoriteCardCell.identifier)
-        
-        // Header 등록
-        collectionView.register(
-            FavoriteHeaderView.self,
-            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-            withReuseIdentifier: FavoriteHeaderView.identifier
-        )
     }
 }
 
 // MARK: - Section
 extension FavoriteView {
-    private func createFilterSection() -> NSCollectionLayoutSection {
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(56)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(56)
-        )
-        let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: groupSize,
-            subitems: [item]
-        )
-        
-        let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(
-            top: 0,
-            leading: 20,
-            bottom: 16,
-            trailing: 20
-        )
-        
-        // 헤더 추가
-        let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(80)
-        )
-        let header = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerSize,
-            elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
-        )
-        section.boundarySupplementaryItems = [header]
-        
-        return section
-    }
-    
     private func createCardsSection() -> NSCollectionLayoutSection {
         let screenWidth = UIScreen.main.bounds.width
         
@@ -310,7 +211,7 @@ extension FavoriteView {
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 16
         section.contentInsets = NSDirectionalEdgeInsets(
-            top: 0,
+            top: 16,
             leading: 20,
             bottom: 44,
             trailing: 20

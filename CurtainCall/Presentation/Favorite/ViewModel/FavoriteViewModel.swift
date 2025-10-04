@@ -35,7 +35,7 @@ final class FavoriteViewModel: BaseViewModel {
     // MARK: - Input / Output
     struct Input {
         let viewWillAppear: Observable<Void>
-        let sortButtonTapped: Observable<FavoriteFilterCell.SortType>
+        let sortButtonTapped: Observable<FavoriteHeaderView.SortType>
         let genreButtonTapped: Observable<GenreCode?>
         let areaButtonTapped: Observable<AreaCode?>
         let favoriteButtonTapped: Observable<String>
@@ -134,7 +134,7 @@ final class FavoriteViewModel: BaseViewModel {
             area: currentAreaRelay.value
         )
         
-        print(filter.sortType, filter.genre?.rawValue, filter.area?.rawValue)
+        print(filter.sortType, filter.genre?.displayName, filter.area?.displayName)
         
         // UseCase 실행
         let favoriteDTOs = fetchFavoritesUseCase.execute(filter)
@@ -153,16 +153,14 @@ final class FavoriteViewModel: BaseViewModel {
         loadStatistics()
     }
     
-    // 이번 달 찜 개수 로드
-    private func loadMonthlyCount() {
-        let count = getMonthlyFavoriteCountUseCase.execute(())
-        monthlyCountRelay.accept(count)
-    }
-    
-    // 통계 정보 로드
     private func loadStatistics() {
         let statistics = getFavoriteStatisticsUseCase.execute(())
         statisticsRelay.accept(statistics)
+    }
+    
+    private func loadMonthlyCount() {
+        let count = getMonthlyFavoriteCountUseCase.execute(())
+        monthlyCountRelay.accept(count)
     }
     
     // 찜 해제
@@ -181,9 +179,9 @@ final class FavoriteViewModel: BaseViewModel {
         }
     }
     
-    // FavoriteFilterCell.SortType → FavoriteFilterCondition.SortType 변환
-    private func mapToFilterSortType(_ sortType: FavoriteFilterCell.SortType) -> FavoriteFilterCondition.SortType {
-        switch sortType {
+    // HeaderView의 SortType을 ViewModel의 SortType으로 변환
+    private func mapToFilterSortType(_ headerSortType: FavoriteHeaderView.SortType) -> FavoriteFilterCondition.SortType {
+        switch headerSortType {
         case .latest:
             return .latest
         case .oldest:

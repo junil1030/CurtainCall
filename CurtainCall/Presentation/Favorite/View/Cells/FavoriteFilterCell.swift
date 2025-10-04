@@ -7,6 +7,7 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 import SnapKit
 
 final class FavoriteFilterCell: BaseCollectionViewCell {
@@ -21,6 +22,11 @@ final class FavoriteFilterCell: BaseCollectionViewCell {
     
     // MARK: - Properties
     var disposeBag = DisposeBag()
+    
+    // MARK: - State Management
+    private let currentSortTypeRelay = BehaviorRelay<SortType>(value: .latest)
+    private let currentGenreRelay = BehaviorRelay<GenreCode?>(value: nil)
+    private let currentAreaRelay = BehaviorRelay<AreaCode?>(value: nil)
     
     // MARK: - UI Components
     private let stackView: UIStackView = {
@@ -68,52 +74,41 @@ final class FavoriteFilterCell: BaseCollectionViewCell {
     }()
     
     // MARK: - Public Properties
-    var sortButtonTapped: Observable<SortType> {
-        return sortButton.selectedValue
-            .skip(1)
-            .compactMap { $0 as? SortType }
+    
+    // 필터 상태를 담는 구조체
+    struct FilterState {
+        let sortType: SortType
+        let genre: GenreCode?
+        let area: AreaCode?
     }
     
-    var genreButtonTapped: Observable<GenreCode?> {
-        return genreButton.selectedValue
-            .skip(1)
-            .map { value -> GenreCode? in
-                if let genre = value as? GenreCode {
-                    return genre
-                } else if let stringValue = value as? String, stringValue == "all" {
-                    return nil
-                }
-                return nil
-            }
-    }
-    
-    var areaButtonTapped: Observable<AreaCode?> {
-        return areaButton.selectedValue
-            .skip(1)
-            .map { value -> AreaCode? in
-                if let area = value as? AreaCode {
-                    return area
-                } else if let stringValue = value as? String, stringValue == "all" {
-                    return nil
-                }
-                return nil
-            }
+    // 세 개의 필터 상태를 결합한 Observable
+    var filterStateChanged: Observable<FilterState> {
+        return Observable.combineLatest(
+            currentSortTypeRelay.asObservable(),
+            currentGenreRelay.asObservable(),
+            currentAreaRelay.asObservable()
+        )
+        .skip(1) // 초기 결합값 (.latest, nil, nil)만 스킵
+        .map { sortType, genre, area in
+            FilterState(sortType: sortType, genre: genre, area: area)
+        }
+        .distinctUntilChanged { lhs, rhs in
+            lhs.sortType == rhs.sortType &&
+            lhs.genre?.rawValue == rhs.genre?.rawValue &&
+            lhs.area?.rawValue == rhs.area?.rawValue
+        }
     }
     
     // MARK: - Override Methods
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        // disposeBag 재생성하지 않음 - 기존 바인딩 유지
-    }
-    
     override func setupHierarchy() {
         super.setupHierarchy()
         
         contentView.addSubview(stackView)
         
-        stackView.addArrangedSubview(sortButton)
-        stackView.addArrangedSubview(genreButton)
-        stackView.addArrangedSubview(areaButton)
+        [sortButton, genreButton, areaButton].forEach {
+            stackView.addArrangedSubview($0)
+        }
     }
     
     override func setupLayout() {
@@ -128,6 +123,41 @@ final class FavoriteFilterCell: BaseCollectionViewCell {
     override func setupStyle() {
         super.setupStyle()
         
-        backgroundColor = .ccBackground
+        bindButtons()
+    }
+    
+    // MARK: - Binding
+    private func bindButtons() {
+        // 정렬 버튼 - skip 제거, 실제 선택만 받기
+        sortButton.selectedValue
+            .compactMap { $0 as? SortType }
+            .bind(to: currentSortTypeRelay)
+            .disposed(by: disposeBag)
+        
+        // 장르 버튼 - skip 제거, 실제 선택만 받기
+        genreButton.selectedValue
+            .map { value -> GenreCode? in
+                if let genre = value as? GenreCode {
+                    return genre
+                } else if let stringValue = value as? String, stringValue == "all" {
+                    return nil
+                }
+                return nil
+            }
+            .bind(to: currentGenreRelay)
+            .disposed(by: disposeBag)
+        
+        // 지역 버튼 - skip 제거, 실제 선택만 받기
+        areaButton.selectedValue
+            .map { value -> AreaCode? in
+                if let area = value as? AreaCode {
+                    return area
+                } else if let stringValue = value as? String, stringValue == "all" {
+                    return nil
+                }
+                return nil
+            }
+            .bind(to: currentAreaRelay)
+            .disposed(by: disposeBag)
     }
 }

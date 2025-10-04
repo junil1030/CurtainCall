@@ -84,8 +84,7 @@ final class FavoriteViewController: BaseViewController {
         // 찜 해제 완료 시그널
         output.favoriteRemoved
             .emit(with: self) { owner, performanceID in
-                print("찜 해제 완료: \(performanceID)")
-                // TODO: 토스트 메시지 표시 (선택사항)
+                print("✅ 찜 해제 완료: \(performanceID)")
             }
             .disposed(by: disposeBag)
         
