@@ -230,6 +230,11 @@ final class ProfileEditView: BaseView {
         }
     }
     
+    /// 미리보기 이미지만 업데이트
+    func updatePreviewImage(_ image: UIImage) {
+        previewProfileView.updateProfileImage(image)
+    }
+    
     // 미리보기 닉네임 업데이트
     func updatePreviewNickname(_ nickname: String) {
         let displayNickname = nickname.isEmpty ? "닉네임" : nickname

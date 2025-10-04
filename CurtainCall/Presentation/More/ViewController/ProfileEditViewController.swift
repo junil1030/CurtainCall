@@ -1,5 +1,5 @@
 //
-//  ProfileViewController.swift
+//  ProfileEditViewController.swift
 //  CurtainCall
 //
 //  Created by 서준일 on 10/4/25.
@@ -16,6 +16,9 @@ final class ProfileEditViewController: BaseViewController {
     private let viewModel: ProfileEditViewModel
     private let profileEditView = ProfileEditView()
     private let disposeBag = DisposeBag()
+    
+    // MARK: - Subjects
+    private let viewWillAppearSubject = PublishSubject<Void>()
     
     // PHPicker delegate를 강하게 참조하기 위한 프로퍼티
     private var pickerDelegate: PHPickerDelegateWrapper?
@@ -47,6 +50,11 @@ final class ProfileEditViewController: BaseViewController {
         view = profileEditView
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewWillAppearSubject.onNext(())
+    }
+    
     override func setupLayout() {
         super.setupLayout()
         
@@ -58,6 +66,7 @@ final class ProfileEditViewController: BaseViewController {
         super.setupBind()
         
         let input = ProfileEditViewModel.Input(
+            viewWillAppear: viewWillAppearSubject.asObservable(),
             imageSelected: profileEditView.imagePickerButtonTapped
                 .flatMap { [weak self] _ -> Observable<UIImage> in
                     guard let self = self else { return .empty() }
@@ -69,12 +78,22 @@ final class ProfileEditViewController: BaseViewController {
         
         let output = viewModel.transform(input: input)
         
+        output.selectedImage
+            .drive(with: self) { owner, profileIamge in
+                guard let profileIamge = profileIamge else { return }
+
+                owner.profileEditView.updateProfileImage(profileIamge)
+                owner.profileEditView.updatePreviewImage(profileIamge)
+            }
+            .disposed(by: disposeBag)
+        
         // 현재 프로필 정보 바인딩
         output.currentProfile
             .drive(with: self) { owner, profile in
-                owner.profileEditView.configure(with: profile)
-                if let _ = profile?.nickname {
-                    owner.profileEditView.nicknameTextField.sendActions(for: .editingChanged)
+                guard let profile = profile, !profile.profileImageURL.isEmpty else { return }
+                
+                if let image = ProfileImageManager.shared.loadProfileImage(from: profile.profileImageURL) {
+                    owner.profileEditView.updatePreviewImage(image)
                 }
             }
             .disposed(by: disposeBag)

@@ -25,6 +25,9 @@ final class ProfileEditViewModel: BaseViewModel {
     private let saveErrorRelay = PublishRelay<Error>()
     private let nicknameValidationRelay = BehaviorRelay<NicknameValidation>(value: .idle)
     
+    // 임시 저장용 (저장 버튼 누르기 전까지만 유지)
+    private let selectedImageRelay = BehaviorRelay<UIImage?>(value: nil)
+    
     // MARK: - Validation State
     enum NicknameValidation {
         case idle
@@ -50,6 +53,7 @@ final class ProfileEditViewModel: BaseViewModel {
     
     // MARK: - Input / Output
     struct Input {
+        let viewWillAppear: Observable<Void>
         let imageSelected: Observable<UIImage>
         let nicknameTextChanged: Observable<String>
         let saveButtonTapped: Observable<Void>
@@ -58,6 +62,7 @@ final class ProfileEditViewModel: BaseViewModel {
     struct Output {
         let currentProfile: Driver<UserProfile?>
         let nicknameValidation: Driver<NicknameValidation>
+        let selectedImage: Driver<UIImage?>
         let saveSuccess: Signal<Void>
         let saveError: Signal<Error>
     }
@@ -79,11 +84,16 @@ final class ProfileEditViewModel: BaseViewModel {
     // MARK: - Transform
     func transform(input: Input) -> Output {
         
+        // ViewWillAppear 시 프로필 로드
+        input.viewWillAppear
+            .bind(with: self) { owner, _ in
+                owner.loadCurrentProfile()
+            }
+            .disposed(by: disposeBag)
+        
         // 이미지 선택 처리
         input.imageSelected
-            .bind(with: self) { owner, image in
-                owner.updateProfileImage(image)
-            }
+            .bind(to: selectedImageRelay)
             .disposed(by: disposeBag)
         
         // 닉네임 입력 시 실시간 유효성 검사
@@ -95,15 +105,20 @@ final class ProfileEditViewModel: BaseViewModel {
         
         // 저장 버튼 탭 처리
         input.saveButtonTapped
-            .withLatestFrom(input.nicknameTextChanged)
-            .bind(with: self) { owner, nickname in
-                owner.saveProfile(nickname: nickname)
+            .withLatestFrom(Observable.combineLatest(
+                input.nicknameTextChanged,
+                selectedImageRelay.asObservable()
+            ))
+            .bind(with: self) { owner, data in
+                let (nickname, selectedImage) = data
+                owner.saveProfile(nickname: nickname, image: selectedImage)
             }
             .disposed(by: disposeBag)
         
         return Output(
             currentProfile: currentProfileRelay.asDriver(),
             nicknameValidation: nicknameValidationRelay.asDriver(),
+            selectedImage: selectedImageRelay.asDriver(),
             saveSuccess: saveSuccessRelay.asSignal(),
             saveError: saveErrorRelay.asSignal()
         )
@@ -135,7 +150,7 @@ final class ProfileEditViewModel: BaseViewModel {
         }
     }
     
-    // 닉네임 유효성 검사
+    /// 닉네임 유효성 검사
     private func validateNickname(_ nickname: String) {
         let trimmedNickname = nickname.trimmingCharacters(in: .whitespacesAndNewlines)
         
@@ -148,17 +163,30 @@ final class ProfileEditViewModel: BaseViewModel {
         }
     }
     
-    // 프로필 저장 (닉네임만)
-    private func saveProfile(nickname: String) {
+    /// 프로필 저장 (닉네임 + 이미지)
+    private func saveProfile(nickname: String, image: UIImage?) {
         // 유효성 검사
         guard nicknameValidationRelay.value.isValid else {
             return
         }
         
-        // 닉네임 업데이트
-        let result = updateNicknameUseCase.execute(nickname)
+        // 1. 이미지가 선택되었으면 먼저 저장
+        if let image = image {
+            let imageResult = updateProfileImageUseCase.execute(image)
+            
+            switch imageResult {
+            case .failure(let error):
+                saveErrorRelay.accept(error)
+                return
+            case .success:
+                break
+            }
+        }
         
-        switch result {
+        // 2. 닉네임 업데이트
+        let nicknameResult = updateNicknameUseCase.execute(nickname)
+        
+        switch nicknameResult {
         case .success:
             saveSuccessRelay.accept(())
             
