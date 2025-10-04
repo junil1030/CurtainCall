@@ -45,6 +45,10 @@ final class MoreView: BaseView {
             }
     }
     
+    var profileTapped: Observable<Void> {
+        return profileExperienceView.profileTapped
+    }
+    
     // MARK: - BaseView Override Methods
     override func setupHierarchy() {
         addSubview(profileExperienceView)
@@ -90,10 +94,13 @@ final class MoreView: BaseView {
     }
     
     // MARK: - Public Methods
-    func configure(with data: ProfileExperienceData) {
-        profileExperienceView.configure(with: data)
+    // 프로필 정보로 업데이트
+    func configure(nickname: String, profileImageURL: String) {
+        profileExperienceView.configure(nickname: nickname, profileImageURL: profileImageURL)
+        profileExperienceView.enableTapGesture()
     }
     
+    // 프로필 이미지만 업데이트
     func updateProfileImage(_ image: UIImage?) {
         profileExperienceView.updateProfileImage(image)
     }

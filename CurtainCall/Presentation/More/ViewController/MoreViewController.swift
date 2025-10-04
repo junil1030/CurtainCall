@@ -13,12 +13,28 @@ final class MoreViewController: BaseViewController {
     
     // MARK: - Properties
     private let moreView = MoreView()
-    private let viewModel = MoreViewModel()
+    private let viewModel: MoreViewModel
+    private let viewWillAppearSubject = PublishSubject<Void>()
     private let disposeBag = DisposeBag()
+    
+    // MARK: - Init
+    init(viewModel: MoreViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Life Cycle
     override func loadView() {
         view = moreView
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewWillAppearSubject.onNext(())
     }
     
     override func setupLayout() {
@@ -31,15 +47,28 @@ final class MoreViewController: BaseViewController {
         super.setupBind()
         
         let input = MoreViewModel.Input(
+            viewWillAppear: viewWillAppearSubject.asObservable(),
+            profileViewTapped: moreView.profileTapped,
             menuItemSelected: moreView.menuItemSelected
         )
         
         let output = viewModel.transform(input: input)
         
         // 프로필 데이터 바인딩
-        output.profileData
-            .drive(with: self) { owner, data in
-                owner.moreView.configure(with: data)
+        output.userProfile
+            .drive(with: self) { owner, profile in
+                guard let profile = profile else { return }
+                owner.moreView.configure(
+                    nickname: profile.nickname,
+                    profileImageURL: profile.profileImageURL
+                )
+            }
+            .disposed(by: disposeBag)
+        
+        // 프로필 편집 화면으로 이동
+        output.navigateToProfileEdit
+            .emit(with: self) { owner, _ in
+                owner.navigateToProfileEdit()
             }
             .disposed(by: disposeBag)
         
@@ -52,6 +81,23 @@ final class MoreViewController: BaseViewController {
     }
     
     // MARK: - Private Methods
+    
+    private func navigateToProfileEdit() {
+        let repository = UserRepository()
+        let getUserProfileUseCase = GetUserProfileUseCase(repository: repository)
+        let updateProfileImageUseCase = UpdateProfileImageUseCase(repository: repository)
+        let updateNicknameUseCase = UpdateNicknameUseCase(repository: repository)
+        
+        let viewModel = ProfileEditViewModel(
+            getUserProfileUseCase: getUserProfileUseCase,
+            updateProfileImageUseCase: updateProfileImageUseCase,
+            updateNicknameUseCase: updateNicknameUseCase
+        )
+        
+        let viewController = ProfileEditViewController(viewModel: viewModel)
+        navigationController?.pushViewController(viewController, animated: true)
+    }
+    
     private func handleMenuAction(_ action: MoreViewModel.MenuAction) {
         switch action {
         case .showPrivacyPolicy:

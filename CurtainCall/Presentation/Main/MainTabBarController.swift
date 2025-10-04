@@ -84,9 +84,12 @@ final class MainTabBarController: UITabBarController {
     }
     
     private func createMoreViewController() -> UINavigationController {
-        let vc = MoreViewController()
+        let repository = UserRepository()
+        let getUserProfileUseCase = GetUserProfileUseCase(repository: repository)
+        let viewModel = MoreViewModel(getUserProfileUseCase: getUserProfileUseCase)
+        let moreViewController = MoreViewController(viewModel: viewModel)
         
-        let nav = UINavigationController(rootViewController: vc)
+        let nav = UINavigationController(rootViewController: moreViewController)
         nav.tabBarItem = UITabBarItem(
             title: CCStrings.Title.moreName,
             image: UIImage(systemName: "ellipsis.circle"),

@@ -13,6 +13,7 @@ final class ProfileExperienceView: BaseView {
     
     // MARK: - Properties
     private let disposeBag = DisposeBag()
+    private let profileTapSubject = PublishSubject<Void>()
     
     // MARK: - UI Components
     private let containerView: UIView = {
@@ -62,51 +63,10 @@ final class ProfileExperienceView: BaseView {
         return stack
     }()
     
-    // 경험치 섹션
-    private let experienceContainerView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .white.withAlphaComponent(0.2)
-        view.layer.cornerRadius = 12
-        return view
-    }()
-    
-    private let levelLabel: UILabel = {
-        let label = UILabel()
-        label.font = .ccCalloutBold
-        label.textColor = .white
-        return label
-    }()
-    
-    private let experienceLabel: UILabel = {
-        let label = UILabel()
-        label.font = .ccCallout
-        label.textColor = .white
-        label.textAlignment = .right
-        return label
-    }()
-    
-    private let experienceBarBackground: UIView = {
-        let view = UIView()
-        view.backgroundColor = .ccSeparator
-        view.layer.cornerRadius = 4
-        view.clipsToBounds = true
-        return view
-    }()
-    
-    private let experienceBarFill: UIView = {
-        let view = UIView()
-        view.backgroundColor = .white
-        view.layer.cornerRadius = 4
-        return view
-    }()
-    
-    private let remainingLabel: UILabel = {
-        let label = UILabel()
-        label.font = .ccFootnote
-        label.textColor = .white.withAlphaComponent(0.9)
-        label.textAlignment = .center
-        return label
-    }()
+    // MARK: - Observables
+    var profileTapped: Observable<Void> {
+        return profileTapSubject.asObservable()
+    }
     
     // MARK: - BaseView Override Methods
     override func setupHierarchy() {
@@ -114,16 +74,9 @@ final class ProfileExperienceView: BaseView {
         
         containerView.addSubview(profileImageView)
         containerView.addSubview(profileStackView)
-        containerView.addSubview(experienceContainerView)
         
         profileStackView.addArrangedSubview(nicknameLabel)
         profileStackView.addArrangedSubview(subtitleLabel)
-        
-        experienceContainerView.addSubview(levelLabel)
-        experienceContainerView.addSubview(experienceLabel)
-        experienceContainerView.addSubview(experienceBarBackground)
-        experienceBarBackground.addSubview(experienceBarFill)
-        experienceContainerView.addSubview(remainingLabel)
     }
     
     override func setupLayout() {
@@ -134,7 +87,8 @@ final class ProfileExperienceView: BaseView {
         // 프로필 이미지
         profileImageView.snp.makeConstraints { make in
             make.top.leading.equalToSuperview().inset(20)
-            make.width.height.equalTo(56).priority(.high)
+            make.width.height.equalTo(56)
+            make.bottom.equalToSuperview().inset(20).priority(.high)
         }
         
         // 프로필 텍스트 스택
@@ -144,70 +98,67 @@ final class ProfileExperienceView: BaseView {
             make.centerY.equalTo(profileImageView)
         }
         
-        // 경험치 컨테이너
-        experienceContainerView.snp.makeConstraints { make in
-            make.top.equalTo(profileImageView.snp.bottom).offset(16)
-            make.leading.trailing.equalToSuperview().inset(20).priority(.high)
-            make.bottom.equalToSuperview().inset(20)
-        }
-        
-        // 레벨 라벨
-        levelLabel.snp.makeConstraints { make in
-            make.top.leading.equalToSuperview().inset(12)
-        }
-        
-        // 경험치 라벨
-        experienceLabel.snp.makeConstraints { make in
-            make.top.trailing.equalToSuperview().inset(12).priority(.high)
-            make.leading.greaterThanOrEqualTo(levelLabel.snp.trailing).offset(8).priority(.high)
-        }
-        
-        // 경험치 바 배경
-        experienceBarBackground.snp.makeConstraints { make in
-            make.top.equalTo(levelLabel.snp.bottom).offset(8)
-            make.leading.trailing.equalToSuperview().inset(12).priority(.high)
-            make.height.equalTo(8)
-        }
-        
-        // 경험치 바 채움
-        experienceBarFill.snp.makeConstraints { make in
-            make.leading.top.bottom.equalToSuperview()
-            make.width.equalToSuperview().multipliedBy(0.8) // 초기값, 나중에 업데이트
-        }
-        
-        // 남은 경험치 라벨
-        remainingLabel.snp.makeConstraints { make in
-            make.top.equalTo(experienceBarBackground.snp.bottom).offset(8)
-            make.leading.trailing.equalToSuperview().inset(12).priority(.high)
-            make.bottom.equalToSuperview().inset(12)
+        containerView.snp.makeConstraints { make in
+            make.height.equalTo(96)
         }
     }
     
     override func setupStyle() {
         super.setupStyle()
         backgroundColor = .clear
+        setupTapGesture()
+    }
+    
+    // MARK: - Setup Methods
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer()
+        tapGesture.rx.event
+            .map { _ in () }
+            .bind(to: profileTapSubject)
+            .disposed(by: disposeBag)
+        
+        containerView.addGestureRecognizer(tapGesture)
     }
     
     // MARK: - Public Methods
-    func configure(with data: ProfileExperienceData) {
-        nicknameLabel.text = data.nickname
-        subtitleLabel.text = data.subtitle
-        levelLabel.text = "Lv.\(data.level)"
-        experienceLabel.text = "\(data.currentExp)/\(data.maxExp)"
-        remainingLabel.text = "다음 레벨까지 \(data.remainingExp)편 남음"
+    
+    // 탭 제스처 활성화 (더보기 화면용)
+    func enableTapGesture() {
+        let tapGesture = UITapGestureRecognizer()
+        tapGesture.rx.event
+            .map { _ in () }
+            .bind(to: profileTapSubject)
+            .disposed(by: disposeBag)
         
-        // 경험치 바 업데이트
-        let progress = CGFloat(data.currentExp) / CGFloat(data.maxExp)
-        experienceBarFill.snp.updateConstraints { make in
-            make.width.equalToSuperview().multipliedBy(progress)
-        }
+        containerView.addGestureRecognizer(tapGesture)
+    }
+    
+    // 프로필 정보 업데이트
+    func configure(nickname: String, profileImageURL: String) {
+        nicknameLabel.text = nickname
         
-        UIView.animate(withDuration: 0.3) {
-            self.layoutIfNeeded()
+        // 프로필 이미지 로드
+        if !profileImageURL.isEmpty,
+           let image = ProfileImageManager.shared.loadProfileImage(from: profileImageURL) {
+            profileImageView.image = image
+        } else {
+            profileImageView.image = UIImage(systemName: "person.circle.fill")
+            profileImageView.tintColor = .ccPrimary
         }
     }
     
+    // 프로필 이미지만 업데이트
     func updateProfileImage(_ image: UIImage?) {
-        profileImageView.image = image
+        if let image = image {
+            profileImageView.image = image
+        } else {
+            profileImageView.image = UIImage(systemName: "person.circle.fill")
+            profileImageView.tintColor = .ccPrimary
+        }
+    }
+    
+    // 닉네임만 업데이트
+    func updateNickname(_ nickname: String) {
+        nicknameLabel.text = nickname
     }
 }

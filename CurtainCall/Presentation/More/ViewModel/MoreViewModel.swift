@@ -14,16 +14,22 @@ final class MoreViewModel: BaseViewModel {
     // MARK: - Properties
     private let disposeBag = DisposeBag()
     
+    // MARK: - UseCases
+    private let getUserProfileUseCase: GetUserProfileUseCase
+    
     // MARK: - Streams
-    private let profileDataRelay = BehaviorRelay<ProfileExperienceData>(value: MoreViewModel.createDummyData())
+    private let userProfileRelay = BehaviorRelay<UserProfile?>(value: nil)
     
     // MARK: - Input / Output
     struct Input {
+        let viewWillAppear: Observable<Void>
+        let profileViewTapped: Observable<Void>
         let menuItemSelected: Observable<MoreMenuItem>
     }
     
     struct Output {
-        let profileData: Driver<ProfileExperienceData>
+        let userProfile: Driver<UserProfile?>
+        let navigateToProfileEdit: Signal<Void>
         let handleMenuAction: Signal<MenuAction>
     }
     
@@ -34,9 +40,27 @@ final class MoreViewModel: BaseViewModel {
         case openAppStoreReview
     }
     
+    // MARK: - Init
+    init(getUserProfileUseCase: GetUserProfileUseCase) {
+        self.getUserProfileUseCase = getUserProfileUseCase
+        super.init()
+    }
+    
     // MARK: - Transform
     func transform(input: Input) -> Output {
         
+        // viewWillAppear 시 프로필 다시 로드
+        input.viewWillAppear
+            .bind(with: self) { owner, _ in
+                owner.loadUserProfile()
+            }
+            .disposed(by: disposeBag)
+        
+        // 프로필 뷰 탭 -> 프로필 편집 화면으로 이동
+        let navigateToProfileEdit = input.profileViewTapped
+            .asSignal(onErrorSignalWith: .empty())
+        
+        // 메뉴 아이템 선택 -> 액션 처리
         let menuAction = input.menuItemSelected
             .map { item -> MenuAction in
                 switch item {
@@ -53,19 +77,15 @@ final class MoreViewModel: BaseViewModel {
             .asSignal(onErrorSignalWith: .empty())
         
         return Output(
-            profileData: profileDataRelay.asDriver(),
+            userProfile: userProfileRelay.asDriver(),
+            navigateToProfileEdit: navigateToProfileEdit,
             handleMenuAction: menuAction
         )
     }
     
     // MARK: - Private Methods
-    private static func createDummyData() -> ProfileExperienceData {
-        return ProfileExperienceData(
-            nickname: "닉네임",
-            subtitle: "안녕하세요!",
-            level: 5,
-            currentExp: 24,
-            maxExp: 30
-        )
+    private func loadUserProfile() {
+        let profile = getUserProfileUseCase.execute(())
+        userProfileRelay.accept(profile)
     }
 }
