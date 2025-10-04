@@ -308,6 +308,25 @@ final class HomeView: BaseView {
         snapshot.appendItems(newItems, toSection: .boxOffice)
         
         dataSource.apply(snapshot, animatingDifferences: true)
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            // 현재 화면에 보이는 IndexPath들
+            let visibleIndexPaths = self.collectionView.indexPathsForVisibleItems
+            
+            for indexPath in visibleIndexPaths {
+                // boxOffice 섹션만 처리
+                guard let item = self.dataSource.itemIdentifier(for: indexPath),
+                      case .boxOffice(let cardItem) = item,
+                      let cell = self.collectionView.cellForItem(at: indexPath) as? CardCell else {
+                    continue
+                }
+                
+                // 셀 강제 업데이트
+                cell.configure(with: cardItem)
+            }
+        }
     }
     
     func scrollToFirstCard() {
