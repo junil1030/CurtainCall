@@ -250,7 +250,10 @@ final class ProfileEditView: BaseView {
         // 프로필 이미지 로드
         if !profile.profileImageURL.isEmpty,
            let image = ProfileImageManager.shared.loadProfileImage(from: profile.profileImageURL) {
-            updateProfileImage(image)
+            profileImageView.image = image
+        } else {
+            profileImageView.image = UIImage(systemName: "person.circle.fill")
+            profileImageView.tintColor = .ccPrimary
         }
         
         // 미리보기 초기화

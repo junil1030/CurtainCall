@@ -78,23 +78,23 @@ final class ProfileEditViewController: BaseViewController {
         
         let output = viewModel.transform(input: input)
         
-        output.selectedImage
-            .drive(with: self) { owner, profileIamge in
-                guard let profileIamge = profileIamge else { return }
-
-                owner.profileEditView.updateProfileImage(profileIamge)
-                owner.profileEditView.updatePreviewImage(profileIamge)
+        // 현재 프로필 정보로 초기화 (화면 진입 시 한 번만)
+        output.currentProfile
+            .compactMap { $0 }
+            .asObservable()
+            .take(1)  // 첫 번째 값만 받음
+            .asDriver(onErrorDriveWith: .empty())
+            .drive(with: self) { owner, profile in
+                owner.profileEditView.configure(with: profile)
             }
             .disposed(by: disposeBag)
         
-        // 현재 프로필 정보 바인딩
-        output.currentProfile
-            .drive(with: self) { owner, profile in
-                guard let profile = profile, !profile.profileImageURL.isEmpty else { return }
-                
-                if let image = ProfileImageManager.shared.loadProfileImage(from: profile.profileImageURL) {
-                    owner.profileEditView.updatePreviewImage(image)
-                }
+        // 이미지 선택 시 미리보기만 업데이트
+        output.selectedImage
+            .compactMap { $0 }
+            .drive(with: self) { owner, image in
+                owner.profileEditView.updateProfileImage(image)
+                owner.profileEditView.updatePreviewImage(image)
             }
             .disposed(by: disposeBag)
         
@@ -130,7 +130,6 @@ final class ProfileEditViewController: BaseViewController {
     
     // MARK: - Private Methods
     
-    /// PHPickerViewController 표시 및 이미지 선택 Observable 반환
     private func presentImagePicker() -> Observable<UIImage> {
         return Observable.create { [weak self] observer in
             guard let self = self else {
@@ -144,32 +143,22 @@ final class ProfileEditViewController: BaseViewController {
             
             let picker = PHPickerViewController(configuration: configuration)
             
-            let delegate = PHPickerDelegateWrapper { [weak self] results in
-                guard let self = self else {
-                    observer.onCompleted()
-                    return
-                }
-                
+            let delegate = PHPickerDelegateWrapper { results in
                 guard let result = results.first else {
                     observer.onCompleted()
-                    self.pickerDelegate = nil
                     return
                 }
                 
                 result.itemProvider.loadObject(ofClass: UIImage.self) { object, error in
-                    DispatchQueue.main.async {
-                        if let error = error {
-                            observer.onError(error)
-                            self.pickerDelegate = nil
-                            return
-                        }
-                        
-                        if let image = object as? UIImage {
-                            observer.onNext(image)
-                        }
-                        observer.onCompleted()
-                        self.pickerDelegate = nil
+                    if let error = error {
+                        observer.onError(error)
+                        return
                     }
+                    
+                    if let image = object as? UIImage {
+                        observer.onNext(image)
+                    }
+                    observer.onCompleted()
                 }
             }
             
@@ -178,13 +167,10 @@ final class ProfileEditViewController: BaseViewController {
             
             self.present(picker, animated: true)
             
-            return Disposables.create {
-                picker.dismiss(animated: true)
-            }
+            return Disposables.create()
         }
     }
     
-    /// 에러 알럿 표시
     private func showErrorAlert(message: String) {
         let alert = UIAlertController(
             title: "오류",
@@ -197,9 +183,8 @@ final class ProfileEditViewController: BaseViewController {
 }
 
 // MARK: - PHPickerViewControllerDelegate Wrapper
-
-/// PHPickerViewController의 Delegate를 클로저 기반으로 처리하기 위한 래퍼
-private class PHPickerDelegateWrapper: NSObject, PHPickerViewControllerDelegate {
+private final class PHPickerDelegateWrapper: NSObject, PHPickerViewControllerDelegate {
+    
     private let completion: ([PHPickerResult]) -> Void
     
     init(completion: @escaping ([PHPickerResult]) -> Void) {
