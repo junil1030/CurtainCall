@@ -31,7 +31,7 @@ final class HomeViewModel: BaseViewModel {
     
     struct Output {
         let userProfile: Driver<UserProfile?>
-        let boxOfficeList: Driver<[BoxOffice]>
+        let cardItems: Driver<[CardItem]>
         let scrollToFirst: Signal<Void>
         let isLoading: Driver<Bool>
         let favoriteStatusChanged: Signal<(String, Bool)>
@@ -40,6 +40,7 @@ final class HomeViewModel: BaseViewModel {
     // MARK: - Stream
     private let userProfileRelay = BehaviorRelay<UserProfile?>(value: nil)
     private let boxOfficeListRelay = BehaviorRelay<[BoxOffice]>(value: [])
+    private let cardItemsRelay = BehaviorRelay<[CardItem]>(value: [])
     private let isLoadingRelay = BehaviorRelay<Bool>(value: false)
     private let errorRelay = PublishRelay<NetworkError>()
     private let scrollToFirstRelay = PublishRelay<Void>()
@@ -112,7 +113,7 @@ final class HomeViewModel: BaseViewModel {
         
         return Output(
             userProfile: userProfileRelay.asDriver(),
-            boxOfficeList: boxOfficeListRelay.asDriver(),
+            cardItems: cardItemsRelay.asDriver(),
             scrollToFirst: scrollToFirstRelay.asSignal(),
             isLoading: isLoadingRelay.asDriver(),
             favoriteStatusChanged: favoriteStatusChangedRelay.asSignal()
@@ -162,6 +163,10 @@ final class HomeViewModel: BaseViewModel {
                 owner.isLoadingRelay.accept(false)
                 let boxOffices = BoxOfficeMapper.map(from: response.boxofs.boxof)
                 owner.boxOfficeListRelay.accept(boxOffices)
+                
+                let cardItems = owner.convertToCardItems(from: boxOffices)
+                owner.cardItemsRelay.accept(cardItems)
+                
                 if !boxOffices.isEmpty { owner.scrollToFirstRelay.accept(()) }
             } onFailure: { owner, error in
                 owner.isLoadingRelay.accept(false)
@@ -169,8 +174,22 @@ final class HomeViewModel: BaseViewModel {
                     owner.errorRelay.accept(networkError)
                 }
                 owner.boxOfficeListRelay.accept([])
+                owner.cardItemsRelay.accept([])
             }
             .disposed(by: disposeBag)
+    }
+    
+    private func syncFavoriteStatusToData() {
+        let currentBoxOffices = boxOfficeListRelay.value
+        guard !currentBoxOffices.isEmpty else { return }
+        
+        // CardItem으로 변환하면서 찜 상태 반영
+        let cardItems = convertToCardItems(from: currentBoxOffices)
+        
+        // 각 공연의 좋아요 상태를 Signal로 방출 (UI 업데이트용)
+        for cardItem in cardItems {
+            favoriteStatusChangedRelay.accept((cardItem.id, cardItem.isFavorite))
+        }
     }
     
     // 여러 BoxOffice의 좋아요 상태를 한 번에 확인
@@ -188,30 +207,67 @@ final class HomeViewModel: BaseViewModel {
         let currentBoxOffices = boxOfficeListRelay.value
         guard !currentBoxOffices.isEmpty else { return }
         
-        checkFavoriteStatuses(for: currentBoxOffices)
+        let cardItems = convertToCardItems(from: currentBoxOffices)
+        cardItemsRelay.accept(cardItems)
     }
     
     // 좋아요 토글 처리
     private func handleFavoriteToggle(performanceID: String) {
-        // 현재 BoxOffice 리스트에서 해당 공연 찾기
         guard let boxOffice = boxOfficeListRelay.value.first(where: { $0.performanceID == performanceID }) else {
             print("BoxOffice를 찾을 수 없습니다: \(performanceID)")
             return
         }
         
-        // BoxOffice → FavoriteDTO 변환
         let favoriteDTO = BoxOfficeToFavoriteDTOMapper.map(from: boxOffice)
-        
-        // UseCase 실행
         let result = toggleFavoriteUseCase.execute(favoriteDTO)
         
         switch result {
         case .success(let isFavorite):
             favoriteStatusChangedRelay.accept((performanceID, isFavorite))
             
+            var currentCardItems = cardItemsRelay.value
+            if let index = currentCardItems.firstIndex(where: { $0.id == performanceID }) {
+                let updatedCardItem = CardItem(
+                    id: currentCardItems[index].id,
+                    imageURL: currentCardItems[index].imageURL,
+                    title: currentCardItems[index].title,
+                    subtitle: currentCardItems[index].subtitle,
+                    badge: currentCardItems[index].badge,
+                    isFavorite: isFavorite
+                )
+                currentCardItems[index] = updatedCardItem
+                cardItemsRelay.accept(currentCardItems)
+            }
+            
         case .failure(let error):
             print("좋아요 토글 실패: \(error.localizedDescription)")
-            // TODO: 에러 처리 (Toast 또는 Alert)
         }
+    }
+    
+    private func convertToCardItems(from boxOffices: [BoxOffice]) -> [CardItem] {
+        let performanceIDs = boxOffices.map { $0.performanceID }
+        let favoriteStatuses = checkMultipleFavoriteStatusUseCase.execute(performanceIDs)
+        
+        return boxOffices.map { boxOffice in
+            let isFavorite = favoriteStatuses[boxOffice.performanceID] ?? false
+            return CardItem(
+                id: boxOffice.performanceID,
+                imageURL: boxOffice.posterURL,
+                title: boxOffice.title,
+                subtitle: boxOffice.location,
+                badge: boxOffice.rank,
+                isFavorite: isFavorite
+            )
+        }
+    }
+    
+    private func updateBoxOfficeDataWithFavoriteStatus(performanceID: String, isFavorite: Bool) {
+        // 현재 boxOfficeListRelay의 값을 CardItem으로 변환하면서 상태 업데이트
+        let currentBoxOffices = boxOfficeListRelay.value
+        let performanceIDs = currentBoxOffices.map { $0.performanceID }
+        var favoriteStatuses = checkMultipleFavoriteStatusUseCase.execute(performanceIDs)
+        
+        // 변경된 상태 반영
+        favoriteStatuses[performanceID] = isFavorite
     }
 }

@@ -14,6 +14,8 @@ final class HomeView: BaseView {
     
     // MARK: - Properties
     private let disposeBag = DisposeBag()
+    private var pendingNickname: String?
+    private var pendingProfileImageURL: String?
     
     // MARK: - Subject
     private let selectedCategorySubject = PublishSubject<CategoryCode?>()
@@ -65,6 +67,11 @@ final class HomeView: BaseView {
                     withReuseIdentifier: GreetingBannerCell.identifier,
                     for: indexPath
                 ) as! GreetingBannerCell
+                
+                if let nickname = self.pendingNickname,
+                   let profileImageURL = self.pendingProfileImageURL {
+                    cell.configure(nickname: nickname, profileImageURL: profileImageURL)
+                }
                 return cell
                 
             case .category:
@@ -278,7 +285,11 @@ final class HomeView: BaseView {
     // MARK: - Public Methods
     
     func updateProfileBanner(nickname: String, profileImageURL: String) {
-        // greeting 섹션의 셀 찾기
+        // 1. 일단 정보를 저장
+        pendingNickname = nickname
+        pendingProfileImageURL = profileImageURL
+        
+        // 2. 셀이 있으면 바로 업데이트
         guard let greetingIndexPath = dataSource.indexPath(for: .greeting),
               let cell = collectionView.cellForItem(at: greetingIndexPath) as? GreetingBannerCell else {
             return
@@ -287,16 +298,12 @@ final class HomeView: BaseView {
         cell.configure(nickname: nickname, profileImageURL: profileImageURL)
     }
     
-    func updateBoxOfficeList(_ boxOffices: [BoxOffice]) {
-        let cardItems = boxOffices.map { $0.toCardItem() }
-        
+    func updateCardItems(_ cardItems: [CardItem]) {
         var snapshot = dataSource.snapshot()
         
-        // 기존 박스오피스 아이템 제거
         let currentBoxOfficeItems = snapshot.itemIdentifiers(inSection: .boxOffice)
         snapshot.deleteItems(currentBoxOfficeItems)
         
-        // 새로운 아이템 추가
         let newItems = cardItems.map { HomeItem.boxOffice($0) }
         snapshot.appendItems(newItems, toSection: .boxOffice)
         

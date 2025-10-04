@@ -84,9 +84,9 @@ final class HomeViewController: BaseViewController {
             }
             .disposed(by: disposeBag)
         
-        output.boxOfficeList
-            .drive(with: self) { owner, list in
-                owner.homeView.updateBoxOfficeList(list)
+        output.cardItems
+            .drive(with: self) { owner, cardItems in
+                owner.homeView.updateCardItems(cardItems)
             }
             .disposed(by: disposeBag)
         

@@ -83,7 +83,6 @@ final class FavoriteCardCell: BaseCollectionViewCell {
         subtitleLabel.text = nil
         favoriteButton.setFavorite(false)
         currentPerformanceID = nil
-        delegate = nil
     }
     
     override func setupHierarchy() {
@@ -143,7 +142,6 @@ final class FavoriteCardCell: BaseCollectionViewCell {
         super.setupStyle()
         
         backgroundColor = .clear
-        bindFavoriteButton()
     }
     
     // MARK: - Binding
@@ -162,6 +160,7 @@ final class FavoriteCardCell: BaseCollectionViewCell {
         titleLabel.text = data.title
         subtitleLabel.text = data.subtitle
         favoriteButton.setFavorite(data.isFavorite)
+        bindFavoriteButton()
         
         // 포스터 이미지 로드
         if let url = data.imageURL.safeImageURL {

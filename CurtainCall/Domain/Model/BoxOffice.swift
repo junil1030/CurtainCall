@@ -31,16 +31,3 @@ struct BoxOffice {
             .trimmingCharacters(in: .whitespaces) ?? "정보없음"
     }
 }
-
-extension BoxOffice: CardItemConvertible {
-    func toCardItem() -> CardItem {
-        return CardItem(
-            id: performanceID,
-            imageURL: posterURL,
-            title: title,
-            subtitle: location,
-            badge: rank,
-            isFavorite: false  // 추후 찜하기 로직 연동
-        )
-    }
-}

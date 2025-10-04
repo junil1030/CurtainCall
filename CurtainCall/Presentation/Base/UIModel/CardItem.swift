@@ -19,6 +19,14 @@ struct CardItem: Hashable {
     let badge: String?
     let isFavorite: Bool
     
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: CardItem, rhs: CardItem) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
     // MARK: - Init
     init(
         id: String,

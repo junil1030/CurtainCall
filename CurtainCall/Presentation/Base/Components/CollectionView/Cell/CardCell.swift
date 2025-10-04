@@ -85,6 +85,7 @@ final class CardCell: UICollectionViewCell {
         subtitleLabel.text = nil
         rankLabel.text = nil
         favoriteButton.setFavorite(false)
+        currentPerformanceID = nil
     }
     
     // MARK: - Setup Methods
@@ -94,7 +95,6 @@ final class CardCell: UICollectionViewCell {
         }
         
         setupConstraints()
-        bindFavoriteButton()
     }
     
     private func setupConstraints() {
@@ -142,6 +142,7 @@ final class CardCell: UICollectionViewCell {
         subtitleLabel.text = data.subtitle
         rankLabel.text = data.badge
         favoriteButton.setFavorite(data.isFavorite)
+        bindFavoriteButton()
         
         // 포스터 이미지 로드
         if let url = data.imageURL.safeImageURL {
