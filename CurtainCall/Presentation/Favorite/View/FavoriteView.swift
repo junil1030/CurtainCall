@@ -15,9 +15,9 @@ final class FavoriteView: BaseView {
     private let disposeBag = DisposeBag()
     
     // MARK: - Subjects
-    private let sortTypeSubject = PublishSubject<FavoriteFilterCell.SortType>()
-    private let genreSubject = PublishSubject<GenreCode?>()
-    private let areaSubject = PublishSubject<AreaCode?>()
+    private let sortButtonTappedSubject = PublishSubject<FavoriteFilterCell.SortType>()
+    private let genreButtonTappedSubject = PublishSubject<GenreCode?>()
+    private let areaButtonTappedSubject = PublishSubject<AreaCode?>()
     private let favoriteButtonTappedSubject = PublishSubject<String>()
     
     // MARK: - UI Components
@@ -43,17 +43,17 @@ final class FavoriteView: BaseView {
                         for: indexPath
                     ) as! FavoriteFilterCell
                     
-                    // 필터 이벤트 바인딩
-                    cell.sortType
-                        .bind(to: self.sortTypeSubject)
+                    // 각 버튼 이벤트를 개별적으로 바인딩
+                    cell.sortButtonTapped
+                        .bind(to: self.sortButtonTappedSubject)
                         .disposed(by: cell.disposeBag)
                     
-                    cell.selectedGenre
-                        .bind(to: self.genreSubject)
+                    cell.genreButtonTapped
+                        .bind(to: self.genreButtonTappedSubject)
                         .disposed(by: cell.disposeBag)
                     
-                    cell.selectedArea
-                        .bind(to: self.areaSubject)
+                    cell.areaButtonTapped
+                        .bind(to: self.areaButtonTappedSubject)
                         .disposed(by: cell.disposeBag)
                     
                     return cell
@@ -87,17 +87,17 @@ final class FavoriteView: BaseView {
         return dataSource
     }()
     
-    // MARK: - Observables
-    var sortType: Observable<FavoriteFilterCell.SortType> {
-        return sortTypeSubject.asObservable()
+    // MARK: - Public Observables (개별 버튼 이벤트)
+    var sortButtonTapped: Observable<FavoriteFilterCell.SortType> {
+        return sortButtonTappedSubject.asObservable()
     }
     
-    var selectedGenre: Observable<GenreCode?> {
-        return genreSubject.asObservable()
+    var genreButtonTapped: Observable<GenreCode?> {
+        return genreButtonTappedSubject.asObservable()
     }
     
-    var selectedArea: Observable<AreaCode?> {
-        return areaSubject.asObservable()
+    var areaButtonTapped: Observable<AreaCode?> {
+        return areaButtonTappedSubject.asObservable()
     }
     
     var favoriteButtonTapped: Observable<String> {
@@ -142,7 +142,7 @@ final class FavoriteView: BaseView {
     }
     
     // MARK: - Setup Methods
-    private func setupEmptyStateView() {  // 추가
+    private func setupEmptyStateView() {
         emptyStateView.configure(
             icon: UIImage(systemName: "heart"),
             message: "좋아하는 공연을 찜해보세요!"

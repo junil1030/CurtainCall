@@ -56,6 +56,8 @@ final class DetailView: BaseView {
         button.titleLabel?.font = .ccHeadlineBold
         button.backgroundColor = .ccPrimary
         button.layer.cornerRadius = 12
+        // MARK: - ToDo: 기록하기 기능 추가해야함
+        button.isHidden = true
         return button
     }()
     
@@ -117,14 +119,16 @@ final class DetailView: BaseView {
     override func setupLayout() {
         collectionView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(recordButton.snp.top)
+            // MARK: - ToDo: 기록하기 기능 추가시에 레이아웃 변경 요망
+//            make.bottom.equalTo(recordButton.snp.top)
+            make.bottom.equalTo(safeAreaLayoutGuide)
         }
         
-        recordButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(16)
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(16)
-            make.height.equalTo(56)
-        }
+//        recordButton.snp.makeConstraints { make in
+//            make.leading.trailing.equalToSuperview().inset(16)
+//            make.bottom.equalTo(safeAreaLayoutGuide).inset(16)
+//            make.height.equalTo(56)
+//        }
     }
     
     override func setupStyle() {

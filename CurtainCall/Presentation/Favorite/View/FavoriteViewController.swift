@@ -16,6 +16,9 @@ final class FavoriteViewController: BaseViewController {
     private let viewModel: FavoriteViewModel
     private let disposeBag = DisposeBag()
     
+    // viewWillAppear 트리거를 위한 Subject
+    private let viewWillAppearSubject = PublishSubject<Void>()
+    
     // MARK: - Init
     init(viewModel: FavoriteViewModel) {
         self.viewModel = viewModel
@@ -28,8 +31,16 @@ final class FavoriteViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Life Cycle
     override func loadView() {
         view = favoriteView
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // 화면이 다시 나타날 때마다 데이터 새로고침
+        viewWillAppearSubject.onNext(())
     }
     
     override func setupLayout() {
@@ -42,9 +53,10 @@ final class FavoriteViewController: BaseViewController {
         super.setupBind()
         
         let input = FavoriteViewModel.Input(
-            sortTypeChanged: favoriteView.sortType,
-            genreSelected: favoriteView.selectedGenre,
-            areaSelected: favoriteView.selectedArea,
+            viewWillAppear: viewWillAppearSubject.asObservable(),
+            sortButtonTapped: favoriteView.sortButtonTapped,
+            genreButtonTapped: favoriteView.genreButtonTapped,
+            areaButtonTapped: favoriteView.areaButtonTapped,
             favoriteButtonTapped: favoriteView.favoriteButtonTapped
         )
         

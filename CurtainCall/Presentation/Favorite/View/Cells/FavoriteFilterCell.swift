@@ -67,29 +67,43 @@ final class FavoriteFilterCell: BaseCollectionViewCell {
         return button
     }()
     
-    // MARK: - Subjects
-    private let sortTypeSubject = PublishSubject<SortType>()
-    private let genreSubject = PublishSubject<GenreCode?>()
-    private let areaSubject = PublishSubject<AreaCode?>()
-    
-    // MARK: - Observables
-    var sortType: Observable<SortType> {
-        return sortTypeSubject.asObservable()
+    // MARK: - Public Properties
+    var sortButtonTapped: Observable<SortType> {
+        return sortButton.selectedValue
+            .skip(1)
+            .compactMap { $0 as? SortType }
     }
     
-    var selectedGenre: Observable<GenreCode?> {
-        return genreSubject.asObservable()
+    var genreButtonTapped: Observable<GenreCode?> {
+        return genreButton.selectedValue
+            .skip(1)
+            .map { value -> GenreCode? in
+                if let genre = value as? GenreCode {
+                    return genre
+                } else if let stringValue = value as? String, stringValue == "all" {
+                    return nil
+                }
+                return nil
+            }
     }
     
-    var selectedArea: Observable<AreaCode?> {
-        return areaSubject.asObservable()
+    var areaButtonTapped: Observable<AreaCode?> {
+        return areaButton.selectedValue
+            .skip(1)
+            .map { value -> AreaCode? in
+                if let area = value as? AreaCode {
+                    return area
+                } else if let stringValue = value as? String, stringValue == "all" {
+                    return nil
+                }
+                return nil
+            }
     }
     
     // MARK: - Override Methods
     override func prepareForReuse() {
         super.prepareForReuse()
-        disposeBag = DisposeBag()
-        bindButtons()
+        // disposeBag 재생성하지 않음 - 기존 바인딩 유지
     }
     
     override func setupHierarchy() {
@@ -115,41 +129,5 @@ final class FavoriteFilterCell: BaseCollectionViewCell {
         super.setupStyle()
         
         backgroundColor = .ccBackground
-        bindButtons()
-    }
-    
-    // MARK: - Binding
-    private func bindButtons() {
-        // 정렬 버튼
-        sortButton.selectedValue
-            .compactMap { $0 as? SortType }
-            .bind(to: sortTypeSubject)
-            .disposed(by: disposeBag)
-        
-        // 장르 버튼
-        genreButton.selectedValue
-            .map { value -> GenreCode? in
-                if let genre = value as? GenreCode {
-                    return genre
-                } else if let stringValue = value as? String, stringValue == "all" {
-                    return nil
-                }
-                return nil
-            }
-            .bind(to: genreSubject)
-            .disposed(by: disposeBag)
-        
-        // 지역 버튼
-        areaButton.selectedValue
-            .map { value -> AreaCode? in
-                if let area = value as? AreaCode {
-                    return area
-                } else if let stringValue = value as? String, stringValue == "all" {
-                    return nil
-                }
-                return nil
-            }
-            .bind(to: areaSubject)
-            .disposed(by: disposeBag)
     }
 }

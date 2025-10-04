@@ -194,8 +194,11 @@ final class FilterButton: UIButton {
     
     // MARK: - Actions
     private func handleMenuSelection(_ item: DropdownItem) {
-        updateTitle(item.title)
-        selectedValueRelay.accept(item.value)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.updateTitle(item.title)
+            self.selectedValueRelay.accept(item.value)
+        }
     }
     
     private func handleDatePickerAction() {

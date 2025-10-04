@@ -27,14 +27,17 @@ final class FavoriteViewModel: BaseViewModel {
     private let favoriteRemovedRelay = PublishRelay<String>()
     private let monthlyCountRelay = BehaviorRelay<Int>(value: 0)
     
-    // MARK: - Filter State
-    private let currentFilterRelay = BehaviorRelay<FavoriteFilterCondition>(value: .default)
+    // 개별 필터 상태 관리
+    private let currentSortTypeRelay = BehaviorRelay<FavoriteFilterCondition.SortType>(value: .latest)
+    private let currentGenreRelay = BehaviorRelay<GenreCode?>(value: nil)
+    private let currentAreaRelay = BehaviorRelay<AreaCode?>(value: nil)
     
     // MARK: - Input / Output
     struct Input {
-        let sortTypeChanged: Observable<FavoriteFilterCell.SortType>
-        let genreSelected: Observable<GenreCode?>
-        let areaSelected: Observable<AreaCode?>
+        let viewWillAppear: Observable<Void>
+        let sortButtonTapped: Observable<FavoriteFilterCell.SortType>
+        let genreButtonTapped: Observable<GenreCode?>
+        let areaButtonTapped: Observable<AreaCode?>
         let favoriteButtonTapped: Observable<String>
     }
     
@@ -59,54 +62,47 @@ final class FavoriteViewModel: BaseViewModel {
         self.getFavoriteStatisticsUseCase = getFavoriteStatisticsUseCase
         super.init()
         
-        loadFavorites(with: .default)
+        loadFavorites()
     }
     
     // MARK: - Transform
     func transform(input: Input) -> Output {
         
-        // 정렬 타입 변경 처리
-        input.sortTypeChanged
-            .withLatestFrom(currentFilterRelay) { sortType, filter in
-                FavoriteFilterCondition(
-                    sortType: self.mapToFilterSortType(sortType),
-                    genre: filter.genre,
-                    area: filter.area
-                )
+        // viewWillAppear 시 현재 필터로 데이터 새로고침
+        input.viewWillAppear
+            .bind(with: self) { owner, _ in
+                owner.loadFavorites()
             }
-            .bind(with: self) { owner, newFilter in
-                owner.currentFilterRelay.accept(newFilter)
-                owner.loadFavorites(with: newFilter)
+            .disposed(by: disposeBag)
+        
+        // 정렬 타입 변경 처리
+        input.sortButtonTapped
+            .distinctUntilChanged()
+            .map { [weak self] sortType -> FavoriteFilterCondition.SortType in
+                guard let self = self else { return .latest }
+                return self.mapToFilterSortType(sortType)
+            }
+            .bind(with: self) { owner, sortType in
+                owner.currentSortTypeRelay.accept(sortType)
+                owner.loadFavorites()
             }
             .disposed(by: disposeBag)
         
         // 장르 선택 변경 처리
-        input.genreSelected
-            .withLatestFrom(currentFilterRelay) { genre, filter in
-                FavoriteFilterCondition(
-                    sortType: filter.sortType,
-                    genre: genre,
-                    area: filter.area
-                )
-            }
-            .bind(with: self) { owner, newFilter in
-                owner.currentFilterRelay.accept(newFilter)
-                owner.loadFavorites(with: newFilter)
+        input.genreButtonTapped
+            .distinctUntilChanged { $0?.rawValue == $1?.rawValue }
+            .bind(with: self) { owner, genre in
+                owner.currentGenreRelay.accept(genre)
+                owner.loadFavorites()
             }
             .disposed(by: disposeBag)
         
         // 지역 선택 변경 처리
-        input.areaSelected
-            .withLatestFrom(currentFilterRelay) { area, filter in
-                FavoriteFilterCondition(
-                    sortType: filter.sortType,
-                    genre: filter.genre,
-                    area: area
-                )
-            }
-            .bind(with: self) { owner, newFilter in
-                owner.currentFilterRelay.accept(newFilter)
-                owner.loadFavorites(with: newFilter)
+        input.areaButtonTapped
+            .distinctUntilChanged { $0?.rawValue == $1?.rawValue }
+            .bind(with: self) { owner, area in
+                owner.currentAreaRelay.accept(area)
+                owner.loadFavorites()
             }
             .disposed(by: disposeBag)
         
@@ -129,8 +125,17 @@ final class FavoriteViewModel: BaseViewModel {
     
     // MARK: - Private Methods
     
-    // 찜한 공연 목록 로드
-    private func loadFavorites(with filter: FavoriteFilterCondition) {
+    // 찜한 공연 목록 로드 - 현재 필터 상태 사용
+    private func loadFavorites() {
+        // 현재 필터 상태로 FavoriteFilterCondition 생성
+        let filter = FavoriteFilterCondition(
+            sortType: currentSortTypeRelay.value,
+            genre: currentGenreRelay.value,
+            area: currentAreaRelay.value
+        )
+        
+        print(filter.sortType, filter.genre?.rawValue, filter.area?.rawValue)
+        
         // UseCase 실행
         let favoriteDTOs = fetchFavoritesUseCase.execute(filter)
         
@@ -166,8 +171,8 @@ final class FavoriteViewModel: BaseViewModel {
         
         switch result {
         case .success:
-            // 성공 시 현재 필터로 다시 로드
-            loadFavorites(with: currentFilterRelay.value)
+            // 성공 시 현재 필터 상태로 다시 로드
+            loadFavorites()
             favoriteRemovedRelay.accept(performanceID)
             
         case .failure(let error):
