@@ -14,8 +14,9 @@ final class FavoriteFilterCell: BaseCollectionViewCell {
     // MARK: - Types
     enum SortType: String, CaseIterable {
         case latest = "최신순"
-        case title = "제목순"
-        case rating = "평점순"
+        case oldest = "오래된순"
+        case nameAscending = "제목 오름차순"
+        case nameDescending = "제목 내림차순"
     }
     
     // MARK: - Properties
