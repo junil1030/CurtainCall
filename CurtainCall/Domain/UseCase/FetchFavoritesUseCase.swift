@@ -6,3 +6,53 @@
 //
 
 import Foundation
+
+final class FetchFavoritesUseCase: UseCase {
+    
+    // MARK: - Typealias
+    typealias Input = FavoriteFilterCondition
+    typealias Output = [FavoriteDTO]
+    
+    // MARK: - Properties
+    private let repository: FavoriteRepositoryProtocol
+    
+    // MARK: - Init
+    init(repository: FavoriteRepositoryProtocol) {
+        self.repository = repository
+    }
+    
+    // MARK: - Execute
+    func execute(_ input: FavoriteFilterCondition) -> [FavoriteDTO] {
+        var favorites: [FavoriteDTO]
+        
+        // 1. 장르 필터 적용
+        if let genre = input.genre {
+            favorites = repository.getFavoritesByGenre(genre.rawValue)
+        } else {
+            favorites = repository.getFavorites()
+        }
+        
+        // 2. 지역 필터 적용
+        if let area = input.area {
+            favorites = favorites.filter { $0.area == area.rawValue }
+        }
+        
+        // 3. 정렬 적용
+        switch input.sortType {
+        case .latest:
+            // 이미 createdAt 내림차순으로 정렬되어 있음 (Repository에서)
+            break
+            
+        case .oldest:
+            favorites = favorites.sorted { $0.createdAt < $1.createdAt }
+            
+        case .nameAscending:
+            favorites = favorites.sorted { $0.title < $1.title }
+            
+        case .nameDescending:
+            favorites = favorites.sorted { $0.title > $1.title }
+        }
+        
+        return favorites
+    }
+}

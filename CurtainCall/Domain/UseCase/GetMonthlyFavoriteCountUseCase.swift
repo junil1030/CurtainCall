@@ -6,3 +6,23 @@
 //
 
 import Foundation
+
+final class GetMonthlyFavoriteCountUseCase: UseCase {
+    
+    // MARK: - Typealias
+    typealias Input = Void
+    typealias Output = Int
+    
+    // MARK: - Properties
+    private let repository: FavoriteRepositoryProtocol
+    
+    // MARK: - Init
+    init(repository: FavoriteRepositoryProtocol) {
+        self.repository = repository
+    }
+    
+    // MARK: - Execute
+    func execute(_ input: Void) -> Int {
+        return repository.getMonthlyFavoriteCount()
+    }
+}
