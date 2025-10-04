@@ -10,10 +10,16 @@ import RxSwift
 import SnapKit
 import Kingfisher
 
+protocol FavoriteCardCellDelegate: AnyObject {
+    func favoriteCardCell(_ cell: FavoriteCardCell, didTapFavoriteButton performanceID: String)
+}
+
 final class FavoriteCardCell: BaseCollectionViewCell {
     
     // MARK: - Properties
     var disposeBag = DisposeBag()
+    weak var delegate: FavoriteCardCellDelegate?
+    private var currentPerformanceID: String?
     
     // MARK: - UI Components
     private let containerView: UIView = {
@@ -76,6 +82,8 @@ final class FavoriteCardCell: BaseCollectionViewCell {
         titleLabel.text = nil
         subtitleLabel.text = nil
         favoriteButton.setFavorite(false)
+        currentPerformanceID = nil
+        delegate = nil
     }
     
     override func setupHierarchy() {
@@ -135,10 +143,22 @@ final class FavoriteCardCell: BaseCollectionViewCell {
         super.setupStyle()
         
         backgroundColor = .clear
+        bindFavoriteButton()
+    }
+    
+    // MARK: - Binding
+    private func bindFavoriteButton() {
+        favoriteButton.tapEvent
+            .subscribe(with: self) { owner, _ in
+                guard let performanceID = owner.currentPerformanceID else { return }
+                owner.delegate?.favoriteCardCell(owner, didTapFavoriteButton: performanceID)
+            }
+            .disposed(by: disposeBag)
     }
     
     // MARK: - Configure
     func configure(with data: CardItem) {
+        currentPerformanceID = data.id
         titleLabel.text = data.title
         subtitleLabel.text = data.subtitle
         favoriteButton.setFavorite(data.isFavorite)
@@ -158,13 +178,10 @@ final class FavoriteCardCell: BaseCollectionViewCell {
             posterImageView.image = UIImage(systemName: "photo.circle")?
                 .withTintColor(.ccPrimary, renderingMode: .alwaysOriginal)
         }
-        
-        // 찜하기 버튼 이벤트
-        favoriteButton.tapEvent
-            .subscribe(with: self) { owner, _ in
-                print("찜하기 버튼 클릭")
-                // TODO: 찜하기 토글 로직
-            }
-            .disposed(by: disposeBag)
+    }
+    
+    // MARK: - Public Methods
+    func updateFavoriteStatus(_ isFavorite: Bool) {
+        favoriteButton.setFavorite(isFavorite)
     }
 }
