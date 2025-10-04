@@ -16,6 +16,9 @@ final class HomeViewController: BaseViewController {
     private let viewModel: HomeViewModel
     private let disposeBag = DisposeBag()
     
+    // MARK: - Subjects
+    private let viewWillAppearSubject = PublishSubject<Void>()
+    
     // MARK: - UI Components
     private let searchButton = UIBarButtonItem(
         image: UIImage(systemName: "magnifyingglass"),
@@ -41,10 +44,16 @@ final class HomeViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Life Cycle
     override func loadView() {
         super.loadView()
         
         view = homeView
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewWillAppearSubject.onNext(())
     }
     
     override func setupLayout() {
@@ -56,6 +65,7 @@ final class HomeViewController: BaseViewController {
         super.setupBind()
         
         let input = HomeViewModel.Input(
+            viewWillAppear: viewWillAppearSubject.asObservable(),
             selectedCard: homeView.selectedCard,
             selectedCategory: homeView.selectedCategory,
             filterState: homeView.filterState,
@@ -63,6 +73,16 @@ final class HomeViewController: BaseViewController {
         )
         
         let output = viewModel.transform(input: input)
+        
+        output.userProfile
+            .drive(with: self) { owner, profile in
+                guard let profile = profile else { return }
+                owner.homeView.updateProfileBanner(
+                    nickname: profile.nickname,
+                    profileImageURL: profile.profileImageURL
+                )
+            }
+            .disposed(by: disposeBag)
         
         output.boxOfficeList
             .drive(with: self) { owner, list in

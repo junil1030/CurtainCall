@@ -276,6 +276,17 @@ final class HomeView: BaseView {
     }
     
     // MARK: - Public Methods
+    
+    func updateProfileBanner(nickname: String, profileImageURL: String) {
+        // greeting 섹션의 셀 찾기
+        guard let greetingIndexPath = dataSource.indexPath(for: .greeting),
+              let cell = collectionView.cellForItem(at: greetingIndexPath) as? GreetingBannerCell else {
+            return
+        }
+        
+        cell.configure(nickname: nickname, profileImageURL: profileImageURL)
+    }
+    
     func updateBoxOfficeList(_ boxOffices: [BoxOffice]) {
         let cardItems = boxOffices.map { $0.toCardItem() }
         

@@ -16,11 +16,13 @@ final class HomeViewModel: BaseViewModel {
     private let disposeBag = DisposeBag()
     
     // MARK: - UseCases
+    private let getUserProfileUseCase: GetUserProfileUseCase
     private let toggleFavoriteUseCase: ToggleFavoriteUseCase
     private let checkMultipleFavoriteStatusUseCase: CheckMultipleFavoriteStatusUseCase
     
     // MARK: - Input / Output
     struct Input {
+        let viewWillAppear: Observable<Void>
         let selectedCard: Observable<CardItem>
         let selectedCategory: Observable<CategoryCode?>
         let filterState: Observable<FilterButtonContainer.FilterState>
@@ -28,6 +30,7 @@ final class HomeViewModel: BaseViewModel {
     }
     
     struct Output {
+        let userProfile: Driver<UserProfile?>
         let boxOfficeList: Driver<[BoxOffice]>
         let scrollToFirst: Signal<Void>
         let isLoading: Driver<Bool>
@@ -35,6 +38,7 @@ final class HomeViewModel: BaseViewModel {
     }
     
     // MARK: - Stream
+    private let userProfileRelay = BehaviorRelay<UserProfile?>(value: nil)
     private let boxOfficeListRelay = BehaviorRelay<[BoxOffice]>(value: [])
     private let isLoadingRelay = BehaviorRelay<Bool>(value: false)
     private let errorRelay = PublishRelay<NetworkError>()
@@ -42,15 +46,29 @@ final class HomeViewModel: BaseViewModel {
     private let favoriteStatusChangedRelay = PublishRelay<(String, Bool)>()
     
     // MARK: - Init
-    init(toggleFavoriteUseCase: ToggleFavoriteUseCase, checkMultipleFavoriteStatusUseCase: CheckMultipleFavoriteStatusUseCase) {
+    init(
+        getUserProfileUseCase: GetUserProfileUseCase,
+        toggleFavoriteUseCase: ToggleFavoriteUseCase,
+        checkMultipleFavoriteStatusUseCase: CheckMultipleFavoriteStatusUseCase
+    ) {
+        self.getUserProfileUseCase = getUserProfileUseCase
         self.toggleFavoriteUseCase = toggleFavoriteUseCase
         self.checkMultipleFavoriteStatusUseCase = checkMultipleFavoriteStatusUseCase
         super.init()
         
         loadInitialData()
+        loadUserProfile()
     }
     
     func transform(input: Input) -> Output {
+        
+        // viewWillAppear 시 프로필 로드 및 찜 상태 동기화
+        input.viewWillAppear
+            .bind(with: self) { owner, _ in
+                owner.loadUserProfile()
+                owner.syncFavoriteStatus()
+            }
+            .disposed(by: disposeBag)
         
         // 카테고리 변경 시 검색
         let categoryChanged = input.selectedCategory
@@ -77,7 +95,7 @@ final class HomeViewModel: BaseViewModel {
         searchTrigger
             .withUnretained(self)
             .filter { (owner, _) in
-                return !(owner.isLoadingRelay.value)
+                return !owner.isLoadingRelay.value
             }
             .bind { owner, data in
                 let (category, filterState) = data
@@ -85,19 +103,27 @@ final class HomeViewModel: BaseViewModel {
             }
             .disposed(by: disposeBag)
         
+        // 좋아요 버튼 탭 처리
         input.favoriteButtonTapped
-            .withUnretained(self)
-            .subscribe(onNext: { owner, performanceID in
+            .bind(with: self) { owner, performanceID in
                 owner.handleFavoriteToggle(performanceID: performanceID)
-            })
+            }
             .disposed(by: disposeBag)
         
         return Output(
+            userProfile: userProfileRelay.asDriver(),
             boxOfficeList: boxOfficeListRelay.asDriver(),
             scrollToFirst: scrollToFirstRelay.asSignal(),
             isLoading: isLoadingRelay.asDriver(),
             favoriteStatusChanged: favoriteStatusChangedRelay.asSignal()
         )
+    }
+    
+    // MARK: - Private Methods
+    
+    private func loadUserProfile() {
+        let profile = getUserProfileUseCase.execute(())
+        userProfileRelay.accept(profile)
     }
     
     private func loadInitialData() {
@@ -156,6 +182,13 @@ final class HomeViewModel: BaseViewModel {
         for (performanceID, isFavorite) in favoriteStatuses {
             favoriteStatusChangedRelay.accept((performanceID, isFavorite))
         }
+    }
+    
+    private func syncFavoriteStatus() {
+        let currentBoxOffices = boxOfficeListRelay.value
+        guard !currentBoxOffices.isEmpty else { return }
+        
+        checkFavoriteStatuses(for: currentBoxOffices)
     }
     
     // 좋아요 토글 처리

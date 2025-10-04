@@ -36,4 +36,19 @@ final class GreetingBannerCell: BaseCollectionViewCell {
             make.edges.equalToSuperview()
         }
     }
+    
+    // MARK: - Public Methods
+    func configure(nickname: String, profileImageURL: String) {
+        bannerView.updateNickname(nickname)
+        
+        // 프로필 이미지 로드
+        if !profileImageURL.isEmpty,
+           let image = ProfileImageManager.shared.loadProfileImage(from: profileImageURL) {
+            bannerView.updateProfileImage(image)
+        } else {
+            // 기본 이미지로 설정
+            let defaultImage = UIImage(systemName: "person.fill")
+            bannerView.updateProfileImage(defaultImage)
+        }
+    }
 }
