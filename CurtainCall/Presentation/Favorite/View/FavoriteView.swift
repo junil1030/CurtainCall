@@ -15,10 +15,10 @@ final class FavoriteView: BaseView {
     private let disposeBag = DisposeBag()
     
     // MARK: - Subjects
-    private let editButtonTappedSubject = PublishSubject<Void>()
     private let sortTypeSubject = PublishSubject<FavoriteFilterCell.SortType>()
     private let genreSubject = PublishSubject<GenreCode?>()
     private let areaSubject = PublishSubject<AreaCode?>()
+    private let favoriteButtonTappedSubject = PublishSubject<String>()
     
     // MARK: - UI Components
     private lazy var collectionView: UICollectionView = {
@@ -27,18 +27,8 @@ final class FavoriteView: BaseView {
         cv.showsVerticalScrollIndicator = true
         return cv
     }()
-    
-    private let editButton: UIButton = {
-        var configure = UIButton.Configuration.plain()
-        configure.image = UIImage(systemName: "pencil.line")
-        configure.title = "편집"
-        configure.baseForegroundColor = .ccButtonText
-        let button = UIButton(configuration: configure)
-        button.titleLabel?.font = .ccHeadlineBold
-        button.layer.cornerRadius = 12
-        button.backgroundColor = .ccPrimary
-        return button
-    }()
+
+    private let emptyStateView = EmptyStateView()
     
     // MARK: - DataSource
     private lazy var dataSource: UICollectionViewDiffableDataSource<FavoriteSection, FavoriteItem> = {
@@ -73,6 +63,7 @@ final class FavoriteView: BaseView {
                         withReuseIdentifier: FavoriteCardCell.identifier,
                         for: indexPath
                     ) as! FavoriteCardCell
+                    cell.delegate = self
                     cell.configure(with: cardItem)
                     return cell
                 }
@@ -88,8 +79,7 @@ final class FavoriteView: BaseView {
                 for: indexPath
             ) as! FavoriteHeaderView
             
-            // TODO: 추후 실제 데이터로 변경
-            header.configure(totalCount: 5, monthlyCount: 2)
+            header.configure(totalCount: self.currentTotalCount, monthlyCount: self.currentMonthlyCount)
             
             return header
         }
@@ -98,10 +88,6 @@ final class FavoriteView: BaseView {
     }()
     
     // MARK: - Observables
-    var editButtonTapped: Observable<Void> {
-        return editButtonTappedSubject.asObservable()
-    }
-    
     var sortType: Observable<FavoriteFilterCell.SortType> {
         return sortTypeSubject.asObservable()
     }
@@ -114,10 +100,25 @@ final class FavoriteView: BaseView {
         return areaSubject.asObservable()
     }
     
+    var favoriteButtonTapped: Observable<String> {
+        return favoriteButtonTappedSubject.asObservable()
+    }
+    
+    var selectedCard: Observable<CardItem> {
+        return collectionView.rx.itemSelected
+            .compactMap { [weak self] indexPath in
+                guard let self = self,
+                      case .favorite(let cardItem) = self.dataSource.itemIdentifier(for: indexPath) else {
+                    return nil
+                }
+                return cardItem
+            }
+    }
+    
     // MARK: - BaseView Override Methods
     override func setupHierarchy() {
         addSubview(collectionView)
-        addSubview(editButton)
+        collectionView.addSubview(emptyStateView)
     }
     
     override func setupLayout() {
@@ -125,10 +126,10 @@ final class FavoriteView: BaseView {
             make.edges.equalTo(safeAreaLayoutGuide)
         }
         
-        editButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(16)
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(16)
-            make.height.equalTo(44)
+        emptyStateView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview().offset(60)
+            make.leading.trailing.equalToSuperview().inset(32)
         }
     }
     
@@ -136,19 +137,21 @@ final class FavoriteView: BaseView {
         super.setupStyle()
         backgroundColor = .ccBackground
         setupCollectionView()
+        setupEmptyStateView()
         applyInitialSnapshot()
-        bindActions()
     }
     
-    // MARK: - Private Methods
-    private func bindActions() {
-        editButton.rx.tap
-            .bind(to: editButtonTappedSubject)
-            .disposed(by: disposeBag)
+    // MARK: - Setup Methods
+    private func setupEmptyStateView() {  // 추가
+        emptyStateView.configure(
+            icon: UIImage(systemName: "heart"),
+            message: "좋아하는 공연을 찜해보세요!"
+        )
+        emptyStateView.isHidden = true
     }
 
     // MARK: - Public Methods
-    func updateFavorites(_ favorites: [CardItem]) {
+    func updateFavorites(_ favorites: [CardItem], isEmpty: Bool) {
         var snapshot = dataSource.snapshot()
         
         // 카드 섹션의 기존 아이템 제거
@@ -160,6 +163,31 @@ final class FavoriteView: BaseView {
         snapshot.appendItems(items, toSection: .cards)
         
         dataSource.apply(snapshot, animatingDifferences: true)
+        
+        emptyStateView.isHidden = !isEmpty
+    }
+    
+    func updateStatistics(totalCount: Int, monthlyCount: Int) {
+        // 헤더 업데이트를 위한 스냅샷 재적용
+        var snapshot = dataSource.snapshot()
+        snapshot.reloadSections([.filter])
+        
+        // supplementaryViewProvider에서 사용할 데이터 저장
+        currentTotalCount = totalCount
+        currentMonthlyCount = monthlyCount
+        
+        dataSource.apply(snapshot, animatingDifferences: false)
+    }
+    
+    // MARK: - Private Properties (헤더 데이터 저장용)
+    private var currentTotalCount: Int = 0
+    private var currentMonthlyCount: Int = 0
+}
+
+// MARK: - FavoriteCardCellDelegate
+extension FavoriteView: FavoriteCardCellDelegate {
+    func favoriteCardCell(_ cell: FavoriteCardCell, didTapFavoriteButton performanceID: String) {
+        favoriteButtonTappedSubject.onNext(performanceID)
     }
 }
 
@@ -190,21 +218,6 @@ extension FavoriteView {
         
         // 카드 섹션
         snapshot.appendSections([.cards])
-        
-        // TODO: 더미 데이터 (추후 실제 데이터로 변경)
-        let dummyCards = (1...5).map { index in
-            CardItem(
-                id: "\(index)",
-                imageURL: "",
-                title: "공연 \(index)",
-                subtitle: "공연장 \(index)",
-                badge: nil,
-                isFavorite: true
-            )
-        }
-        
-        let items = dummyCards.map { FavoriteItem.favorite($0) }
-        snapshot.appendItems(items, toSection: .cards)
         
         dataSource.apply(snapshot, animatingDifferences: false)
     }
