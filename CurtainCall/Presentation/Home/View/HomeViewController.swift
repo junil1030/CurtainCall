@@ -112,7 +112,21 @@ final class HomeViewController: BaseViewController {
         
         favoriteButton.rx.tap
             .bind(with: self) { owner, _ in
-                let vc = FavoriteViewController()
+                let repository = FavoriteRepository()
+                
+                let fetchFavoritesUseCase = FetchFavoritesUseCase(repository: repository)
+                let removeFavoriteUseCase = RemoveFavoriteUseCase(repository: repository)
+                let getMonthlyFavoriteCountUseCase = GetMonthlyFavoriteCountUseCase(repository: repository)
+                let getFavoriteStatisticsUseCase = GetFavoriteStatisticsUseCase(repository: repository)
+                
+                let viewModel = FavoriteViewModel(
+                    fetchFavoritesUseCase: fetchFavoritesUseCase,
+                    removeFavoriteUseCase: removeFavoriteUseCase,
+                    getMonthlyFavoriteCountUseCase: getMonthlyFavoriteCountUseCase,
+                    getFavoriteStatisticsUseCase: getFavoriteStatisticsUseCase
+                )
+                
+                let vc = FavoriteViewController(viewModel: viewModel)
                 owner.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
