@@ -71,6 +71,7 @@ final class CardCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
+        bindFavoriteButton()
     }
     
     required init?(coder: NSCoder) {
@@ -86,6 +87,8 @@ final class CardCell: UICollectionViewCell {
         rankLabel.text = nil
         favoriteButton.setFavorite(false)
         currentPerformanceID = nil
+        
+        bindFavoriteButton()
     }
     
     // MARK: - Setup Methods
@@ -115,13 +118,13 @@ final class CardCell: UICollectionViewCell {
         
         titleLabel.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(12)
-            make.height.equalTo(28) // 한 줄 고정 높이
+            make.height.equalTo(28)
             make.bottom.equalTo(subtitleLabel.snp.top).offset(-4)
         }
         
         subtitleLabel.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(12)
-            make.height.equalTo(20) // 부제목 고정 높이
+            make.height.equalTo(20)
             make.bottom.equalToSuperview().inset(8)
         }
     }
@@ -142,11 +145,12 @@ final class CardCell: UICollectionViewCell {
         subtitleLabel.text = data.subtitle
         rankLabel.text = data.badge
         favoriteButton.setFavorite(data.isFavorite)
-        bindFavoriteButton()
         
         // 포스터 이미지 로드
         if let url = data.imageURL.safeImageURL {
-            posterImageView.kf.setImage(with: url, placeholder: UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal),
+            posterImageView.kf.setImage(
+                with: url,
+                placeholder: UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal),
                 options: [
                     .transition(.fade(0.3)),
                     .cacheOriginalImage
