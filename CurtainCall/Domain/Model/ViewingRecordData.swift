@@ -6,3 +6,12 @@
 //
 
 import Foundation
+
+struct ViewingRecordData {
+    let viewingDate: Date
+    let viewingTime: Date
+    let companion: String
+    let seat: String
+    let rating: Int
+    let review: String
+}
