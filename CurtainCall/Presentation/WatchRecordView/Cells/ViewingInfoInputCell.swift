@@ -257,7 +257,7 @@ final class ViewingInfoInputCell: BaseCollectionViewCell {
         timeSelectorButton.selectedValue
             .compactMap { $0 as? Date }
             .subscribe(with: self) { owner, date in
-                owner.updateTimeButton(date: date)
+                owner.updateTimeButton(time: date)
                 owner.timeButtonTappedSubject.onNext(date)
             }
             .disposed(by: disposeBag)
@@ -299,13 +299,48 @@ final class ViewingInfoInputCell: BaseCollectionViewCell {
     }
     
     // MARK: - Private Methods
-    private func updateDateButton(date: Date) {
-        print(date.toDateWithWeekday)
-        dateSelectorButton.setTitle(date.toDateWithWeekday)
+    func configure(date: Date, time: Date, companion: String, seat: String) {
+        // 날짜 설정
+        dateSelectorButton.setSelectedValue(date)
+        updateDateButton(date: date)
+        
+        // 시간 설정
+        timeSelectorButton.setSelectedValue(time)
+        updateTimeButton(time: time)
+        
+        // 동행인 설정
+        companionButtons.forEach { button in
+            if button.titleLabel?.text == companion {
+                button.setSelected(true)
+                companionSelectedSubject.onNext(companion)
+            } else {
+                button.setSelected(false)
+            }
+        }
+        
+        // 좌석 설정
+        seatTextView.text = seat
+        placeholderLabel.isHidden = !seat.isEmpty
+        seatTextChangedSubject.onNext(seat)
     }
-    
-    private func updateTimeButton(date: Date) {
-        print(date.toTime24Hour)
-        timeSelectorButton.setTitle(date.toTime24Hour)
+
+    private func updateDateButton(date: Date) {
+        let dateString = date.toDateWithWeekday
+        print("날짜 업데이트: \(dateString)")
+        dateSelectorButton.setTitle(dateString)
+        
+        // 레이아웃 강제 업데이트
+        dateSelectorButton.setNeedsLayout()
+        dateSelectorButton.layoutIfNeeded()
+    }
+
+    private func updateTimeButton(time: Date) {
+        let timeString = time.toTime24Hour
+        print("시간 업데이트: \(timeString)")
+        timeSelectorButton.setTitle(timeString)
+        
+        // 레이아웃 강제 업데이트
+        timeSelectorButton.setNeedsLayout()
+        timeSelectorButton.layoutIfNeeded()
     }
 }

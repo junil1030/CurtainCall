@@ -27,6 +27,7 @@ final class WatchRecordView: BaseView {
     // MARK: - Properties
     private let disposeBag = DisposeBag()
     private var performanceDetail: PerformanceDetail?
+    private var initialRecordData: ViewingRecordData?
     
     // MARK: - Subjects
     private let saveButtonTappedSubject = PublishSubject<Void>()
@@ -128,6 +129,15 @@ final class WatchRecordView: BaseView {
                     .bind(to: seatTextChangedSubject)
                     .disposed(by: cell.disposeBag)
                 
+                if let data = self.initialRecordData {
+                    cell.configure(
+                        date: data.viewingDate,
+                        time: data.viewingTime,
+                        companion: data.companion,
+                        seat: data.seat
+                    )
+                }
+                
                 return cell
                 
             case .rating:
@@ -142,6 +152,13 @@ final class WatchRecordView: BaseView {
                     .bind(to: reviewTextChangedSubject)
                     .disposed(by: cell.disposeBag)
                 
+                if let data = self.initialRecordData {
+                    cell.configure(
+                        rating: data.rating,
+                        review: data.review
+                    )
+                }
+                
                 return cell
                 
             case .memo:
@@ -152,6 +169,31 @@ final class WatchRecordView: BaseView {
         
         return dataSource
     }()
+    
+    // MARK: - Public Methods
+    func updateSaveButtonState(isEnabled: Bool) {
+        saveButton.isEnabled = isEnabled
+        saveButton.backgroundColor = isEnabled ? .ccPrimary : .ccButtonDisabled
+        saveButton.alpha = isEnabled ? 1.0 : 0.5
+    }
+    
+    func configureWithExistingRecord(_ data: ViewingRecordData) {
+        // 초기 데이터 저장
+        self.initialRecordData = data
+        
+        // 각 Subject에 초기 데이터 전달 (ViewModel Relay 동기화용)
+        dateButtonTappedSubject.onNext(data.viewingDate)
+        timeButtonTappedSubject.onNext(data.viewingTime)
+        companionSelectedSubject.onNext(data.companion)
+        seatTextChangedSubject.onNext(data.seat)
+        ratingChangedSubject.onNext(data.rating)
+        reviewTextChangedSubject.onNext(data.review)
+        
+        // 스냅샷 재적용하여 셀에 데이터 반영
+        var snapshot = dataSource.snapshot()
+        snapshot.reconfigureItems([.viewingInfo, .rating])
+        dataSource.apply(snapshot, animatingDifferences: false)
+    }
     
     // MARK: - Override Methods
     override func setupHierarchy() {

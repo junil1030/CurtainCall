@@ -246,4 +246,25 @@ final class RatingReviewCell: BaseCollectionViewCell {
     private func updateCharacterCount(_ count: Int) {
         characterCountLabel.text = "(\(count)/\(maxCharacterCount)자)"
     }
+    
+    // MARK: - Configure
+    func configure(rating: Int, review: String) {
+        // 별점 설정
+        updateStarButtons(rating: rating)
+        ratingChangedSubject.onNext(rating)
+        
+        // 리뷰 설정
+        reviewTextView.text = review
+        placeholderLabel.isHidden = !review.isEmpty
+        reviewTextChangedSubject.onNext(review)
+    }
+
+    private func updateStarButtons(rating: Int) {
+        for (index, button) in starButtons.enumerated() {
+            let isFilled = index < rating
+            let imageName = isFilled ? "star.fill" : "star"
+            button.setImage(UIImage(systemName: imageName), for: .normal)
+            button.tintColor = isFilled ? .systemYellow : .systemGray3
+        }
+    }
 }
