@@ -70,8 +70,8 @@ final class MoreViewModel: BaseViewModel {
                     return .showOpenSourceLicense
                 case .contact:
                     return .openContact
-                case .appStoreReview:
-                    return .openAppStoreReview
+//                case .appStoreReview:
+//                    return .openAppStoreReview
                 }
             }
             .asSignal(onErrorSignalWith: .empty())

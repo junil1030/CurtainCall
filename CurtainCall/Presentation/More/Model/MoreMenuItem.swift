@@ -11,7 +11,7 @@ enum MoreMenuItem: CaseIterable {
     case privacyPolicy
     case openSourceLicense
     case contact
-    case appStoreReview
+//    case appStoreReview
     
     var title: String {
         switch self {
@@ -21,8 +21,8 @@ enum MoreMenuItem: CaseIterable {
             return "오픈소스 라이선스"
         case .contact:
             return "문의하기"
-        case .appStoreReview:
-            return "앱스토어 리뷰"
+//        case .appStoreReview:
+//            return "앱스토어 리뷰"
         }
     }
     
@@ -34,8 +34,8 @@ enum MoreMenuItem: CaseIterable {
             return UIImage(systemName: "doc.text")
         case .contact:
             return UIImage(systemName: "envelope")
-        case .appStoreReview:
-            return UIImage(systemName: "star")
+//        case .appStoreReview:
+//            return UIImage(systemName: "star")
         }
     }
 }

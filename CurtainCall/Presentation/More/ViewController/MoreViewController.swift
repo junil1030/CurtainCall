@@ -8,6 +8,8 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import SafariServices
+import MessageUI
 
 final class MoreViewController: BaseViewController {
     
@@ -101,20 +103,81 @@ final class MoreViewController: BaseViewController {
     private func handleMenuAction(_ action: MoreViewModel.MenuAction) {
         switch action {
         case .showPrivacyPolicy:
-            print("개인정보 처리방침 표시")
-            // TODO: 개인정보 처리방침 화면으로 이동
+            openPrivacyPolicy()
             
         case .showOpenSourceLicense:
-            print("오픈소스 라이선스 표시")
-            // TODO: 오픈소스 라이선스 화면으로 이동
+            openOpenSourceLicense()
             
         case .openContact:
-            print("문의하기 열기")
-            // TODO: 이메일 앱 열기
+            openContact()
             
         case .openAppStoreReview:
-            print("앱스토어 리뷰 열기")
-            // TODO: 앱스토어 리뷰 페이지 열기
+            break
         }
+    }
+    
+    private func openPrivacyPolicy() {
+        guard let url = URL(string: "https://joonil.notion.site/27eca62c738f80a59a75f8c4bcb74ce2?source=copy_link") else {
+            return
+        }
+        let safariVC = SFSafariViewController(url: url)
+        present(safariVC, animated: true)
+    }
+    
+    private func openOpenSourceLicense() {
+        let viewController = OpenSourceLicenseViewController()
+        navigationController?.pushViewController(viewController, animated: true)
+    }
+    
+    private func openContact() {
+        guard MFMailComposeViewController.canSendMail() else {
+            showMailErrorAlert()
+            return
+        }
+        
+        let mailSettings = getMailSettings()
+        let mailVC = MFMailComposeViewController()
+        mailVC.mailComposeDelegate = self
+        mailVC.setToRecipients(mailSettings.recipients)
+        mailVC.setSubject(mailSettings.subject)
+        mailVC.setMessageBody(mailSettings.body, isHTML: false)
+        
+        present(mailVC, animated: true)
+    }
+    
+    private func getMailSettings() -> (recipients: [String], subject: String, body: String) {
+        let bodyString = """
+        문의 사항 및 의견을 작성해주세요.
+        
+        
+        -------------------
+        Device Model : \(DeviceInfo.getDeviceModelName())
+        Device OS : \(DeviceInfo.getDeviceOS())
+        App Version : \(DeviceInfo.getAppVersion())
+        
+        -------------------
+        """
+        
+        return (["dccrdseo@naver.com"], "[CurtainCall] 문의", bodyString)
+    }
+    
+    private func showMailErrorAlert() {
+        let alert = UIAlertController(
+            title: "메일 전송 실패",
+            message: "메일 앱을 사용할 수 없습니다. 기기의 메일 설정을 확인해주세요.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
+    }
+}
+
+extension MoreViewController: MFMailComposeViewControllerDelegate {
+    func mailComposeController(
+        _ controller: MFMailComposeViewController,
+        didFinishWith result: MFMailComposeResult,
+        error: Error?
+    ) {
+        controller.dismiss(animated: true)
     }
 }
