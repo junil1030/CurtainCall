@@ -60,6 +60,29 @@ final class WatchRecordViewController: BaseViewController {
             }
             .disposed(by: disposeBag)
         
+        // 기존 데이터가 있으면 View에 설정
+        output.initialData
+            .compactMap { $0 }
+            .drive(with: self) { owner, data in
+                dump(data)
+                owner.watchRecordView.configureWithExistingRecord(data)
+            }
+            .disposed(by: disposeBag)
+        
+        // 수정 모드에 따라 타이틀 변경
+        output.isEditMode
+            .drive(with: self) { owner, isEditMode in
+                owner.navigationItem.title = isEditMode ? "관람 기록 수정" : "관람 기록 추가"
+            }
+            .disposed(by: disposeBag)
+        
+        // 폼 유효성에 따른 버튼 활성화
+        output.isFormValid
+            .drive(with: self) { owner, isValid in
+                owner.watchRecordView.updateSaveButtonState(isEnabled: isValid)
+            }
+            .disposed(by: disposeBag)
+        
         // 저장 성공
         output.saveSuccess
             .emit(with: self) { owner, _ in
@@ -76,9 +99,13 @@ final class WatchRecordViewController: BaseViewController {
     }
     
     private func showSuccessAlert() {
+        // 수정 모드인지 확인하기 위해 현재 타이틀로 판단
+        let isEditMode = navigationItem.title == "관람 기록 수정"
+        let message = isEditMode ? "관람 기록이 수정되었습니다." : "관람 기록이 저장되었습니다."
+        
         let alert = UIAlertController(
-            title: "저장 완료",
-            message: "관람 기록이 저장되었습니다.",
+            title: "완료",
+            message: message,
             preferredStyle: .alert
         )
         
