@@ -147,6 +147,30 @@ final class ViewingRecordRepository: ViewingRecordRepositoryProtocol {
         }
     }
     
+    func updateRecordFields(id: ObjectId, viewingDate: Date, companion: String, seat: String, rating: Int, memo: String) throws {
+        do {
+            try realmManager.write { realm in
+                guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: id) else {
+                    throw NSError(domain: "ViewingRecordRepository", code: -2, userInfo: [
+                        NSLocalizedDescriptionKey: "해당 ID의 관람 기록을 찾을 수 없습니다."
+                    ])
+                }
+                
+                record.viewingDate = viewingDate
+                record.companion = companion
+                record.seat = seat
+                record.rating = rating
+                record.memo = memo
+                record.updatedAt = Date()
+                
+                Logger.data.info("관람 기록 필드 수정 성공: \(record.title)")
+            }
+        } catch {
+            Logger.data.error("관람 기록 필드 수정 실패: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
     // MARK: - Delete
     func deleteRecord(id: ObjectId) throws {
         do {

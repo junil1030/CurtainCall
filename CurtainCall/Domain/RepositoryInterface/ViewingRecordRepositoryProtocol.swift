@@ -23,6 +23,7 @@ protocol ViewingRecordRepositoryProtocol {
     func updateRecord(_ record: ViewingRecord) throws
     func updateRating(id: ObjectId, rating: Int) throws
     func updateMemo(id: ObjectId, memo: String) throws
+    func updateRecordFields(id: ObjectId, viewingDate: Date, companion: String, seat: String, rating: Int, memo: String) throws
     
     // Delete
     func deleteRecord(id: ObjectId) throws
