@@ -22,6 +22,7 @@ class ViewingRecord: Object {
     @Persisted var companion: String = ""                     // 동행인 정보
     @Persisted var cast: String = ""                          // 관람한 출연진
     @Persisted var memo: String = ""                          // 감상평/메모
+    @Persisted var imagePaths: List<String>                   // 이미지 파일 경로들 (나중에 구현)
     @Persisted var createdAt: Date                            // 기록 생성일
     @Persisted var updatedAt: Date                            // 기록 수정일
     
@@ -31,9 +32,11 @@ class ViewingRecord: Object {
         self.performanceId = detail.id
         self.title = detail.title
         self.posterURL = detail.posterURL
+        self.area = detail.area ?? "정보없음"
         self.location = detail.location ?? "정보없음"
         self.genre = detail.genre ?? "정보없음"
         self.viewingDate = viewingDate
+        self.imagePaths = List<String>()  // 빈 리스트로 초기화
         self.createdAt = Date()
         self.updatedAt = Date()
     }
