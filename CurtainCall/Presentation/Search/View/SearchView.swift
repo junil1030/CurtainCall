@@ -44,17 +44,20 @@ final class SearchView: BaseView {
                 guard let self = self else { return UICollectionViewCell() }
                 
                 switch item {
-                case .recentSearch(let recentSearch):
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RecentSearchCell.identifier, for: indexPath) as! RecentSearchCell
-                    cell.configure(with: recentSearch)
-                    
-                    cell.deleteButtonTapped
-                        .bind(with: self) { owner, _ in
-                            owner.deleteRecentSearch(recentSearch)
-                        }
-                        .disposed(by: cell.disposeBag)
-                    
-                    return cell
+                    // MARK: - ToDo: v1.1 최근 검색어
+//                case .recentSearch(let recentSearch):
+//                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RecentSearchCell.identifier, for: indexPath) as! RecentSearchCell
+//                    cell.configure(with: recentSearch)
+//                    
+//                    cell.deleteButtonTapped
+//                        .bind(with: self) { owner, _ in
+//                            owner.deleteRecentSearch(recentSearch)
+//                        }
+//                        .disposed(by: cell.disposeBag)
+//                    
+//                    return cell
+                case .recentSearch:
+                    return UICollectionViewCell()
                     
                 case .filter:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchFilterButtonCell.identifier, for: indexPath) as! SearchFilterButtonCell
@@ -85,16 +88,18 @@ final class SearchView: BaseView {
             let section = sections[indexPath.section]
             
             switch section {
+//            case .recentSearch:
+//                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: RecentSearchHeaderView.identifier, for: indexPath) as! RecentSearchHeaderView
+//                
+//                header.deleteAllTapped
+//                    .bind(with: self) { owner, _ in
+//                        owner.deleteAllRecentSearches()
+//                    }
+//                    .disposed(by: header.disposeBag)
+//                
+//                return header
             case .recentSearch:
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: RecentSearchHeaderView.identifier, for: indexPath) as! RecentSearchHeaderView
-                
-                header.deleteAllTapped
-                    .bind(with: self) { owner, _ in
-                        owner.deleteAllRecentSearches()
-                    }
-                    .disposed(by: header.disposeBag)
-                
-                return header
+                return UICollectionReusableView()
                 
             case .searchResult:
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: SearchResultHeaderView.identifier, for: indexPath) as! SearchResultHeaderView
@@ -206,29 +211,30 @@ final class SearchView: BaseView {
     }
     
     // MARK: - Private Methods
-    private func deleteRecentSearch(_ recentSearch: RecentSearch) {
-        var snapshot = dataSource.snapshot()
-        snapshot.deleteItems([.recentSearch(recentSearch)])
-        
-        // 최근 검색어가 모두 삭제되면 섹션 자체를 삭제하고 empty 섹션 표시
-        let remainingItems = snapshot.itemIdentifiers(inSection: .recentSearch)
-        if remainingItems.isEmpty {
-            snapshot.deleteSections([.recentSearch])
-            dataSource.apply(snapshot, animatingDifferences: true)
-            showEmptySection()
-        } else {
-            dataSource.apply(snapshot, animatingDifferences: true)
-        }
-    }
-    
-    private func deleteAllRecentSearches() {
-        var snapshot = dataSource.snapshot()
-        snapshot.deleteSections([.recentSearch])
-        dataSource.apply(snapshot, animatingDifferences: true)
-        
-        // empty 섹션 표시
-        showEmptySection()
-    }
+    // MARK: - ToDo: v1.1 최근 검색어 기능
+//    private func deleteRecentSearch(_ recentSearch: RecentSearch) {
+//        var snapshot = dataSource.snapshot()
+//        snapshot.deleteItems([.recentSearch(recentSearch)])
+//        
+//        // 최근 검색어가 모두 삭제되면 섹션 자체를 삭제하고 empty 섹션 표시
+//        let remainingItems = snapshot.itemIdentifiers(inSection: .recentSearch)
+//        if remainingItems.isEmpty {
+//            snapshot.deleteSections([.recentSearch])
+//            dataSource.apply(snapshot, animatingDifferences: true)
+//            showEmptySection()
+//        } else {
+//            dataSource.apply(snapshot, animatingDifferences: true)
+//        }
+//    }
+//    
+//    private func deleteAllRecentSearches() {
+//        var snapshot = dataSource.snapshot()
+//        snapshot.deleteSections([.recentSearch])
+//        dataSource.apply(snapshot, animatingDifferences: true)
+//        
+//        // empty 섹션 표시
+//        showEmptySection()
+//    }
     
     private func showEmptySection() {
         var snapshot = dataSource.snapshot()
@@ -261,8 +267,10 @@ extension SearchView {
             let section = sections[sectionIndex]
             
             switch section {
+                // MARK: - ToDo: v1.1 최근 검색어 기능
             case .recentSearch:
-                return self.createRecentSearchSection()
+//                return self.createRecentSearchSection()
+                return self.createEmptySection()
             case .filter:
                 return self.createFilterSection()
             case .searchResult:
@@ -435,15 +443,20 @@ extension SearchView {
     private func applyInitialSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<SearchSection, SearchItem>()
         
-        // 최근 검색어 섹션 추가 (더미 데이터)
-        snapshot.appendSections([.recentSearch])
-        let dummyData = [
-            RecentSearch(keyword: "뮤지컬 위키드"),
-            RecentSearch(keyword: "연극 햄릿"),
-            RecentSearch(keyword: "뮤지컬 맘마미아")
-        ]
-        let items = dummyData.map { SearchItem.recentSearch($0) }
-        snapshot.appendItems(items, toSection: .recentSearch)
+        // MARK: - TODO: v1.1 최근 검색어 기능
+//        // 최근 검색어 섹션 추가 (더미 데이터)
+//        snapshot.appendSections([.recentSearch])
+//        let dummyData = [
+//            RecentSearch(keyword: "뮤지컬 위키드"),
+//            RecentSearch(keyword: "연극 햄릿"),
+//            RecentSearch(keyword: "뮤지컬 맘마미아")
+//        ]
+//        let items = dummyData.map { SearchItem.recentSearch($0) }
+//        snapshot.appendItems(items, toSection: .recentSearch)
+        
+        // v1.0: 빈 화면으로 시작
+        snapshot.appendSections([.empty])
+        snapshot.appendItems([.empty], toSection: .empty)
         
         dataSource.apply(snapshot, animatingDifferences: false)
     }
@@ -454,9 +467,11 @@ extension SearchView: UICollectionViewDelegate {
         
         guard let item = dataSource.itemIdentifier(for: indexPath) else { return }
         
-        if case .recentSearch(let recentSearch) = item {
-            recentKeywordSubject.onNext(recentSearch)
-        } else if case .searchResult(let searchResult) = item {
+        // MARK: - ToDo: v1.1 최근 검색어 기능
+//        if case .recentSearch(let recentSearch) = item {
+//            recentKeywordSubject.onNext(recentSearch)
+//        } else
+        if case .searchResult(let searchResult) = item {
             searchResultSubject.onNext(searchResult)
         }
     }

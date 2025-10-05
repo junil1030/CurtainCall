@@ -95,10 +95,11 @@ final class SearchViewController: BaseViewController {
             }
             .disposed(by: disposeBag)
         
-        searchView.selectedRecentKeyowrd
-            .bind(with: self) { owner, recentSearch in
-                owner.searchView.performSearch(with: recentSearch.keyword)
-            }
-            .disposed(by: disposeBag)
+        // MARK: - ToDo: v1.1 최근 검색어 선택 바인딩
+//        searchView.selectedRecentKeyowrd
+//            .bind(with: self) { owner, recentSearch in
+//                owner.searchView.performSearch(with: recentSearch.keyword)
+//            }
+//            .disposed(by: disposeBag)
     }
 }
