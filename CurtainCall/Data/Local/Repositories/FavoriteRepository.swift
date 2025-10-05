@@ -100,7 +100,7 @@ final class FavoriteRepository: FavoriteRepositoryProtocol {
                 let favorite = FavoriteRealmMapper.toRealmModel(from: dto)
                 try realmManager.write { realm in
                     realm.add(favorite)
-                    Logger.data.info("찜 추가 성공: \(dto.title)")
+                    Logger.data.info("찜 추가 성공: \(dto.title), 지역: \(dto.area), 장르: \(dto.genre)")
                 }
                 return true
             }

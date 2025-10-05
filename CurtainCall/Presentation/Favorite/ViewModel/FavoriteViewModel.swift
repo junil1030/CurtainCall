@@ -134,8 +134,6 @@ final class FavoriteViewModel: BaseViewModel {
             area: currentAreaRelay.value
         )
         
-        print(filter.sortType, filter.genre?.displayName, filter.area?.displayName)
-        
         // UseCase 실행
         let favoriteDTOs = fetchFavoritesUseCase.execute(filter)
         
