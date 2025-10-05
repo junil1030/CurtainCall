@@ -21,7 +21,7 @@ enum GenreCode: String, CaseIterable {
     var displayName: String {
         switch self {
         case .play:         return "연극"
-        case .dance:        return "무용(서양/한국무용"
+        case .dance:        return "무용(서양/한국무용)"
         case .popularDance: return "대중무용"
         case .classic:      return "서양음악(클래식)"
         case .koreanMusic:  return "한국음악(국악)"
@@ -30,5 +30,9 @@ enum GenreCode: String, CaseIterable {
         case .circus_Magic: return "서커스/마술"
         case .musical:      return "뮤지컬"
         }
+    }
+    
+    static func from(displayName: String) -> GenreCode? {
+        return GenreCode.allCases.first { $0.displayName == displayName }
     }
 }

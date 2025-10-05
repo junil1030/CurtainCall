@@ -49,4 +49,9 @@ enum AreaCode: String, CaseIterable {
         case .daehangno: return "대학로"
         }
     }
+    
+    static func from(displayName: String) -> AreaCode? {
+        return AreaCode.allCases.first { $0.displayName == displayName }
+    }
+
 }

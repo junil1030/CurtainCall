@@ -10,6 +10,10 @@ import Foundation
 struct BoxOfficeToFavoriteDTOMapper {
     
     static func map(from boxOffice: BoxOffice) -> FavoriteDTO {
+        
+        let genreRawValue = GenreCode.from(displayName: boxOffice.genre)?.rawValue ?? boxOffice.genre
+        let areaRawValue = AreaCode.from(displayName: boxOffice.area)?.rawValue ?? boxOffice.area
+        
         return FavoriteDTO(
             id: boxOffice.performanceID,
             title: boxOffice.title,
@@ -17,10 +21,9 @@ struct BoxOfficeToFavoriteDTOMapper {
             location: boxOffice.location,
             startDate: boxOffice.startDate,
             endDate: boxOffice.endDate,
-            area: boxOffice.area,
-            genre: boxOffice.genre,
+            area: areaRawValue,
+            genre: genreRawValue,
             createdAt: Date(),
             lastUpdated: Date()
-        )
-    }
+        )    }
 }
