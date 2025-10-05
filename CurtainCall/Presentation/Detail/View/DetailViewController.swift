@@ -98,7 +98,20 @@ final class DetailViewController: BaseViewController {
         
         output.pushRecord
             .emit(with: self) { owner, detail in
-                let vm = WatchRecordViewModel(performanceDetail: detail)
+                let repository = ViewingRecordRepository()
+
+                let addViewingRecordUseCase = AddViewingRecordUseCase(repository: repository)
+                let getViewingRecordUseCase = GetViewingRecordByPerformanceUseCase(repository: repository)
+                let updateViewingRecordUseCase = UpdateViewingRecordUseCase(repository: repository)
+
+                
+                let vm = WatchRecordViewModel(
+                    performanceDetail: detail,
+                    addViewingRecordUseCase: addViewingRecordUseCase,
+                    getViewingRecordUseCase: getViewingRecordUseCase,
+                    updateViewingRecordUseCase: updateViewingRecordUseCase
+                )
+                
                 let vc = WatchRecordViewController(viewModel: vm)
                 owner.navigationController?.pushViewController(vc, animated: true)
             }
