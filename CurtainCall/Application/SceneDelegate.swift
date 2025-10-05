@@ -21,7 +21,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = mainTabBarController
         window?.makeKeyAndVisible()
         
+        #if DEBUG
         seedDummyViewingRecordsIfNeeded()
+        #endif
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -98,8 +100,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 realm.add(record)
             }
         }
-        
-        print("✅ Dummy ViewingRecords inserted")
     }
 }
 
