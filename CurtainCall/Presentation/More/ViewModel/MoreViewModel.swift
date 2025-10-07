@@ -38,6 +38,7 @@ final class MoreViewModel: BaseViewModel {
         case showOpenSourceLicense
         case openContact
         case openAppStoreReview
+        case none
     }
     
     // MARK: - Init
@@ -70,8 +71,10 @@ final class MoreViewModel: BaseViewModel {
                     return .showOpenSourceLicense
                 case .contact:
                     return .openContact
-//                case .appStoreReview:
-//                    return .openAppStoreReview
+                case .appStoreReview:
+                    return .openAppStoreReview
+                default:
+                    return .none
                 }
             }
             .asSignal(onErrorSignalWith: .empty())

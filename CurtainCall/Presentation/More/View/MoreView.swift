@@ -43,6 +43,7 @@ final class MoreView: BaseView {
             .map { indexPath in
                 MoreMenuItem.allCases[indexPath.row]
             }
+            .filter { $0.isSelectable }
     }
     
     var profileTapped: Observable<Void> {

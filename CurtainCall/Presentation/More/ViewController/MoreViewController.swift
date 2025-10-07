@@ -112,6 +112,9 @@ final class MoreViewController: BaseViewController {
             openContact()
             
         case .openAppStoreReview:
+            openAppStoreReviewPage()
+            
+        case .none:
             break
         }
     }
@@ -169,6 +172,13 @@ final class MoreViewController: BaseViewController {
         )
         alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
+    }
+    
+    private func openAppStoreReviewPage() {
+        let urlString = "itms-apps://itunes.apple.com/app/id6753195982"
+        guard let url = URL(string: urlString) else { return }
+        
+        UIApplication.shared.open(url)
     }
 }
 

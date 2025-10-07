@@ -28,6 +28,13 @@ final class MoreMenuCell: UITableViewCell {
         return label
     }()
     
+    private let versionLabel: UILabel = {
+        let label = UILabel()
+        label.font = .ccCallout
+        label.textColor = .ccSecondaryText
+        return label
+    }()
+    
     private let chevronImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "chevron.right")
@@ -53,6 +60,7 @@ final class MoreMenuCell: UITableViewCell {
         
         contentView.addSubview(iconImageView)
         contentView.addSubview(titleLabel)
+        contentView.addSubview(versionLabel)
         contentView.addSubview(chevronImageView)
         
         iconImageView.snp.makeConstraints { make in
@@ -64,6 +72,12 @@ final class MoreMenuCell: UITableViewCell {
         titleLabel.snp.makeConstraints { make in
             make.leading.equalTo(iconImageView.snp.trailing).offset(12)
             make.centerY.equalToSuperview()
+        }
+        
+        versionLabel.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(20)
+            make.centerY.equalToSuperview()
+            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8)
         }
         
         chevronImageView.snp.makeConstraints { make in
@@ -79,15 +93,27 @@ final class MoreMenuCell: UITableViewCell {
     func configure(with item: MoreMenuItem) {
         iconImageView.image = item.icon
         titleLabel.text = item.title
+        
+        if item.showsVersion {
+            versionLabel.text = DeviceInfo.getAppVersion()
+            versionLabel.isHidden = false
+            chevronImageView.isHidden = true
+        } else {
+            versionLabel.isHidden = true
+            chevronImageView.isHidden = false
+        }
     }
     
     // MARK: - Highlight
     override func setHighlighted(_ highlighted: Bool, animated: Bool) {
         super.setHighlighted(highlighted, animated: animated)
         
-        UIView.animate(withDuration: 0.2) {
-            self.contentView.backgroundColor = highlighted ?
-                UIColor.ccSeparator.withAlphaComponent(0.3) : .clear
+        guard !versionLabel.isHidden else {
+            UIView.animate(withDuration: 0.2) {
+                self.contentView.backgroundColor = highlighted ?
+                    UIColor.ccSeparator.withAlphaComponent(0.3) : .clear
+            }
+            return
         }
     }
 }
