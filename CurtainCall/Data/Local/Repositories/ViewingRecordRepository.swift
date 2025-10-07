@@ -446,17 +446,23 @@ extension ViewingRecordRepository {
     
     func getMostFrequentWeekday(from startDate: Date, to endDate: Date) -> String? {
         let weekdayStats = getWeekdayStats(from: startDate, to: endDate)
-        return weekdayStats.max(by: { $0.count < $1.count })?.weekday
+        let maxStat = weekdayStats.max(by: { $0.count < $1.count })
+        
+        return maxStat?.count ?? 0 > 0 ? maxStat?.weekday : nil
     }
     
     func getMostFrequentGenre(from startDate: Date, to endDate: Date) -> String? {
         let genreStats = getGenreStats(from: startDate, to: endDate)
-        return genreStats.first?.genre
+        let maxStat = genreStats.max(by: { $0.count < $1.count })
+        
+        return maxStat?.count ?? 0 > 0 ? maxStat?.genre : nil
     }
     
     func getMostFrequentMonth(from startDate: Date, to endDate: Date) -> String? {
         let monthlyStats = getMonthlyStats(from: startDate, to: endDate)
-        return monthlyStats.max(by: { $0.count < $1.count })?.displayName
+        let maxStat = monthlyStats.max(by: { $0.count < $1.count })
+        
+        return maxStat?.count ?? 0 > 0 ? maxStat?.displayName : nil
     }
 }
 
