@@ -13,7 +13,7 @@ final class RatingReviewCell: BaseCollectionViewCell {
     
     // MARK: - Properties
     var disposeBag = DisposeBag()
-    private let maxCharacterCount = 100
+    private let maxCharacterCount = 1000
     
     // MARK: - Subjects
     private let ratingChangedSubject = PublishSubject<Int>()
@@ -117,7 +117,7 @@ final class RatingReviewCell: BaseCollectionViewCell {
     
     private let characterCountLabel: UILabel = {
         let label = UILabel()
-        label.text = "(0/100자)"
+        label.text = "(0/1000자)"
         label.font = .ccCaption2
         label.textColor = .ccSecondaryText
         label.textAlignment = .right
@@ -204,7 +204,7 @@ final class RatingReviewCell: BaseCollectionViewCell {
         // 텍스트 변경 처리
         reviewTextView.rx.text.orEmpty
             .subscribe(with: self) { owner, text in
-                // 100자 제한
+                // 1000자 제한
                 let limitedText = String(text.prefix(owner.maxCharacterCount))
                 if text != limitedText {
                     owner.reviewTextView.text = limitedText
