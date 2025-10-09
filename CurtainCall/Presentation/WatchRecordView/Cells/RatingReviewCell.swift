@@ -103,7 +103,7 @@ final class RatingReviewCell: BaseCollectionViewCell {
         textView.layer.borderWidth = 1
         textView.layer.borderColor = UIColor.ccSeparator.cgColor
         textView.textContainerInset = UIEdgeInsets(top: 12, left: 8, bottom: 12, right: 8)
-        textView.isScrollEnabled = false
+        textView.isScrollEnabled = true
         return textView
     }()
     
