@@ -7,96 +7,19 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 import SnapKit
 
 final class GreetingBannerView: BaseView {
     
-    // MARK: - Types
-    private enum TimeOfDay {
-        case morning      // 06:00 ~ 12:00
-        case lunch        // 12:00 ~ 14:00
-        case afternoon    // 14:00 ~ 18:00
-        case evening      // 18:00 ~ 23:00
-        case lateNight    // 23:00 ~ 06:00
-        
-        var greetings: [String] {
-            switch self {
-            case .morning:
-                return [
-                    "좋은 아침이에요",
-                    "상쾌한 아침입니다",
-                    "행복한 아침 되세요",
-                    "오늘도 화이팅!"
-                ]
-            case .lunch:
-                return [
-                    "점심은 드셨나요?",
-                    "맛있는 점심 시간이에요",
-                    "오늘 점심 메뉴는?",
-                    "활기찬 점심시간!"
-                ]
-            case .afternoon:
-                return [
-                    "오후도 힘내세요",
-                    "느긋한 오후입니다",
-                    "여유로운 오후에요",
-                    "편안한 오후 보내세요"
-                ]
-            case .evening:
-                return [
-                    "즐거운 저녁이에요",
-                    "오늘 하루 수고하셨어요",
-                    "편안한 저녁 되세요",
-                    "좋은 밤 되세요"
-                ]
-            case .lateNight:
-                return [
-                    "아직 안 주무세요?",
-                    "조용한 밤이네요",
-                    "편안한 밤 되세요",
-                    "오늘도 수고하셨어요"
-                ]
-            }
-        }
-        
-        var suggestions: [String] {
-            switch self {
-            case .morning:
-                return [
-                    "오늘은 어떤 공연을 만나볼까요?",
-                    "아침부터 공연 찾기! 어때요?",
-                    "오늘은 뮤지컬 어떠세요?"
-                ]
-            case .lunch:
-                return [
-                    "점심 후엔 공연 예매 어때요?",
-                    "오늘은 연극 어떠신가요?",
-                    "휴식 시간에 공연 찾아볼까요?"
-                ]
-            case .afternoon:
-                return [
-                    "오후엔 뮤지컬 어떠세요?",
-                    "오늘은 어떤 공연을 볼까요?",
-                    "이번 주말 공연 찾아볼까요?"
-                ]
-            case .evening:
-                return [
-                    "저녁 시간, 공연 어때요?",
-                    "오늘은 연극 어떠신가요?",
-                    "주말 공연 예매 어떠세요?"
-                ]
-            case .lateNight:
-                return [
-                    "내일 볼 공연 찾아볼까요?",
-                    "이번 주말 공연은 어때요?",
-                    "다음 주 공연 예매해볼까요?"
-                ]
-            }
-        }
-    }
-    
     // MARK: - Properties
     private let disposeBag = DisposeBag()
+    private let tapGestureSubject = PublishSubject<Void>()
+    
+    // MARK: - Observable
+    var didTapBanner: Observable<Void> {
+        return tapGestureSubject.asObservable()
+    }
     
     // MARK: - UI Components
     private let containerView: UIView = {
@@ -180,7 +103,6 @@ final class GreetingBannerView: BaseView {
         containerView.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview().inset(16)
             make.verticalEdges.equalToSuperview().inset(4)
-//            make.height.equalTo(100)
         }
         
         textStackView.snp.makeConstraints { make in
@@ -200,6 +122,7 @@ final class GreetingBannerView: BaseView {
         super.setupStyle()
         backgroundColor = .clear
         updateGreeting()
+        setupTapGesture()
     }
     
     override func layoutSubviews() {
@@ -215,12 +138,20 @@ final class GreetingBannerView: BaseView {
         let greeting = timeOfDay.greetings.randomElement() ?? "안녕하세요"
         greetingLabel.text = greeting
         
-        // TODO: 실제 사용자 닉네임으로 변경
-        nicknameLabel.text = "닉네임님!"
-        
         // 랜덤 제안 문구 선택
         let suggestion = timeOfDay.suggestions.randomElement() ?? "오늘은 어떤 공연을 볼까요?"
         suggestionLabel.text = suggestion
+    }
+    
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer()
+        containerView.addGestureRecognizer(tapGesture)
+        containerView.isUserInteractionEnabled = true
+        
+        tapGesture.rx.event
+            .map { _ in () }
+            .bind(to: tapGestureSubject)
+            .disposed(by: disposeBag)
     }
     
     private func getCurrentTimeOfDay() -> TimeOfDay {
@@ -247,5 +178,93 @@ final class GreetingBannerView: BaseView {
     
     func updateProfileImage(_ image: UIImage?) {
         profileImageView.image = image
+    }
+    
+    
+}
+
+// MARK: - TimeOfDay
+extension GreetingBannerView {
+    private enum TimeOfDay {
+        case morning      // 06:00 ~ 12:00
+        case lunch        // 12:00 ~ 14:00
+        case afternoon    // 14:00 ~ 18:00
+        case evening      // 18:00 ~ 23:00
+        case lateNight    // 23:00 ~ 06:00
+        
+        var greetings: [String] {
+            switch self {
+            case .morning:
+                return [
+                    "좋은 아침이에요",
+                    "상쾌한 아침입니다",
+                    "행복한 아침 되세요",
+                    "오늘도 화이팅!"
+                ]
+            case .lunch:
+                return [
+                    "점심은 드셨나요?",
+                    "맛있는 점심 시간이에요",
+                    "오늘 점심 메뉴는?",
+                    "활기찬 점심시간!"
+                ]
+            case .afternoon:
+                return [
+                    "오후도 힘내세요",
+                    "느긋한 오후입니다",
+                    "여유로운 오후에요",
+                    "편안한 오후 보내세요"
+                ]
+            case .evening:
+                return [
+                    "즐거운 저녁이에요",
+                    "오늘 하루 수고하셨어요",
+                    "편안한 저녁 되세요",
+                    "좋은 밤 되세요"
+                ]
+            case .lateNight:
+                return [
+                    "아직 안 주무세요?",
+                    "조용한 밤이네요",
+                    "편안한 밤 되세요",
+                    "오늘도 수고하셨어요"
+                ]
+            }
+        }
+        
+        var suggestions: [String] {
+            switch self {
+            case .morning:
+                return [
+                    "오늘은 어떤 공연을 만나볼까요?",
+                    "아침부터 공연 찾기! 어때요?",
+                    "오늘은 뮤지컬 어떠세요?"
+                ]
+            case .lunch:
+                return [
+                    "점심 후엔 공연 예매 어때요?",
+                    "오늘은 연극 어떠신가요?",
+                    "휴식 시간에 공연 찾아볼까요?"
+                ]
+            case .afternoon:
+                return [
+                    "오후엔 뮤지컬 어떠세요?",
+                    "오늘은 어떤 공연을 볼까요?",
+                    "이번 주말 공연 찾아볼까요?"
+                ]
+            case .evening:
+                return [
+                    "저녁 시간, 공연 어때요?",
+                    "오늘은 연극 어떠신가요?",
+                    "주말 공연 예매 어떠세요?"
+                ]
+            case .lateNight:
+                return [
+                    "내일 볼 공연 찾아볼까요?",
+                    "이번 주말 공연은 어때요?",
+                    "다음 주 공연 예매해볼까요?"
+                ]
+            }
+        }
     }
 }

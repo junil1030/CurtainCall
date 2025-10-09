@@ -17,6 +17,11 @@ final class GreetingBannerCell: BaseCollectionViewCell {
     // MARK: - UI Components
     private let bannerView = GreetingBannerView()
     
+    // MARK: - Observables
+    var bannerTapped: Observable<Void> {
+        return bannerView.didTapBanner
+    }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         

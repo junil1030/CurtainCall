@@ -27,6 +27,7 @@ final class HomeViewModel: BaseViewModel {
         let selectedCategory: Observable<CategoryCode?>
         let filterState: Observable<FilterButtonContainer.FilterState>
         let favoriteButtonTapped: Observable<String>
+        let bannerTapped: Observable<Void>
     }
     
     struct Output {
@@ -35,6 +36,7 @@ final class HomeViewModel: BaseViewModel {
         let scrollToFirst: Signal<Void>
         let isLoading: Driver<Bool>
         let favoriteStatusChanged: Signal<(String, Bool)>
+        let navigateToProfileEdit: Signal<Void>
     }
     
     // MARK: - Stream
@@ -111,12 +113,16 @@ final class HomeViewModel: BaseViewModel {
             }
             .disposed(by: disposeBag)
         
+        let navigateToProfileEdit = input.bannerTapped
+            .asSignal(onErrorSignalWith: .empty())
+        
         return Output(
             userProfile: userProfileRelay.asDriver(),
             cardItems: cardItemsRelay.asDriver(),
             scrollToFirst: scrollToFirstRelay.asSignal(),
             isLoading: isLoadingRelay.asDriver(),
-            favoriteStatusChanged: favoriteStatusChangedRelay.asSignal()
+            favoriteStatusChanged: favoriteStatusChangedRelay.asSignal(),
+            navigateToProfileEdit: navigateToProfileEdit
         )
     }
     

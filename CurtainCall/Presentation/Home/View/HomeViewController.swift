@@ -69,7 +69,8 @@ final class HomeViewController: BaseViewController {
             selectedCard: homeView.selectedCard,
             selectedCategory: homeView.selectedCategory,
             filterState: homeView.filterState,
-            favoriteButtonTapped: homeView.favoriteButtonTapped
+            favoriteButtonTapped: homeView.favoriteButtonTapped,
+            bannerTapped: homeView.bannerTapped
         )
         
         let output = viewModel.transform(input: input)
@@ -112,14 +113,16 @@ final class HomeViewController: BaseViewController {
             }
             .disposed(by: disposeBag)
         
+        output.navigateToProfileEdit
+            .emit(with: self) { owner, _ in
+                owner.navigateToProfileEdit()
+            }
+            .disposed(by: disposeBag)
+        
+        // MARK: - TODO: viewmodel input으로 집어넣기
         homeView.selectedCard
             .bind(with: self) { owner, cardItem in
-                let repository = FavoriteRepository()
-                let toggleFavoriteUseCase = ToggleFavoriteUseCase(repository: repository)
-                let checkFavoriteUseCase = CheckFavoriteStatusUseCase(repository: repository)
-                let vm = DetailViewModel(performanceID: cardItem.id, toggleFavoriteUseCase: toggleFavoriteUseCase, checkFavoriteStatusUseCase: checkFavoriteUseCase)
-                let vc = DetailViewController(viewModel: vm)
-                owner.navigationController?.pushViewController(vc, animated: true)
+                owner.navigateToDetailView(with: cardItem)
             }
             .disposed(by: disposeBag)
         
@@ -132,22 +135,7 @@ final class HomeViewController: BaseViewController {
         
         favoriteButton.rx.tap
             .bind(with: self) { owner, _ in
-                let repository = FavoriteRepository()
-                
-                let fetchFavoritesUseCase = FetchFavoritesUseCase(repository: repository)
-                let removeFavoriteUseCase = RemoveFavoriteUseCase(repository: repository)
-                let getMonthlyFavoriteCountUseCase = GetMonthlyFavoriteCountUseCase(repository: repository)
-                let getFavoriteStatisticsUseCase = GetFavoriteStatisticsUseCase(repository: repository)
-                
-                let viewModel = FavoriteViewModel(
-                    fetchFavoritesUseCase: fetchFavoritesUseCase,
-                    removeFavoriteUseCase: removeFavoriteUseCase,
-                    getMonthlyFavoriteCountUseCase: getMonthlyFavoriteCountUseCase,
-                    getFavoriteStatisticsUseCase: getFavoriteStatisticsUseCase
-                )
-                
-                let vc = FavoriteViewController(viewModel: viewModel)
-                owner.navigationController?.pushViewController(vc, animated: true)
+                owner.navigateToFavoriteView()
             }
             .disposed(by: disposeBag)
     }
@@ -165,5 +153,53 @@ final class HomeViewController: BaseViewController {
         searchButton.tintColor = .ccPrimary
         favoriteButton.tintColor = .ccPrimary
         navigationItem.rightBarButtonItems = [searchButton, favoriteButton]
+    }
+    
+    private func navigateToDetailView(with item: CardItem) {
+        let repository = FavoriteRepository()
+        
+        let toggleFavoriteUseCase = ToggleFavoriteUseCase(repository: repository)
+        let checkFavoriteUseCase = CheckFavoriteStatusUseCase(repository: repository)
+        
+        let viewModel = DetailViewModel(performanceID: item.id, toggleFavoriteUseCase: toggleFavoriteUseCase, checkFavoriteStatusUseCase: checkFavoriteUseCase)
+        
+        let viewController = DetailViewController(viewModel: viewModel)
+        self.navigationController?.pushViewController(viewController, animated: true)
+    }
+    
+    private func navigateToFavoriteView() {
+        let repository = FavoriteRepository()
+        
+        let fetchFavoritesUseCase = FetchFavoritesUseCase(repository: repository)
+        let removeFavoriteUseCase = RemoveFavoriteUseCase(repository: repository)
+        let getMonthlyFavoriteCountUseCase = GetMonthlyFavoriteCountUseCase(repository: repository)
+        let getFavoriteStatisticsUseCase = GetFavoriteStatisticsUseCase(repository: repository)
+        
+        let viewModel = FavoriteViewModel(
+            fetchFavoritesUseCase: fetchFavoritesUseCase,
+            removeFavoriteUseCase: removeFavoriteUseCase,
+            getMonthlyFavoriteCountUseCase: getMonthlyFavoriteCountUseCase,
+            getFavoriteStatisticsUseCase: getFavoriteStatisticsUseCase
+        )
+        
+        let viewController = FavoriteViewController(viewModel: viewModel)
+        self.navigationController?.pushViewController(viewController, animated: true)
+    }
+    
+    private func navigateToProfileEdit() {
+        let repository = UserRepository()
+        
+        let getUserProfileUseCase = GetUserProfileUseCase(repository: repository)
+        let updateProfileImageUseCase = UpdateProfileImageUseCase(repository: repository)
+        let updateNicknameUseCase = UpdateNicknameUseCase(repository: repository)
+        
+        let viewModel = ProfileEditViewModel(
+            getUserProfileUseCase: getUserProfileUseCase,
+            updateProfileImageUseCase: updateProfileImageUseCase,
+            updateNicknameUseCase: updateNicknameUseCase
+        )
+        
+        let viewController = ProfileEditViewController(viewModel: viewModel)
+        navigationController?.pushViewController(viewController, animated: true)
     }
 }

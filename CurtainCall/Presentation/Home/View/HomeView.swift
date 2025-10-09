@@ -21,6 +21,7 @@ final class HomeView: BaseView {
     private let selectedCategorySubject = PublishSubject<CategoryCode?>()
     private let filterStateSubject = PublishSubject<FilterButtonContainer.FilterState>()
     private let favoriteButtonTappedSubject = PublishSubject<String>()
+    private let bannerTappedSubject = PublishSubject<Void>()
     
     // MARK: - Observables
     var selectedCard: Observable<CardItem> {
@@ -44,6 +45,10 @@ final class HomeView: BaseView {
     
     var favoriteButtonTapped: Observable<String> {
         return favoriteButtonTappedSubject.asObservable()
+    }
+    
+    var bannerTapped: Observable<Void> {
+        return bannerTappedSubject.asObservable()
     }
     
     // MARK: - UI Components
@@ -72,6 +77,11 @@ final class HomeView: BaseView {
                    let profileImageURL = self.pendingProfileImageURL {
                     cell.configure(nickname: nickname, profileImageURL: profileImageURL)
                 }
+                
+                cell.bannerTapped
+                    .bind(to: self.bannerTappedSubject)
+                    .disposed(by: disposeBag)
+                
                 return cell
                 
             case .category:
