@@ -54,28 +54,7 @@ final class RatingReviewCell: BaseCollectionViewCell {
         return label
     }()
     
-    private let starsStackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.spacing = 8
-        stack.alignment = .center
-        stack.distribution = .fillEqually
-        return stack
-    }()
-    
-    private lazy var starButtons: [UIButton] = {
-        return (0..<5).map { index in
-            let button = UIButton()
-            button.tag = index
-            button.setImage(UIImage(systemName: "star"), for: .normal)
-            button.setImage(UIImage(systemName: "star.fill"), for: .selected)
-            button.tintColor = .ccSecondaryText
-            let config = UIImage.SymbolConfiguration(pointSize: 32, weight: .regular)
-            button.setPreferredSymbolConfiguration(config, forImageIn: .normal)
-            button.setPreferredSymbolConfiguration(config, forImageIn: .selected)
-            return button
-        }
-    }()
+    private let starRatingView = StarRatingView()
     
     // 한줄평 섹션
     private let reviewRowStackView: UIStackView = {
@@ -124,17 +103,13 @@ final class RatingReviewCell: BaseCollectionViewCell {
         return label
     }()
     
-    // MARK: - State
-    private var currentRating: Int = 0
-    
     // MARK: - Override Methods
     override func prepareForReuse() {
         super.prepareForReuse()
         disposeBag = DisposeBag()
         reviewTextView.text = ""
         placeholderLabel.isHidden = false
-        currentRating = 0
-        updateStarAppearance()
+        starRatingView.setRating(0)
         updateCharacterCount(0)
     }
     
@@ -145,11 +120,7 @@ final class RatingReviewCell: BaseCollectionViewCell {
         
         // 평점 섹션
         ratingRowStackView.addArrangedSubview(ratingTitleLabel)
-        ratingRowStackView.addArrangedSubview(starsStackView)
-        
-        starButtons.forEach { button in
-            starsStackView.addArrangedSubview(button)
-        }
+        ratingRowStackView.addArrangedSubview(starRatingView)
         
         // 한줄평 섹션
         reviewTextView.addSubview(placeholderLabel)
@@ -167,10 +138,8 @@ final class RatingReviewCell: BaseCollectionViewCell {
             make.edges.equalToSuperview().inset(16)
         }
         
-        starButtons.forEach { button in
-            button.snp.makeConstraints { make in
-                make.width.height.equalTo(44)
-            }
+        starRatingView.snp.makeConstraints { make in
+            make.height.equalTo(44)
         }
         
         reviewTextView.snp.makeConstraints { make in
@@ -191,16 +160,6 @@ final class RatingReviewCell: BaseCollectionViewCell {
     
     // MARK: - Binding
     private func bindObservables() {
-        // 별 버튼 탭 처리
-        starButtons.forEach { button in
-            button.rx.tap
-                .subscribe(with: self) { owner, _ in
-                    let rating = button.tag + 1
-                    owner.handleRatingTap(rating: rating)
-                }
-                .disposed(by: disposeBag)
-        }
-        
         // 텍스트 변경 처리
         reviewTextView.rx.text.orEmpty
             .subscribe(with: self) { owner, text in
@@ -223,26 +182,6 @@ final class RatingReviewCell: BaseCollectionViewCell {
     }
     
     // MARK: - Private Methods
-    private func handleRatingTap(rating: Int) {
-        // 같은 별을 다시 누르면 평점 초기화
-        if currentRating == rating {
-            currentRating = 0
-        } else {
-            currentRating = rating
-        }
-        
-        updateStarAppearance()
-        ratingChangedSubject.onNext(currentRating)
-    }
-    
-    private func updateStarAppearance() {
-        starButtons.enumerated().forEach { index, button in
-            let isFilled = index < currentRating
-            button.isSelected = isFilled
-            button.tintColor = isFilled ? .systemYellow : .ccSecondaryText
-        }
-    }
-    
     private func updateCharacterCount(_ count: Int) {
         characterCountLabel.text = "(\(count)/\(maxCharacterCount)자)"
     }
@@ -250,21 +189,11 @@ final class RatingReviewCell: BaseCollectionViewCell {
     // MARK: - Configure
     func configure(rating: Int, review: String) {
         // 별점 설정
-        updateStarButtons(rating: rating)
-        ratingChangedSubject.onNext(rating)
+        starRatingView.setRating(rating)
         
         // 리뷰 설정
         reviewTextView.text = review
         placeholderLabel.isHidden = !review.isEmpty
         reviewTextChangedSubject.onNext(review)
-    }
-
-    private func updateStarButtons(rating: Int) {
-        for (index, button) in starButtons.enumerated() {
-            let isFilled = index < rating
-            let imageName = isFilled ? "star.fill" : "star"
-            button.setImage(UIImage(systemName: imageName), for: .normal)
-            button.tintColor = isFilled ? .systemYellow : .systemGray3
-        }
     }
 }
