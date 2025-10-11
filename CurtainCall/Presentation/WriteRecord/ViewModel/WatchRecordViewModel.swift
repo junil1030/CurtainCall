@@ -1,5 +1,5 @@
 //
-//  WatchRecordViewModel.swift
+//  WriteRecordViewModel.swift
 //  CurtainCall
 //
 //  Created by 서준일 on 10/2/25.
@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-final class WatchRecordViewModel: BaseViewModel {
+final class WriteRecordViewModel: BaseViewModel {
     
     // MARK: - Properties
     private let disposeBag = DisposeBag()

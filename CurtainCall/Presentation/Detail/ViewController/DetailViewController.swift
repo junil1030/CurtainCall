@@ -105,14 +105,14 @@ final class DetailViewController: BaseViewController {
                 let updateViewingRecordUseCase = UpdateViewingRecordUseCase(repository: repository)
 
                 
-                let vm = WatchRecordViewModel(
+                let vm = WriteRecordViewModel(
                     performanceDetail: detail,
                     addViewingRecordUseCase: addViewingRecordUseCase,
                     getViewingRecordUseCase: getViewingRecordUseCase,
                     updateViewingRecordUseCase: updateViewingRecordUseCase
                 )
                 
-                let vc = WatchRecordViewController(viewModel: vm)
+                let vc = WriteRecordViewController(viewModel: vm)
                 owner.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)

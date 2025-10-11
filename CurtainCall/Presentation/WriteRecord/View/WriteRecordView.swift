@@ -1,5 +1,5 @@
 //
-//  WatchRecordView.swift
+//  WriteRecordView.swift
 //  CurtainCall
 //
 //  Created by 서준일 on 10/2/25.
@@ -10,19 +10,7 @@ import RxSwift
 import RxCocoa
 import SnapKit
 
-final class WatchRecordView: BaseView {
-    
-    // MARK: - Types
-    enum Section: Hashable {
-        case main
-    }
-    
-    enum Item: Hashable {
-        case performanceInfo
-        case viewingInfo
-        case rating
-        case memo
-    }
+final class WriteRecordView: BaseView {
     
     // MARK: - Properties
     private let disposeBag = DisposeBag()
@@ -87,8 +75,8 @@ final class WatchRecordView: BaseView {
     }()
     
     // MARK: - DataSource
-    private lazy var dataSource: UICollectionViewDiffableDataSource<Section, Item> = {
-        let dataSource = UICollectionViewDiffableDataSource<Section, Item>(
+    private lazy var dataSource: UICollectionViewDiffableDataSource<WriteSection, Item> = {
+        let dataSource = UICollectionViewDiffableDataSource<WriteSection, Item>(
             collectionView: collectionView
         ) { [weak self] collectionView, indexPath, item in
             guard let self = self else { return UICollectionViewCell() }
@@ -237,7 +225,7 @@ final class WatchRecordView: BaseView {
 }
 
 // MARK: - Private Methods
-extension WatchRecordView {
+extension WriteRecordView {
     private func setupCollectionView() {
         // Cell 등록
         collectionView.register(
@@ -257,7 +245,7 @@ extension WatchRecordView {
     }
     
     private func applyInitialSnapshot() {
-        var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        var snapshot = NSDiffableDataSourceSnapshot<WriteSection, Item>()
         snapshot.appendSections([.main])
         snapshot.appendItems([.performanceInfo, .viewingInfo, .rating], toSection: .main)
         
@@ -297,7 +285,7 @@ extension WatchRecordView {
 }
 
 // MARK: - Layout
-extension WatchRecordView {
+extension WriteRecordView {
     private func createLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { sectionIndex, environment in
             return self.createMainSection()

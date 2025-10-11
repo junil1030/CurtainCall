@@ -1,5 +1,5 @@
 //
-//  WatchRecordViewController.swift
+//  WriteRecordViewController.swift
 //  CurtainCall
 //
 //  Created by 서준일 on 10/2/25.
@@ -9,15 +9,15 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-final class WatchRecordViewController: BaseViewController {
+final class WriteRecordViewController: BaseViewController {
     
     // MARK: - Properties
-    private let watchRecordView = WatchRecordView()
-    private let viewModel: WatchRecordViewModel
+    private let writeRecordView = WriteRecordView()
+    private let viewModel: WriteRecordViewModel
     private let disposeBag = DisposeBag()
     
     // MARK: - Init
-    init(viewModel: WatchRecordViewModel) {
+    init(viewModel: WriteRecordViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
         
@@ -30,7 +30,7 @@ final class WatchRecordViewController: BaseViewController {
     
     // MARK: - Life Cycle
     override func loadView() {
-        view = watchRecordView
+        view = writeRecordView
     }
     
     override func setupLayout() {
@@ -42,21 +42,21 @@ final class WatchRecordViewController: BaseViewController {
     override func setupBind() {
         super.setupBind()
         
-        let input = WatchRecordViewModel.Input(
-            viewingDateSelected: watchRecordView.dateButtonTapped,
-            viewingTimeSelected: watchRecordView.timeButtonTapped,
-            companionSelected: watchRecordView.companionSelected,
-            seatTextChanged: watchRecordView.seatTextChanged,
-            ratingChanged: watchRecordView.ratingChanged,
-            reviewTextChanged: watchRecordView.reviewTextChanged,
-            saveButtonTapped: watchRecordView.saveButtonTapped
+        let input = WriteRecordViewModel.Input(
+            viewingDateSelected: writeRecordView.dateButtonTapped,
+            viewingTimeSelected: writeRecordView.timeButtonTapped,
+            companionSelected: writeRecordView.companionSelected,
+            seatTextChanged: writeRecordView.seatTextChanged,
+            ratingChanged: writeRecordView.ratingChanged,
+            reviewTextChanged: writeRecordView.reviewTextChanged,
+            saveButtonTapped: writeRecordView.saveButtonTapped
         )
         
         let output = viewModel.transform(input: input)
         
         output.performanceDetail
             .drive(with: self) { owner, detail in
-                owner.watchRecordView.configure(with: detail)
+                owner.writeRecordView.configure(with: detail)
             }
             .disposed(by: disposeBag)
         
@@ -65,7 +65,7 @@ final class WatchRecordViewController: BaseViewController {
             .compactMap { $0 }
             .drive(with: self) { owner, data in
                 dump(data)
-                owner.watchRecordView.configureWithExistingRecord(data)
+                owner.writeRecordView.configureWithExistingRecord(data)
             }
             .disposed(by: disposeBag)
         
@@ -79,7 +79,7 @@ final class WatchRecordViewController: BaseViewController {
         // 폼 유효성에 따른 버튼 활성화
         output.isFormValid
             .drive(with: self) { owner, isValid in
-                owner.watchRecordView.updateSaveButtonState(isEnabled: isValid)
+                owner.writeRecordView.updateSaveButtonState(isEnabled: isValid)
             }
             .disposed(by: disposeBag)
         

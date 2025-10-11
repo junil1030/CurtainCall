@@ -1,11 +1,11 @@
 //
-//  WatchSection.swift
+//  WriteSection.swift
 //  CurtainCall
 //
 //  Created by 서준일 on 10/2/25.
 //
 
-enum WatchSection: Hashable {
+enum WriteSection: Hashable {
     case main
 }
 
