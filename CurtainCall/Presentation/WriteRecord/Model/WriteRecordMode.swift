@@ -6,3 +6,8 @@
 //
 
 import Foundation
+
+enum WriteRecordMode {
+    case create(performanceDetail: PerformanceDetail)
+    case edit(recordId: String)
+}

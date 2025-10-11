@@ -13,12 +13,13 @@ final class WriteRecordViewModel: BaseViewModel {
     
     // MARK: - Properties
     private let disposeBag = DisposeBag()
-    private let performanceDetail: PerformanceDetail
-    private var existingRecord: ViewingRecord?
+    private let mode: WriteRecordMode
+    private var performanceDetail: PerformanceDetail?
+    private var existingRecordId: String?
     
     // MARK: - UseCase
     private let addViewingRecordUseCase: AddViewingRecordUseCase
-    private let getViewingRecordUseCase: GetViewingRecordByPerformanceUseCase
+    private let getViewingRecordByIdUseCase: GetViewingRecordByIdUseCase
     private let updateViewingRecordUseCase: UpdateViewingRecordUseCase
     
     // MARK: - Streams
@@ -61,14 +62,14 @@ final class WriteRecordViewModel: BaseViewModel {
     
     // MARK: - Init
     init(
-        performanceDetail: PerformanceDetail,
+        mode: WriteRecordMode,
         addViewingRecordUseCase: AddViewingRecordUseCase,
-        getViewingRecordUseCase: GetViewingRecordByPerformanceUseCase,
+        getViewingRecordByIdUseCase: GetViewingRecordByIdUseCase,
         updateViewingRecordUseCase: UpdateViewingRecordUseCase
     ) {
-        self.performanceDetail = performanceDetail
+        self.mode = mode
         self.addViewingRecordUseCase = addViewingRecordUseCase
-        self.getViewingRecordUseCase = getViewingRecordUseCase
+        self.getViewingRecordByIdUseCase = getViewingRecordByIdUseCase
         self.updateViewingRecordUseCase = updateViewingRecordUseCase
         super.init()
     }
@@ -78,6 +79,7 @@ final class WriteRecordViewModel: BaseViewModel {
         let saveSuccessRelay = PublishRelay<Void>()
         let errorRelay = PublishRelay<Error>()
         let initialDataRelay = BehaviorRelay<ViewingRecordData?>(value: nil)
+        let performanceDetailRelay = BehaviorRelay<PerformanceDetail?>(value: nil)
         
         // 입력 바인딩
         input.viewingDateSelected
@@ -112,10 +114,12 @@ final class WriteRecordViewModel: BaseViewModel {
             reviewRelay
         )
         .map { companion, seat, rating, review in
-            return !companion.isEmpty &&
-                   !seat.isEmpty &&
-                   rating > 0 &&
-                   !review.isEmpty
+            print("companion: \(companion), seat: \(seat), rating: \(rating), review: \(review)")
+            let result = !companion.isEmpty &&
+            !seat.isEmpty &&
+            rating > 0 &&
+            !review.isEmpty
+            return result
         }
         .asDriver(onErrorJustReturn: false)
         
@@ -132,30 +136,16 @@ final class WriteRecordViewModel: BaseViewModel {
             .subscribe(with: self) { owner, data in
                 let (date, time, companion, seat, rating, review) = data
                 
-                if let existingRecord = owner.existingRecord {
-                    // 수정 모드
-                    let updateInput = ViewingRecordUpdateInput(
-                        recordId: existingRecord.id,
-                        viewingDate: date,
-                        viewingTime: time,
-                        companion: companion,
-                        seat: seat,
-                        rating: rating,
-                        review: review
-                    )
-                    
-                    let result = owner.updateViewingRecordUseCase.execute(updateInput)
-                    
-                    switch result {
-                    case .success:
-                        saveSuccessRelay.accept(())
-                    case .failure(let error):
-                        errorRelay.accept(error)
-                    }
-                } else {
+                switch owner.mode {
+                case .create:
                     // 생성 모드
+                    guard let detail = owner.performanceDetail else {
+                        errorRelay.accept(WriteRecordError.missingPerformanceDetail)
+                        return
+                    }
+                    
                     let addInput = ViewingRecordInput(
-                        performanceDetail: owner.performanceDetail,
+                        performanceDetail: detail,
                         viewingDate: date,
                         viewingTime: time,
                         companion: companion,
@@ -172,15 +162,43 @@ final class WriteRecordViewModel: BaseViewModel {
                     case .failure(let error):
                         errorRelay.accept(error)
                     }
+                    
+                case .edit:
+                    // 수정 모드
+                    guard let recordId = owner.existingRecordId else {
+                        errorRelay.accept(WriteRecordError.missingRecordId)
+                        return
+                    }
+                    
+                    let updateInput = ViewingRecordUpdateInput(
+                        recordId: recordId,
+                        viewingDate: date,
+                        viewingTime: time,
+                        companion: companion,
+                        seat: seat,
+                        rating: rating,
+                        review: review
+                    )
+                    
+                    let result = owner.updateViewingRecordUseCase.execute(updateInput)
+                    
+                    switch result {
+                    case .success:
+                        saveSuccessRelay.accept(())
+                    case .failure(let error):
+                        errorRelay.accept(error)
+                    }
                 }
             }
             .disposed(by: disposeBag)
         
-        // 기존 데이터 로드 후 initialData 설정
-        loadExistingRecord(initialDataRelay: initialDataRelay)
+        loadInitialData(
+            performanceDetailRelay: performanceDetailRelay,
+            initialDataRelay: initialDataRelay
+        )
         
         return Output(
-            performanceDetail: .just(performanceDetail),
+            performanceDetail: performanceDetailRelay.compactMap { $0 }.asDriver(onErrorDriveWith: .empty()),
             initialData: initialDataRelay.asDriver(),
             isFormValid: isFormValid,
             isEditMode: isEditModeRelay.asDriver(),
@@ -190,36 +208,78 @@ final class WriteRecordViewModel: BaseViewModel {
     }
     
     // MARK: - Private Methods
-    private func loadExistingRecord(initialDataRelay: BehaviorRelay<ViewingRecordData?>) {
-        // 기존 기록 조회
-        existingRecord = getViewingRecordUseCase.execute(performanceDetail.id)
-        
-        print(performanceDetail.id)
-        
-        guard let record = existingRecord else {
-            // 기록이 없으면 생성 모드
+    private func loadInitialData(
+        performanceDetailRelay: BehaviorRelay<PerformanceDetail?>,
+        initialDataRelay: BehaviorRelay<ViewingRecordData?>
+    ) {
+        switch mode {
+        case .create(let detail):
+            // 신규 생성 모드
+            performanceDetail = detail
+            performanceDetailRelay.accept(detail)
             isEditModeRelay.accept(false)
             initialDataRelay.accept(nil)
-            return
+            
+        case .edit(let recordId):
+            // 수정 모드
+            existingRecordId = recordId
+            
+            // recordId로 기존 기록 조회
+            guard let recordDTO = getViewingRecordByIdUseCase.execute(recordId) else {
+                // 기록을 찾을 수 없으면 에러 처리
+                isEditModeRelay.accept(false)
+                initialDataRelay.accept(nil)
+                return
+            }
+            
+            let castAry = recordDTO.cast.components(separatedBy: ",")
+            
+            // PerformanceDetail 재구성 (ViewingRecordDTO에서 추출)
+            let detail = PerformanceDetail(
+                id: recordDTO.id,
+                title: recordDTO.title,
+                startDate: nil,
+                endDate: nil,
+                area: recordDTO.area,
+                location: recordDTO.location,
+                genre: recordDTO.genre,
+                posterURL: recordDTO.posterURL,
+                detailPosterURL: nil,
+                cast: castAry,
+                bookingSites: nil
+            )
+            
+            performanceDetail = detail
+            performanceDetailRelay.accept(detail)
+            isEditModeRelay.accept(true)
+            
+            // ViewingRecordDTO를 ViewingRecordData로 변환
+            let recordData = ViewingRecordDTOToDataMapper.map(from: recordDTO)
+            
+            // 기존 데이터로 Relay 초기화 (폼 유효성 검사용)
+            viewingDateRelay.accept(recordData.viewingDate)
+            viewingTimeRelay.accept(recordData.viewingTime)
+            companionRelay.accept(recordData.companion)
+            seatRelay.accept(recordData.seat)
+            ratingRelay.accept(recordData.rating)
+            reviewRelay.accept(recordData.review)
+            
+            // View에 전달할 초기 데이터 설정
+            initialDataRelay.accept(recordData)
         }
-        
-        // 기록이 있으면 수정 모드로 설정
-        isEditModeRelay.accept(true)
-        
-        print("모드: \(isEditModeRelay.value ? "수정" : "생성")")
-        
-        // ViewingRecord를 ViewingRecordData로 변환
-        let recordData = ViewingRecordToDataMapper.map(from: record)
-        
-        // 기존 데이터로 Relay 초기화 (폼 유효성 검사용)
-        viewingDateRelay.accept(recordData.viewingDate)
-        viewingTimeRelay.accept(recordData.viewingTime)
-        companionRelay.accept(recordData.companion)
-        seatRelay.accept(recordData.seat)
-        ratingRelay.accept(recordData.rating)
-        reviewRelay.accept(recordData.review)
-        
-        // View에 전달할 초기 데이터 설정
-        initialDataRelay.accept(recordData)
+    }
+}
+
+enum WriteRecordError: LocalizedError {
+    case missingPerformanceDetail
+    case missingRecordId
+    
+    var errorDescription: String? {
+        switch self {
+        case .missingPerformanceDetail:
+            return "공연 정보를 불러올 수 없습니다."
+        case .missingRecordId:
+            return "기록 ID를 찾을 수 없습니다."
+        }
     }
 }
