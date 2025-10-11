@@ -6,3 +6,11 @@
 //
 
 import Foundation
+
+enum RecordSection: Hashable {
+    case main
+}
+
+enum RecordItem: Hashable {
+    case record(ViewingRecordDTO)
+}

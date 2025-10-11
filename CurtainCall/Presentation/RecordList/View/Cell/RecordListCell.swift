@@ -59,7 +59,7 @@ final class RecordListCell: BaseCollectionViewCell {
     private let contentStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
-        stack.spacing = 8
+        stack.spacing = 6
         stack.alignment = .leading
         stack.distribution = .fill
         return stack
@@ -76,7 +76,7 @@ final class RecordListCell: BaseCollectionViewCell {
     private let infoStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
-        stack.spacing = 4
+        stack.spacing = 2
         stack.alignment = .leading
         stack.distribution = .fill
         return stack
@@ -146,7 +146,7 @@ final class RecordListCell: BaseCollectionViewCell {
     
     override func setupLayout() {
         containerView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 0, bottom: 4, right: 0))
+            make.edges.equalToSuperview()
         }
         
         posterImageView.snp.makeConstraints { make in
@@ -154,7 +154,6 @@ final class RecordListCell: BaseCollectionViewCell {
             make.top.equalToSuperview().inset(Metric.verticalInset)
             make.width.equalTo(Metric.posterWidth)
             make.height.equalTo(Metric.posterHeight)
-            make.bottom.lessThanOrEqualToSuperview().inset(Metric.verticalInset)
         }
         
         editButton.snp.makeConstraints { make in
@@ -171,7 +170,7 @@ final class RecordListCell: BaseCollectionViewCell {
         }
         
         starRatingView.snp.makeConstraints { make in
-            make.height.equalTo(16)
+            make.height.lessThanOrEqualTo(16)
         }
     }
     
@@ -191,18 +190,16 @@ final class RecordListCell: BaseCollectionViewCell {
     }
     
     // MARK: - Configure
-    func configure(with record: ViewingRecord) {
+    func configure(with record: ViewingRecordDTO) {
         // 포스터 이미지
-        if let url = URL(string: record.posterURL) {
-            posterImageView.kf.setImage(
-                with: url,
-                placeholder: UIImage(systemName: "photo"),
-                options: [
-                    .transition(.fade(0.2)),
-                    .cacheOriginalImage
-                ]
-            )
-        }
+        posterImageView.kf.setImage(
+            with: record.posterURL.safeImageURL,
+            placeholder: UIImage(systemName: "photo"),
+            options: [
+                .transition(.fade(0.2)),
+                .cacheOriginalImage
+            ]
+        )
         
         // 제목
         titleLabel.text = record.title
