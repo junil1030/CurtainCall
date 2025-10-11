@@ -157,7 +157,7 @@ final class RecordListViewModel: BaseViewModel {
         if !searchQuery.isEmpty {
             filtered = filtered.filter { record in
                 record.title.localizedCaseInsensitiveContains(searchQuery) ||
-                record.location.localizedCaseInsensitiveContains(searchQuery)
+                record.safeLocation.localizedCaseInsensitiveContains(searchQuery)
             }
         }
         

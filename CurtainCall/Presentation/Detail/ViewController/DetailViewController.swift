@@ -98,22 +98,7 @@ final class DetailViewController: BaseViewController {
         
         output.pushRecord
             .emit(with: self) { owner, detail in
-                let repository = ViewingRecordRepository()
-
-                let addViewingRecordUseCase = AddViewingRecordUseCase(repository: repository)
-                let getViewingRecordUseCase = GetViewingRecordByPerformanceUseCase(repository: repository)
-                let updateViewingRecordUseCase = UpdateViewingRecordUseCase(repository: repository)
-
-                
-                let vm = WriteRecordViewModel(
-                    performanceDetail: detail,
-                    addViewingRecordUseCase: addViewingRecordUseCase,
-                    getViewingRecordUseCase: getViewingRecordUseCase,
-                    updateViewingRecordUseCase: updateViewingRecordUseCase
-                )
-                
-                let vc = WriteRecordViewController(viewModel: vm)
-                owner.navigationController?.pushViewController(vc, animated: true)
+                owner.navigateToWriteRecord(mode: .create(performanceDetail: detail))
             }
             .disposed(by: disposeBag)
         
@@ -171,6 +156,24 @@ final class DetailViewController: BaseViewController {
         let safariViewController = SFSafariViewController(url: url)
         safariViewController.modalPresentationStyle = .pageSheet
         present(safariViewController, animated: true)
+    }
+    
+    private func navigateToWriteRecord(mode: WriteRecordMode) {
+        let repository = ViewingRecordRepository()
+        
+        let addViewingRecordUseCase = AddViewingRecordUseCase(repository: repository)
+        let getViewingRecordByIdUseCase = GetViewingRecordByIdUseCase(repository: repository)
+        let updateViewingRecordUseCase = UpdateViewingRecordUseCase(repository: repository)
+        
+        let viewModel = WriteRecordViewModel(
+            mode: mode,
+            addViewingRecordUseCase: addViewingRecordUseCase,
+            getViewingRecordByIdUseCase: getViewingRecordByIdUseCase,
+            updateViewingRecordUseCase: updateViewingRecordUseCase
+        )
+        
+        let viewController = WriteRecordViewController(viewModel: viewModel)
+        navigationController?.pushViewController(viewController, animated: true)
     }
     
     @objc private func backButtonTapped() {

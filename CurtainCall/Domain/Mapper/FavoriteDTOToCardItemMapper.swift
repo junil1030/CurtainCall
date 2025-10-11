@@ -13,9 +13,9 @@ struct FavoriteDTOToCardItemMapper {
     static func map(from dto: FavoriteDTO) -> CardItem {
         return CardItem(
             id: dto.id,
-            imageURL: dto.posterURL,
+            imageURL: dto.safePosterURL,
             title: dto.title,
-            subtitle: dto.location,
+            subtitle: dto.safeLocation,
             badge: "",  // 찜한 공연 목록에는 순위 정보 없음
             isFavorite: true  // 이미 찜한 목록이므로 항상 true
         )

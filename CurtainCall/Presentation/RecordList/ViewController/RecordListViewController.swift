@@ -88,7 +88,7 @@ final class RecordListViewController: BaseViewController {
         
         output.navigateToEdit
             .emit(with: self) { owner, recordId in
-                // 추가 예정
+                owner.navigateToEdit(recordId: recordId)
             }
             .disposed(by: disposeBag)
     }
@@ -104,14 +104,31 @@ final class RecordListViewController: BaseViewController {
         let toggleFavoriteUseCase = ToggleFavoriteUseCase(repository: repository)
         let checkFavoriteUseCase = CheckFavoriteStatusUseCase(repository: repository)
         
-        let viewModel = DetailViewModel(performanceID: id, toggleFavoriteUseCase: toggleFavoriteUseCase, checkFavoriteStatusUseCase: checkFavoriteUseCase)
+        let viewModel = DetailViewModel(
+            performanceID: id,
+            toggleFavoriteUseCase: toggleFavoriteUseCase,
+            checkFavoriteStatusUseCase: checkFavoriteUseCase
+        )
         
         let viewController = DetailViewController(viewModel: viewModel)
         self.navigationController?.pushViewController(viewController, animated: true)
     }
     
     private func navigateToEdit(recordId: String) {
-        // DetailView에서 WatchRecordView로 넘어갈 때 PerformanceId로 현재 기록이 존재하는지 확인하고
-        // 존재하면 수정하는 방향으로 코드가 구성되어있는데 이거 개편을 해야함.
+        let repository = ViewingRecordRepository()
+        
+        let addViewingRecordUseCase = AddViewingRecordUseCase(repository: repository)
+        let getViewingRecordByIdUseCase = GetViewingRecordByIdUseCase(repository: repository)
+        let updateViewingRecordUseCase = UpdateViewingRecordUseCase(repository: repository)
+        
+        let viewModel = WriteRecordViewModel(
+            mode: .edit(recordId: recordId),
+            addViewingRecordUseCase: addViewingRecordUseCase,
+            getViewingRecordByIdUseCase: getViewingRecordByIdUseCase,
+            updateViewingRecordUseCase: updateViewingRecordUseCase
+        )
+        
+        let viewController = WriteRecordViewController(viewModel: viewModel)
+        navigationController?.pushViewController(viewController, animated: true)
     }
 }

@@ -160,6 +160,10 @@ final class RatingReviewCell: BaseCollectionViewCell {
     
     // MARK: - Binding
     private func bindObservables() {
+        starRatingView.ratingChanged
+            .bind(to: ratingChangedSubject)
+            .disposed(by: disposeBag)
+        
         // 텍스트 변경 처리
         reviewTextView.rx.text.orEmpty
             .subscribe(with: self) { owner, text in

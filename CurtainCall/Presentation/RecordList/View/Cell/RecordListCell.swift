@@ -192,14 +192,18 @@ final class RecordListCell: BaseCollectionViewCell {
     // MARK: - Configure
     func configure(with record: ViewingRecordDTO) {
         // 포스터 이미지
-        posterImageView.kf.setImage(
-            with: record.posterURL.safeImageURL,
-            placeholder: UIImage(systemName: "photo"),
-            options: [
-                .transition(.fade(0.2)),
-                .cacheOriginalImage
-            ]
-        )
+        if let posterURL = record.posterURL, let url = posterURL.safeImageURL {
+            posterImageView.kf.setImage(
+                with: url,
+                placeholder: UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal),
+                options: [
+                    .transition(.fade(0.3)),
+                    .cacheOriginalImage
+                ]
+            )
+        } else {
+            posterImageView.image = UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal)
+        }
         
         // 제목
         titleLabel.text = record.title
@@ -209,7 +213,7 @@ final class RecordListCell: BaseCollectionViewCell {
         dateInfoView.configure(symbol: "calendar", text: dateString, symbolColor: .ccPrimaryText)
         
         // 장소
-        locationInfoView.configure(symbol: "location.fill", text: record.location, symbolColor: .ccPrimaryText)
+        locationInfoView.configure(symbol: "location.fill", text: record.safeLocation, symbolColor: .ccPrimaryText)
         
         // 별점
         starRatingView.setRating(record.rating)

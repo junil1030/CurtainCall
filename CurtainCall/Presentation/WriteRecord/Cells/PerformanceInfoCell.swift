@@ -124,7 +124,7 @@ final class PerformanceInfoCell: BaseCollectionViewCell {
         locationLabel.text = locationInfo
         dateLabel.text = dateInfo
         
-        if let url = detail.posterURL.safeImageURL {
+        if let posterURL = detail.posterURL, let url = posterURL.safeImageURL {
             posterImageView.kf.setImage(
                 with: url,
                 placeholder: UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal),
@@ -133,6 +133,8 @@ final class PerformanceInfoCell: BaseCollectionViewCell {
                     .cacheOriginalImage
                 ]
             )
+        } else {
+            posterImageView.image = UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal)
         }
     }
 }

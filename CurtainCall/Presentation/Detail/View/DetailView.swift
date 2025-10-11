@@ -172,39 +172,42 @@ final class DetailView: BaseView {
         
         // 포스터 섹션
         snapshot.appendSections([.poster])
-        snapshot.appendItems([.poster(detail.posterURL)], toSection: .poster)
+        snapshot.appendItems([.poster(detail.posterURL ?? "")], toSection: .poster)
         
         // 정보 섹션 (날짜, 장소, 캐스트)
         snapshot.appendSections([.info])
-        let dateInfo: InfoData
-        let locationInfo: InfoData
         
+        let dateInfo: InfoData
         if let startDate = detail.startDate, let endDate = detail.endDate {
             dateInfo = InfoData(symbol: "calendar", text: "\(startDate) ~ \(endDate)")
         } else {
             dateInfo = InfoData(symbol: "calendar", text: "공연 날짜에 대한 정보가 없어요")
         }
         
+        let locationInfo: InfoData
         if let area = detail.area, let location = detail.location {
             locationInfo = InfoData(symbol: "map", text: "\(area) > \(location)")
         } else {
             locationInfo = InfoData(symbol: "map", text: "장소에 대한 정보가 없어요")
         }
         
-        let castInfo = InfoData(symbol: "person.3", text: detail.castText)
+        let castInfo = InfoData(symbol: "person.3", text: detail.castText ?? "출연진 정보가 없어요")
+        
         snapshot.appendItems([.info(dateInfo), .info(locationInfo), .info(castInfo)], toSection: .info)
         
         // 예매 사이트 섹션
-        if !detail.bookingSites.isEmpty {
+        if let bookingSites = detail.bookingSites, !bookingSites.isEmpty {
             snapshot.appendSections([.bookingSite])
-            let bookingItems = detail.bookingSites.map { DetailItem.bookingSite($0) }
+            let bookingItems = bookingSites.map { DetailItem.bookingSite($0) }
             snapshot.appendItems(bookingItems, toSection: .bookingSite)
         }
         
         // 상세 포스터 섹션
-        snapshot.appendSections([.detailPoster])
-        // MARK: - 변경 필요
-        snapshot.appendItems([.detailPoster(detail.detailPosterURL.first ?? "")], toSection: .detailPoster)
+        if let detailPosters = detail.detailPosterURL, !detailPosters.isEmpty {
+            snapshot.appendSections([.detailPoster])
+            let posterItems = detailPosters.map { DetailItem.detailPoster($0) }
+            snapshot.appendItems(posterItems, toSection: .detailPoster)
+        }
         
         dataSource.apply(snapshot, animatingDifferences: true)
     }
