@@ -56,8 +56,6 @@ final class DetailView: BaseView {
         button.titleLabel?.font = .ccHeadlineBold
         button.backgroundColor = .ccPrimary
         button.layer.cornerRadius = 12
-        // MARK: - ToDo: 기록하기 기능 추가해야함
-//        button.isHidden = true
         return button
     }()
     
@@ -119,9 +117,7 @@ final class DetailView: BaseView {
     override func setupLayout() {
         collectionView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
-            // MARK: - ToDo: 기록하기 기능 추가시에 레이아웃 변경 요망
             make.bottom.equalTo(recordButton.snp.top)
-//            make.bottom.equalTo(safeAreaLayoutGuide)
         }
         
         recordButton.snp.makeConstraints { make in
@@ -249,6 +245,7 @@ extension DetailView {
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 10, trailing: 0)
         return section
     }
     
@@ -266,7 +263,7 @@ extension DetailView {
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
         return section
     }
     
@@ -285,7 +282,7 @@ extension DetailView {
         
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 12
-        section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
         return section
     }
     
@@ -303,7 +300,7 @@ extension DetailView {
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 20, bottom: 100, trailing: 20)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
         return section
     }
 }
