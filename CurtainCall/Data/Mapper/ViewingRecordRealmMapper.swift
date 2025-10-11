@@ -35,10 +35,10 @@ struct ViewingRecordRealmMapper {
         let record = ViewingRecord()
         record.performanceId = dto.performanceId
         record.title = dto.title
-        record.posterURL = dto.posterURL
-        record.area = dto.area
-        record.location = dto.location
-        record.genre = dto.genre
+        record.posterURL = dto.posterURL ?? ""
+        record.area = dto.area ?? ""
+        record.location = dto.location ?? ""
+        record.genre = dto.genre ?? ""
         record.viewingDate = dto.viewingDate
         record.rating = dto.rating
         record.seat = dto.seat

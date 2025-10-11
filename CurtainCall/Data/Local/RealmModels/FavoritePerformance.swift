@@ -24,7 +24,7 @@ class FavoritePerformance: Object {
         self.init()
         self.id = detail.id
         self.title = detail.title
-        self.posterURL = detail.posterURL
+        self.posterURL = detail.posterURL ?? ""
         self.location = detail.location ?? "정보없음"
         self.startDate = detail.startDate ?? "정보없음"
         self.endDate = detail.endDate ?? "정보없음"

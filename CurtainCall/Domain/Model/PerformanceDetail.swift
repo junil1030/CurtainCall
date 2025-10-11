@@ -14,13 +14,14 @@ struct PerformanceDetail {
     let endDate: String?
     let area: String?
     let location: String?
-    let genre: String?              // 장르 추가
-    let posterURL: String
-    let detailPosterURL: [String]
-    let cast: [String]
-    let bookingSites: [BookingSite]
+    let genre: String?
+    let posterURL: String?
+    let detailPosterURL: [String]?
+    let cast: [String]?
+    let bookingSites: [BookingSite]?
     
-    var castText: String {
+    var castText: String? {
+        guard let cast = cast else { return "" }
         return cast.joined(separator: ", ")
     }
 }

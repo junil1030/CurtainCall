@@ -14,14 +14,14 @@ struct FavoriteRealmMapper {
         let realmModel = FavoritePerformance()
         realmModel.id = dto.id
         realmModel.title = dto.title
-        realmModel.posterURL = dto.posterURL
-        realmModel.location = dto.location
-        realmModel.startDate = dto.startDate
-        realmModel.endDate = dto.endDate
-        realmModel.area = dto.area
-        realmModel.genre = dto.genre
-        realmModel.createdAt = dto.createdAt
-        realmModel.lastUpdated = dto.lastUpdated
+        realmModel.posterURL = dto.posterURL ?? ""
+        realmModel.location = dto.location ?? ""
+        realmModel.startDate = dto.startDate ?? ""
+        realmModel.endDate = dto.endDate ?? ""
+        realmModel.area = dto.area ?? ""
+        realmModel.genre = dto.genre ?? ""
+        realmModel.createdAt = dto.createdAt ?? Date()
+        realmModel.lastUpdated = dto.lastUpdated ?? Date()
         
         return realmModel
     }
