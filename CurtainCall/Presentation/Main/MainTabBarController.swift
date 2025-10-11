@@ -39,10 +39,11 @@ final class MainTabBarController: UITabBarController {
 
     private func setupVC() {
         let homeVC = createHomeViewController()
+        let recordListVC = createRecordListViewController()
         let statisticsVC = createStatisticsViewController()
         let moreVC = createMoreViewController()
         
-        viewControllers = [homeVC, statisticsVC, moreVC]
+        viewControllers = [homeVC, recordListVC, statisticsVC, moreVC]
     }
     
     private func createHomeViewController() -> UINavigationController {
@@ -71,6 +72,23 @@ final class MainTabBarController: UITabBarController {
         return nav
     }
     
+    private func createRecordListViewController() -> UINavigationController {
+        let repository = ViewingRecordRepository()
+        let getAllViewingRecordsUseCase = GetAllViewingRecordsUseCase(repository: repository)
+        let viewModel = RecordListViewModel(getAllViewingRecordsUseCase: getAllViewingRecordsUseCase)
+        let recordListViewController = RecordListViewController(viewModel: viewModel)
+        
+        let nav = UINavigationController(rootViewController: recordListViewController)
+        nav.tabBarItem = UITabBarItem(
+            title: CCStrings.Title.recordListViewName,
+            image: UIImage(systemName: "book"),
+            selectedImage: UIImage(systemName: "book.fill")
+        )
+        nav.tabBarItem.tag = 1
+        
+        return nav
+    }
+    
     private func createStatisticsViewController() -> UINavigationController {
         let repository = ViewingRecordRepository()
         let fetchStatsUseCase = FetchStatsUseCase(repository: repository)
@@ -83,7 +101,7 @@ final class MainTabBarController: UITabBarController {
             image: UIImage(systemName: "chart.bar"),
             selectedImage: UIImage(systemName: "chart.bar.fill")
         )
-        nav.tabBarItem.tag = 1
+        nav.tabBarItem.tag = 2
         
         return nav
     }
@@ -100,7 +118,7 @@ final class MainTabBarController: UITabBarController {
             image: UIImage(systemName: "ellipsis.circle"),
             selectedImage: UIImage(systemName: "ellipsis.circle.fill")
         )
-        nav.tabBarItem.tag = 2
+        nav.tabBarItem.tag = 3
         
         return nav
     }
