@@ -79,10 +79,15 @@ final class ViewingRecordRepository: ViewingRecordRepositoryProtocol {
         }
     }
     
-    func getRecord(by id: ObjectId) -> ViewingRecord? {
+    func getRecord(by id: String) -> ViewingRecord? {
         do {
+            guard let objectId = try? ObjectId(string: id) else {
+                Logger.data.error("유효하지 않은 ID: \(id)")
+                return nil
+            }
+            
             let realm = try realmManager.getRealm()
-            return realm.object(ofType: ViewingRecord.self, forPrimaryKey: id)
+            return realm.object(ofType: ViewingRecord.self, forPrimaryKey: objectId)
         } catch {
             Logger.data.error("관람 기록 단건 조회 실패: \(error.localizedDescription)")
             return nil
@@ -103,7 +108,7 @@ final class ViewingRecordRepository: ViewingRecordRepositoryProtocol {
         }
     }
     
-    func updateRating(id: ObjectId, rating: Int) throws {
+    func updateRating(id: String, rating: Int) throws {
         guard rating >= 0 && rating <= 5 else {
             throw NSError(domain: "ViewingRecordRepository", code: -1, userInfo: [
                 NSLocalizedDescriptionKey: "별점은 0~5 사이여야 합니다."
@@ -111,8 +116,14 @@ final class ViewingRecordRepository: ViewingRecordRepositoryProtocol {
         }
         
         do {
+            guard let objectId = try? ObjectId(string: id) else {
+                throw NSError(domain: "ViewingRecordRepository", code: -3, userInfo: [
+                    NSLocalizedDescriptionKey: "유효하지 않은 ID 형식입니다."
+                ])
+            }
+            
             try realmManager.write { realm in
-                guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: id) else {
+                guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: objectId) else {
                     throw NSError(domain: "ViewingRecordRepository", code: -2, userInfo: [
                         NSLocalizedDescriptionKey: "해당 ID의 관람 기록을 찾을 수 없습니다."
                     ])
@@ -128,10 +139,16 @@ final class ViewingRecordRepository: ViewingRecordRepositoryProtocol {
         }
     }
     
-    func updateMemo(id: ObjectId, memo: String) throws {
+    func updateMemo(id: String, memo: String) throws {
         do {
+            guard let objectId = try? ObjectId(string: id) else {
+                throw NSError(domain: "ViewingRecordRepository", code: -3, userInfo: [
+                    NSLocalizedDescriptionKey: "유효하지 않은 ID 형식입니다."
+                ])
+            }
+            
             try realmManager.write { realm in
-                guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: id) else {
+                guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: objectId) else {
                     throw NSError(domain: "ViewingRecordRepository", code: -2, userInfo: [
                         NSLocalizedDescriptionKey: "해당 ID의 관람 기록을 찾을 수 없습니다."
                     ])
@@ -147,10 +164,16 @@ final class ViewingRecordRepository: ViewingRecordRepositoryProtocol {
         }
     }
     
-    func updateRecordFields(id: ObjectId, viewingDate: Date, companion: String, seat: String, rating: Int, memo: String) throws {
+    func updateRecordFields(id: String, viewingDate: Date, companion: String, seat: String, rating: Int, memo: String) throws {
         do {
+            guard let objectId = try? ObjectId(string: id) else {
+                throw NSError(domain: "ViewingRecordRepository", code: -3, userInfo: [
+                    NSLocalizedDescriptionKey: "유효하지 않은 ID 형식입니다."
+                ])
+            }
+            
             try realmManager.write { realm in
-                guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: id) else {
+                guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: objectId) else {
                     throw NSError(domain: "ViewingRecordRepository", code: -2, userInfo: [
                         NSLocalizedDescriptionKey: "해당 ID의 관람 기록을 찾을 수 없습니다."
                     ])
@@ -172,10 +195,16 @@ final class ViewingRecordRepository: ViewingRecordRepositoryProtocol {
     }
     
     // MARK: - Delete
-    func deleteRecord(id: ObjectId) throws {
+    func deleteRecord(id: String) throws {
         do {
+            guard let objectId = try? ObjectId(string: id) else {
+                throw NSError(domain: "ViewingRecordRepository", code: -3, userInfo: [
+                    NSLocalizedDescriptionKey: "유효하지 않은 ID 형식입니다."
+                ])
+            }
+            
             try realmManager.write { realm in
-                guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: id) else {
+                guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: objectId) else {
                     throw NSError(domain: "ViewingRecordRepository", code: -2, userInfo: [
                         NSLocalizedDescriptionKey: "해당 ID의 관람 기록을 찾을 수 없습니다."
                     ])

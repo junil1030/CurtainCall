@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import RealmSwift
 
 protocol ViewingRecordRepositoryProtocol {
     // Create
@@ -17,16 +16,16 @@ protocol ViewingRecordRepositoryProtocol {
     func getRecordsByDate(from: Date, to: Date) -> [ViewingRecord]
     func getRecordsByPerformance(performanceId: String) -> [ViewingRecord]
     func getRecordCount() -> Int
-    func getRecord(by id: ObjectId) -> ViewingRecord?
+    func getRecord(by id: String) -> ViewingRecord?
     
     // Update
     func updateRecord(_ record: ViewingRecord) throws
-    func updateRating(id: ObjectId, rating: Int) throws
-    func updateMemo(id: ObjectId, memo: String) throws
-    func updateRecordFields(id: ObjectId, viewingDate: Date, companion: String, seat: String, rating: Int, memo: String) throws
+    func updateRating(id: String, rating: Int) throws
+    func updateMemo(id: String, memo: String) throws
+    func updateRecordFields(id: String, viewingDate: Date, companion: String, seat: String, rating: Int, memo: String) throws
     
     // Delete
-    func deleteRecord(id: ObjectId) throws
+    func deleteRecord(id: String) throws
     func deleteAllRecords() throws
     
     // Statistics

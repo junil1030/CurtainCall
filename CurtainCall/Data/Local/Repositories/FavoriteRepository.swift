@@ -100,7 +100,7 @@ final class FavoriteRepository: FavoriteRepositoryProtocol {
                 let favorite = FavoriteRealmMapper.toRealmModel(from: dto)
                 try realmManager.write { realm in
                     realm.add(favorite)
-                    Logger.data.info("찜 추가 성공: \(dto.title), 지역: \(dto.area), 장르: \(dto.genre)")
+                    Logger.data.info("찜 추가 성공: \(dto.title), 지역: \(dto.safeArea), 장르: \(dto.safeGenre)")
                 }
                 return true
             }
@@ -169,7 +169,8 @@ final class FavoriteRepository: FavoriteRepositoryProtocol {
             // 장르별 통계 - GenreCode 사용
             var genreCount: [String: Int] = [:]
             for favorite in favorites {
-                if let genreCode = GenreCode(rawValue: favorite.genre) {
+                let genreValue = favorite.genre
+                if let genreCode = GenreCode(rawValue: genreValue) {
                     genreCount[genreCode.displayName, default: 0] += 1
                 } else {
                     genreCount["기타", default: 0] += 1
@@ -179,7 +180,8 @@ final class FavoriteRepository: FavoriteRepositoryProtocol {
             // 지역별 통계 - AreaCode 사용
             var areaCount: [String: Int] = [:]
             for favorite in favorites {
-                if let areaCode = AreaCode(rawValue: favorite.area) {
+                let areaValue = favorite.area
+                if let areaCode = AreaCode(rawValue: areaValue) {
                     areaCount[areaCode.displayName, default: 0] += 1
                 } else {
                     areaCount["기타", default: 0] += 1
