@@ -45,11 +45,12 @@ final class InfoItemView: BaseView {
     
     override func setupLayout() {
         stackView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(12)
+            make.edges.equalToSuperview().inset(4)
         }
         
         symbolImageView.snp.makeConstraints { make in
-            make.width.height.equalTo(24)
+            make.width.height.lessThanOrEqualTo(24)
+            make.width.equalTo(symbolImageView.snp.height)
         }
     }
     
@@ -59,8 +60,9 @@ final class InfoItemView: BaseView {
     }
     
     // MARK: - Public Methods
-    func configure(symbol: String, text: String) {
+    func configure(symbol: String, text: String, symbolColor: UIColor = .ccPrimary) {
         symbolImageView.image = UIImage(systemName: symbol)
+        symbolImageView.tintColor = symbolColor
         textLabel.text = text
     }
 }

@@ -88,7 +88,8 @@ final class StarRatingView: BaseView {
         
         starButtons.forEach { button in
             button.snp.makeConstraints { make in
-                make.width.height.equalTo(starSize)
+                make.width.height.lessThanOrEqualTo(starSize)
+                make.width.equalTo(button.snp.height)
             }
         }
     }
