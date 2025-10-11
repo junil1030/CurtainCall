@@ -40,11 +40,14 @@ final class FetchFavoritesUseCase: UseCase {
         // 3. 정렬 적용
         switch input.sortType {
         case .latest:
-            // 이미 createdAt 내림차순으로 정렬되어 있음 (Repository에서)
-            break
+            favorites = favorites.sorted {
+                ($0.createdAt ?? Date.distantPast) > ($1.createdAt ?? Date.distantPast)
+            }
             
         case .oldest:
-            favorites = favorites.sorted { $0.createdAt < $1.createdAt }
+            favorites = favorites.sorted {
+                ($0.createdAt ?? Date.distantPast) < ($1.createdAt ?? Date.distantPast)
+            }
             
         case .nameAscending:
             favorites = favorites.sorted { $0.title < $1.title }
