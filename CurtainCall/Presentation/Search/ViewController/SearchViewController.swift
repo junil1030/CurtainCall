@@ -13,11 +13,15 @@ final class SearchViewController: BaseViewController {
     
     // MARK: - Properties
     private let searchView = SearchView()
-    private let viewModel = SearchViewModel()
+    private let viewModel: SearchViewModel
     private let disposeBag = DisposeBag()
     
+    // MARK: - Subjects
+    private let viewWillAppearSubject = PublishSubject<Void>()
+    
     // MARK: - Init
-    init() {
+    init(viewModel: SearchViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
         
         hidesBottomBarWhenPushed = true
@@ -30,6 +34,12 @@ final class SearchViewController: BaseViewController {
     // MARK: - Life Cycle
     override func loadView() {
         view = searchView
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        viewWillAppearSubject.onNext(())
     }
     
     override func setupLayout() {
@@ -47,22 +57,29 @@ final class SearchViewController: BaseViewController {
         )
         
         let input = SearchViewModel.Input(
+            viewWillAppear: viewWillAppearSubject.asObservable(),
             searchKeyword: searchKeyword,
             filterStateChanged: searchView.filterState,
             getCurrentKeyword: Observable.just(searchView.getCurrentKeyword())
                 .concat(searchView.filterState.map { [weak self] _ in
                     self?.searchView.getCurrentKeyword() ?? ""
-                })
-
+                }),
+            recentSearchSelected: searchView.selectedRecentKeyowrd,
+            deleteRecentSearch: searchView.deleteRecentSearch,
+            clearAllRecentSearches: searchView.deleteAllRecentSearches
         )
         
         let output = viewModel.transform(input: input)
         
+        output.recentSearches
+            .drive(with: self) { owner, searches in
+                owner.searchView.updateRecentSearches(searches)
+            }
+            .disposed(by: disposeBag)
+        
         // 검색 결과 바인딩
         output.searchResults
             .drive(with: self) { owner, results in
-                // TODO: 검색 결과로 콜렉션뷰 업데이트
-                print("검색 결과: \(results.count)개")
                 let keyword = owner.searchView.getCurrentKeyword()
                 owner.searchView.updateSearchResults(results: results, keyword: keyword)
             }
@@ -94,12 +111,5 @@ final class SearchViewController: BaseViewController {
                 owner.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
-        
-        // MARK: - ToDo: v1.1 최근 검색어 선택 바인딩
-//        searchView.selectedRecentKeyowrd
-//            .bind(with: self) { owner, recentSearch in
-//                owner.searchView.performSearch(with: recentSearch.keyword)
-//            }
-//            .disposed(by: disposeBag)
     }
 }
