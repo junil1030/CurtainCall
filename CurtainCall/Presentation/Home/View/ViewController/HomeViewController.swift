@@ -128,8 +128,22 @@ final class HomeViewController: BaseViewController {
         
         searchButton.rx.tap
             .bind(with: self) { owner, _ in
-                let vc = SearchViewController()
-                owner.navigationController?.pushViewController(vc, animated: true)
+                let repository = RecentSearchRepository()
+                
+                let addRecentSearchUseCase = AddRecentSearchUseCase(repository: repository)
+                let getRecentSearchesUseCase = GetRecentSearchesUseCase(repository: repository)
+                let deleteRecentSearchUseCase = DeleteRecentSearchUseCase(repository: repository)
+                let clearAllRecentSearchesUseCase = ClearAllRecentSearchesUseCase(repository: repository)
+                
+                let viewModel = SearchViewModel(
+                    addRecentSearchUseCase: addRecentSearchUseCase,
+                    getRecentSearchesUseCase: getRecentSearchesUseCase,
+                    deleteRecentSearchUseCase: deleteRecentSearchUseCase,
+                    clearAllRecentSearchesUseCase: clearAllRecentSearchesUseCase
+                )
+                let viewController = SearchViewController(viewModel: viewModel)
+                
+                owner.navigationController?.pushViewController(viewController, animated: true)
             }
             .disposed(by: disposeBag)
         
