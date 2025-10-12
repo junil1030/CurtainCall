@@ -15,8 +15,15 @@ final class SearchViewModel: BaseViewModel {
     private let disposeBag = DisposeBag()
     private let currentPage = BehaviorRelay<Int>(value: 1)
     
+    // MARK: - UseCases
+    private let addRecentSearchUseCase: AddRecentSearchUseCase
+    private let getRecentSearchesUseCase: GetRecentSearchesUseCase
+    private let deleteRecentSearchUseCase: DeleteRecentSearchUseCase
+    private let clearAllRecentSearchesUseCase: ClearAllRecentSearchesUseCase
+    
     // MARK: - Streams
     private let searchResultsRelay = PublishRelay<[SearchResult]>()
+    private let recentSearchesRelay = BehaviorRelay<[RecentSearch]>(value: [])
     private let isLoadingRelay = BehaviorRelay<Bool>(value: false)
     private let errorRelay = PublishRelay<NetworkError>()
     private let currentKeywordRelay = BehaviorRelay<String>(value: "")
@@ -24,19 +31,42 @@ final class SearchViewModel: BaseViewModel {
     
     // MARK: - Input / Output
     struct Input {
+        let viewWillAppear: Observable<Void>
         let searchKeyword: Observable<String>
         let filterStateChanged: Observable<FilterButtonContainer.FilterState>
         let getCurrentKeyword: Observable<String>
+        let recentSearchSelected: Observable<RecentSearch>
+        let deleteRecentSearch: Observable<RecentSearch>
+        let clearAllRecentSearches: Observable<Void>
     }
     
     struct Output {
         let searchResults: Driver<[SearchResult]>
+        let recentSearches: Driver<[RecentSearch]>
         let isLoading: Driver<Bool>
         let error: Signal<NetworkError>
     }
     
+    init(
+        addRecentSearchUseCase: AddRecentSearchUseCase,
+        getRecentSearchesUseCase: GetRecentSearchesUseCase,
+        deleteRecentSearchUseCase: DeleteRecentSearchUseCase,
+        clearAllRecentSearchesUseCase: ClearAllRecentSearchesUseCase
+    ) {
+        self.addRecentSearchUseCase = addRecentSearchUseCase
+        self.getRecentSearchesUseCase = getRecentSearchesUseCase
+        self.deleteRecentSearchUseCase = deleteRecentSearchUseCase
+        self.clearAllRecentSearchesUseCase = clearAllRecentSearchesUseCase
+    }
+    
     // MARK: - Transform
     func transform(input: Input) -> Output {
+        
+        input.viewWillAppear
+            .bind(with: self) { owner, _ in
+                owner.loadRecentSearches()
+            }
+            .disposed(by: disposeBag)
         
         // 검색 버튼 탭 처리
         input.searchKeyword
@@ -49,6 +79,8 @@ final class SearchViewModel: BaseViewModel {
                 owner.currentPage.accept(1)
                 let filterState = owner.currentFilterStateRelay.value
                 owner.performSearch(keyword: keyword, filterState: filterState, page: 1)
+                
+                owner.saveSearchKeyword(keyword)
             }
             .disposed(by: disposeBag)
         
@@ -67,10 +99,49 @@ final class SearchViewModel: BaseViewModel {
                 owner.performSearch(keyword: keyword, filterState: filterState, page: 1)
             }
             .disposed(by: disposeBag)
-
+        
+        input.recentSearchSelected
+            .map { $0.keyword }
+            .bind(with: self) { owner, keyword in
+                owner.currentKeywordRelay.accept(keyword)
+                owner.currentPage.accept(1)
+                let filterState = owner.currentFilterStateRelay.value
+                owner.performSearch(keyword: keyword, filterState: filterState, page: 1)
+                
+                owner.saveSearchKeyword(keyword)
+            }
+            .disposed(by: disposeBag)
+        
+        input.deleteRecentSearch
+            .map { $0.keyword }
+            .bind(with: self) { owner, keyword in
+                let result = owner.deleteRecentSearchUseCase.execute(keyword)
+                
+                switch result {
+                case .success:
+                    owner.loadRecentSearches()
+                case .failure(let error):
+                    print("검색어 삭제 실패: \(error.localizedDescription)")
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        input.clearAllRecentSearches
+            .bind(with: self) { owner, _ in
+                let result = owner.clearAllRecentSearchesUseCase.execute(())
+                
+                switch result {
+                case .success:
+                    owner.loadRecentSearches()
+                case .failure(let error):
+                    print("전체 검색어 삭제 실패: \(error.localizedDescription)")
+                }
+            }
+            .disposed(by: disposeBag)
         
         return Output(
             searchResults: searchResultsRelay.asDriver(onErrorJustReturn: []),
+            recentSearches: recentSearchesRelay.asDriver(),
             isLoading: isLoadingRelay.asDriver(),
             error: errorRelay.asSignal()
         )
@@ -116,4 +187,23 @@ final class SearchViewModel: BaseViewModel {
             owner.searchResultsRelay.accept([])
         }
         .disposed(by: disposeBag)
-    }}
+    }
+    
+    // 최근 검색어 로드
+    private func loadRecentSearches() {
+        let searches = getRecentSearchesUseCase.execute(())
+        recentSearchesRelay.accept(searches)
+    }
+    
+    // 검색어 저장 및 최근 검색어 목록 갱신
+    private func saveSearchKeyword(_ keyword: String) {
+        let result = addRecentSearchUseCase.execute(keyword)
+        
+        switch result {
+        case .success:
+            loadRecentSearches()
+        case .failure(let error):
+            print("검색어 저장 실패: \(error.localizedDescription)")
+        }
+    }
+}
