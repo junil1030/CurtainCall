@@ -25,5 +25,6 @@ struct BoxOfficeToFavoriteDTOMapper {
             genre: genreRawValue,
             createdAt: Date(),
             lastUpdated: Date()
-        )    }
+        )
+    }
 }
