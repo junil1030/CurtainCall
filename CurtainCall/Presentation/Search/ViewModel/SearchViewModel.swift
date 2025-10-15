@@ -43,6 +43,7 @@ final class SearchViewModel: BaseViewModel {
     struct Output {
         let searchResults: Driver<[SearchResult]>
         let recentSearches: Driver<[RecentSearch]>
+        let currentSearchKeyword: Driver<String>
         let isLoading: Driver<Bool>
         let error: Signal<NetworkError>
     }
@@ -142,6 +143,7 @@ final class SearchViewModel: BaseViewModel {
         return Output(
             searchResults: searchResultsRelay.asDriver(onErrorJustReturn: []),
             recentSearches: recentSearchesRelay.asDriver(),
+            currentSearchKeyword: currentKeywordRelay.asDriver(),
             isLoading: isLoadingRelay.asDriver(),
             error: errorRelay.asSignal()
         )

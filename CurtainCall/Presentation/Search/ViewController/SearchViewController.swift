@@ -78,12 +78,15 @@ final class SearchViewController: BaseViewController {
             .disposed(by: disposeBag)
         
         // 검색 결과 바인딩
-        output.searchResults
-            .drive(with: self) { owner, results in
-                let keyword = owner.searchView.getCurrentKeyword()
-                owner.searchView.updateSearchResults(results: results, keyword: keyword)
-            }
-            .disposed(by: disposeBag)
+        Driver.combineLatest(
+            output.currentSearchKeyword,
+            output.searchResults
+        )
+        .drive(with: self) { owner, data in
+            let (keyword, results) = data
+            owner.searchView.updateSearchResults(results: results, keyword: keyword)
+        }
+        .disposed(by: disposeBag)
         
         // 로딩 상태 바인딩
         output.isLoading
