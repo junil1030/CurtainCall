@@ -34,6 +34,7 @@ final class HomeViewController: BaseViewController {
         action: nil
     )
     
+    // crash 디버깅 용 버튼
     let crashButton = UIBarButtonItem(
         title: "crash",
         style: .plain,
@@ -180,7 +181,7 @@ final class HomeViewController: BaseViewController {
         
         searchButton.tintColor = .ccPrimary
         favoriteButton.tintColor = .ccPrimary
-        navigationItem.rightBarButtonItems = [searchButton, favoriteButton, crashButton]
+        navigationItem.rightBarButtonItems = [searchButton, favoriteButton, /*crashButton*/]
     }
     
     private func navigateToDetailView(with item: CardItem) {
