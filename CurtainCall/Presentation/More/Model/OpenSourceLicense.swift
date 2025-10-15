@@ -35,6 +35,10 @@ struct OpenSourceLicense {
         OpenSourceLicense(
             name: "Parsely",
             url: "https://github.com/ParselyKit/ParselyKit"
+        ),
+        OpenSourceLicense(
+            name: "firebase-ios-sdk",
+            url: "https://github.com/firebase/firebase-ios-sdk"
         )
     ]
 }
