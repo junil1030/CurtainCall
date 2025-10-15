@@ -34,6 +34,13 @@ final class HomeViewController: BaseViewController {
         action: nil
     )
     
+    let crashButton = UIBarButtonItem(
+        title: "crash",
+        style: .plain,
+        target: nil,
+        action: nil
+    )
+    
     // MARK: - Init
     init(viewModel: HomeViewModel) {
         self.viewModel = viewModel
@@ -152,6 +159,13 @@ final class HomeViewController: BaseViewController {
                 owner.navigateToFavoriteView()
             }
             .disposed(by: disposeBag)
+        
+        crashButton.rx.tap
+            .bind { _ in
+                let numbers = [0]
+                let _ = numbers[1]
+            }
+            .disposed(by: disposeBag)
     }
     
     // MARK: - Private Methods
@@ -166,7 +180,7 @@ final class HomeViewController: BaseViewController {
         
         searchButton.tintColor = .ccPrimary
         favoriteButton.tintColor = .ccPrimary
-        navigationItem.rightBarButtonItems = [searchButton, favoriteButton]
+        navigationItem.rightBarButtonItems = [searchButton, favoriteButton, crashButton]
     }
     
     private func navigateToDetailView(with item: CardItem) {
