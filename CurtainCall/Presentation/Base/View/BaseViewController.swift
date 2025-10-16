@@ -22,8 +22,19 @@ class BaseViewController: UIViewController {
     }
     
     func setupStyle() {
-        navigationController?.navigationBar.tintColor = .ccNavigationTint
-        navigationController?.navigationBar.backgroundColor = .clear
+        guard let navigationBar = navigationController?.navigationBar else { return }
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .ccBackground
+        appearance.shadowColor = .clear
+        
+        navigationBar.standardAppearance = appearance
+        navigationBar.scrollEdgeAppearance = appearance
+        navigationBar.compactAppearance = appearance
+        navigationBar.compactScrollEdgeAppearance = appearance
+        
+        navigationBar.backgroundColor = .clear
     }
     
     func setupBind() {}
