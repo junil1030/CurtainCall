@@ -19,29 +19,6 @@ final class HomeViewController: BaseViewController {
     // MARK: - Subjects
     private let viewWillAppearSubject = PublishSubject<Void>()
     
-    // MARK: - UI Components
-    private let searchButton = UIBarButtonItem(
-        image: UIImage(systemName: "magnifyingglass"),
-        style: .plain,
-        target: nil,
-        action: nil
-    )
-    
-    private let favoriteButton = UIBarButtonItem(
-        image: UIImage(systemName: "heart"),
-        style: .plain,
-        target: nil,
-        action: nil
-    )
-    
-    // crash 디버깅 용 버튼
-    let crashButton = UIBarButtonItem(
-        title: "crash",
-        style: .plain,
-        target: nil,
-        action: nil
-    )
-    
     // MARK: - Init
     init(viewModel: HomeViewModel) {
         self.viewModel = viewModel
@@ -61,12 +38,13 @@ final class HomeViewController: BaseViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        setNavigationbarHidden(true)
         viewWillAppearSubject.onNext(())
     }
     
-    override func setupLayout() {
-        super.setupLayout()
-        setupNavigationBar()
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        setNavigationbarHidden(false)
     }
     
     override func setupBind() {
@@ -78,7 +56,8 @@ final class HomeViewController: BaseViewController {
             selectedCategory: homeView.selectedCategory,
             filterState: homeView.filterState,
             favoriteButtonTapped: homeView.favoriteButtonTapped,
-            bannerTapped: homeView.bannerTapped
+            searchButtonTapped: homeView.searchButtonTapped,
+            headerFavoriteButtonTapped: homeView.headerFavoriteButtonTapped
         )
         
         let output = viewModel.transform(input: input)
@@ -86,10 +65,7 @@ final class HomeViewController: BaseViewController {
         output.userProfile
             .drive(with: self) { owner, profile in
                 guard let profile = profile else { return }
-                owner.homeView.updateProfileBanner(
-                    nickname: profile.nickname,
-                    profileImageURL: profile.profileImageURL
-                )
+                owner.homeView.updateGreetingText(nickname: profile.nickname)
             }
             .disposed(by: disposeBag)
         
@@ -121,67 +97,45 @@ final class HomeViewController: BaseViewController {
             }
             .disposed(by: disposeBag)
         
-        output.navigateToProfileEdit
-            .emit(with: self) { owner, _ in
-                owner.navigateToProfileEdit()
-            }
-            .disposed(by: disposeBag)
-        
-        // MARK: - TODO: viewmodel input으로 집어넣기
         homeView.selectedCard
             .bind(with: self) { owner, cardItem in
                 owner.navigateToDetailView(with: cardItem)
             }
             .disposed(by: disposeBag)
         
-        searchButton.rx.tap
+        // 헤더 검색 버튼 처리
+        homeView.searchButtonTapped
             .bind(with: self) { owner, _ in
-                let repository = RecentSearchRepository()
-                
-                let addRecentSearchUseCase = AddRecentSearchUseCase(repository: repository)
-                let getRecentSearchesUseCase = GetRecentSearchesUseCase(repository: repository)
-                let deleteRecentSearchUseCase = DeleteRecentSearchUseCase(repository: repository)
-                let clearAllRecentSearchesUseCase = ClearAllRecentSearchesUseCase(repository: repository)
-                
-                let viewModel = SearchViewModel(
-                    addRecentSearchUseCase: addRecentSearchUseCase,
-                    getRecentSearchesUseCase: getRecentSearchesUseCase,
-                    deleteRecentSearchUseCase: deleteRecentSearchUseCase,
-                    clearAllRecentSearchesUseCase: clearAllRecentSearchesUseCase
-                )
-                let viewController = SearchViewController(viewModel: viewModel)
-                
-                owner.navigationController?.pushViewController(viewController, animated: true)
+                owner.navigateToSearchView()
             }
             .disposed(by: disposeBag)
         
-        favoriteButton.rx.tap
+        // 헤더 찜 버튼 처리
+        homeView.headerFavoriteButtonTapped
             .bind(with: self) { owner, _ in
                 owner.navigateToFavoriteView()
-            }
-            .disposed(by: disposeBag)
-        
-        crashButton.rx.tap
-            .bind { _ in
-                let numbers = [0]
-                let _ = numbers[1]
             }
             .disposed(by: disposeBag)
     }
     
     // MARK: - Private Methods
-    private func setupNavigationBar() {
-        let titleLabel = UILabel()
-        titleLabel.text = "커튼콜"
-        titleLabel.font = .ccTitle1Bold
-        titleLabel.textColor = .ccPrimary
+    private func navigateToSearchView() {
+        let repository = RecentSearchRepository()
         
-        let leftBarButtonItem = UIBarButtonItem(customView: titleLabel)
-        navigationItem.leftBarButtonItem = leftBarButtonItem
+        let addRecentSearchUseCase = AddRecentSearchUseCase(repository: repository)
+        let getRecentSearchesUseCase = GetRecentSearchesUseCase(repository: repository)
+        let deleteRecentSearchUseCase = DeleteRecentSearchUseCase(repository: repository)
+        let clearAllRecentSearchesUseCase = ClearAllRecentSearchesUseCase(repository: repository)
         
-        searchButton.tintColor = .ccPrimary
-        favoriteButton.tintColor = .ccPrimary
-        navigationItem.rightBarButtonItems = [searchButton, favoriteButton, /*crashButton*/]
+        let viewModel = SearchViewModel(
+            addRecentSearchUseCase: addRecentSearchUseCase,
+            getRecentSearchesUseCase: getRecentSearchesUseCase,
+            deleteRecentSearchUseCase: deleteRecentSearchUseCase,
+            clearAllRecentSearchesUseCase: clearAllRecentSearchesUseCase
+        )
+        let viewController = SearchViewController(viewModel: viewModel)
+        
+        navigationController?.pushViewController(viewController, animated: true)
     }
     
     private func navigateToDetailView(with item: CardItem) {

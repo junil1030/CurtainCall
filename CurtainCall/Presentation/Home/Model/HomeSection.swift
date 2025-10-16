@@ -8,14 +8,12 @@
 import Foundation
 
 enum HomeSection: Int, CaseIterable {
-    case greeting
     case category
     case filter
     case boxOffice
 }
 
 enum HomeItem: Hashable {
-    case greeting
     case category
     case filter
     case boxOffice(CardItem)

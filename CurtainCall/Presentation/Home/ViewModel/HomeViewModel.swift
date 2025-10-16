@@ -27,7 +27,8 @@ final class HomeViewModel: BaseViewModel {
         let selectedCategory: Observable<CategoryCode?>
         let filterState: Observable<FilterButtonContainer.FilterState>
         let favoriteButtonTapped: Observable<String>
-        let bannerTapped: Observable<Void>
+        let searchButtonTapped: Observable<Void>
+        let headerFavoriteButtonTapped: Observable<Void>
     }
     
     struct Output {
@@ -36,7 +37,8 @@ final class HomeViewModel: BaseViewModel {
         let scrollToFirst: Signal<Void>
         let isLoading: Driver<Bool>
         let favoriteStatusChanged: Signal<(String, Bool)>
-        let navigateToProfileEdit: Signal<Void>
+        let navigateToSearch: Signal<Void>
+        let navigateToFavorite: Signal<Void>
     }
     
     // MARK: - Stream
@@ -113,7 +115,12 @@ final class HomeViewModel: BaseViewModel {
             }
             .disposed(by: disposeBag)
         
-        let navigateToProfileEdit = input.bannerTapped
+        // 검색 버튼 탭 처리
+        let navigateToSearch = input.searchButtonTapped
+            .asSignal(onErrorSignalWith: .empty())
+        
+        // 헤더 찜 버튼 탭 처리
+        let navigateToFavorite = input.headerFavoriteButtonTapped
             .asSignal(onErrorSignalWith: .empty())
         
         return Output(
@@ -122,7 +129,8 @@ final class HomeViewModel: BaseViewModel {
             scrollToFirst: scrollToFirstRelay.asSignal(),
             isLoading: isLoadingRelay.asDriver(),
             favoriteStatusChanged: favoriteStatusChangedRelay.asSignal(),
-            navigateToProfileEdit: navigateToProfileEdit
+            navigateToSearch: navigateToSearch,
+            navigateToFavorite: navigateToFavorite
         )
     }
     
@@ -185,30 +193,6 @@ final class HomeViewModel: BaseViewModel {
             .disposed(by: disposeBag)
     }
     
-    private func syncFavoriteStatusToData() {
-        let currentBoxOffices = boxOfficeListRelay.value
-        guard !currentBoxOffices.isEmpty else { return }
-        
-        // CardItem으로 변환하면서 찜 상태 반영
-        let cardItems = convertToCardItems(from: currentBoxOffices)
-        
-        // 각 공연의 좋아요 상태를 Signal로 방출 (UI 업데이트용)
-        for cardItem in cardItems {
-            favoriteStatusChangedRelay.accept((cardItem.id, cardItem.isFavorite))
-        }
-    }
-    
-    // 여러 BoxOffice의 좋아요 상태를 한 번에 확인
-    private func checkFavoriteStatuses(for boxOffices: [BoxOffice]) {
-        let performanceIDs = boxOffices.map { $0.performanceID }
-        let favoriteStatuses = checkMultipleFavoriteStatusUseCase.execute(performanceIDs)
-        
-        // 각 공연의 좋아요 상태를 Signal로 방출
-        for (performanceID, isFavorite) in favoriteStatuses {
-            favoriteStatusChangedRelay.accept((performanceID, isFavorite))
-        }
-    }
-    
     private func syncFavoriteStatus() {
         let currentBoxOffices = boxOfficeListRelay.value
         guard !currentBoxOffices.isEmpty else { return }
@@ -265,15 +249,5 @@ final class HomeViewModel: BaseViewModel {
                 isFavorite: isFavorite
             )
         }
-    }
-    
-    private func updateBoxOfficeDataWithFavoriteStatus(performanceID: String, isFavorite: Bool) {
-        // 현재 boxOfficeListRelay의 값을 CardItem으로 변환하면서 상태 업데이트
-        let currentBoxOffices = boxOfficeListRelay.value
-        let performanceIDs = currentBoxOffices.map { $0.performanceID }
-        var favoriteStatuses = checkMultipleFavoriteStatusUseCase.execute(performanceIDs)
-        
-        // 변경된 상태 반영
-        favoriteStatuses[performanceID] = isFavorite
     }
 }
