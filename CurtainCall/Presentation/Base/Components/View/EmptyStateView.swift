@@ -14,14 +14,14 @@ final class EmptyStateView: BaseView {
     private let iconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
-        imageView.tintColor = .ccSecondaryText
+        imageView.tintColor = .ccAccent
         return imageView
     }()
     
     private let messageLabel: UILabel = {
         let label = UILabel()
         label.font = .ccBody
-        label.textColor = .ccSecondaryText
+        label.textColor = .ccAccentText
         label.textAlignment = .center
         label.numberOfLines = 0
         return label
