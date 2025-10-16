@@ -14,10 +14,10 @@ extension UIColor {
     /// 메인 퍼스널 컬러 #9A0D17
     static let ccPrimary = UIColor(red: 154/255, green: 13/255, blue: 23/255, alpha: 1.0)
     
-    /// 보조 컬러 #FFD9BF
+    /// 보조 컬러 #F2C6A0
     static let ccSecondary = UIColor(red: 242/255, green: 198/255, blue: 160/255, alpha: 1.0)
     
-    /// 강조 컬러 - #FF9966
+    /// 강조 컬러 - #E94E3C
     static let ccAccent = UIColor(red: 233/255, green: 78/255, blue: 60/255, alpha: 1.0)
     
     // MARK: - Background Colors
