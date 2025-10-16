@@ -32,4 +32,8 @@ class BaseViewController: UIViewController {
         guard let window = view.window else { return }
         window.rootViewController = vc
     }
+    
+    func setNavigationbarHidden(_ hidden: Bool) {
+        navigationController?.navigationBar.isHidden = hidden
+    }
 }
