@@ -24,10 +24,10 @@ enum CategoryCode: String, CaseIterable {
         switch self {
         case .play:         return "연극"
         case .musical:      return "뮤지컬"
-        case .classic:      return "서양음악(클래식)"
-        case .koreanMusic:  return "한국음악(국악)"
+        case .classic:      return "서양음악"
+        case .koreanMusic:  return "한국음악"
         case .popularMusic: return "대중음악"
-        case .dance:        return "무용(서양/한국무용)"
+        case .dance:        return "무용"
         case .popularDance: return "대중무용"
         case .circusMagic:  return "서커스/마술"
         case .complex:      return "복합"
