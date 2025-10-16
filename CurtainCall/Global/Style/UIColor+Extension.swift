@@ -11,14 +11,14 @@ extension UIColor {
     //MARK: - Primary Colors
     // cc접두사: CurtainCall 줄임말
     
-    /// 메인 퍼스널 컬러 #FFB380
-    static let ccPrimary = UIColor(red: 1.0, green: 0.7, blue: 0.5, alpha: 1.0)
+    /// 메인 퍼스널 컬러 #9A0D17
+    static let ccPrimary = UIColor(red: 154/255, green: 13/255, blue: 23/255, alpha: 1.0)
     
     /// 보조 컬러 #FFD9BF
-    static let ccSecondary = UIColor(red: 1.0, green: 0.85, blue: 0.75, alpha: 1.0)
+    static let ccSecondary = UIColor(red: 242/255, green: 198/255, blue: 160/255, alpha: 1.0)
     
     /// 강조 컬러 - #FF9966
-    static let ccAccent = UIColor(red: 1.0, green: 0.6, blue: 0.3, alpha: 1.0)
+    static let ccAccent = UIColor(red: 233/255, green: 78/255, blue: 60/255, alpha: 1.0)
     
     // MARK: - Background Colors
     /// 메인 배경 (흰색)
