@@ -63,7 +63,7 @@ final class HomeView: BaseView {
     
     private let curtainImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "CurtainCallImage_1")
+        imageView.image = UIImage(named: "CurtainCallImage")
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         return imageView
@@ -75,20 +75,6 @@ final class HomeView: BaseView {
         return view
     }()
     
-    private lazy var gradientLayer: CAGradientLayer = {
-        let layer = CAGradientLayer()
-        layer.colors = [
-            UIColor.white.withAlphaComponent(0).cgColor,
-            UIColor.white.withAlphaComponent(0.3).cgColor,
-            UIColor.white.withAlphaComponent(0.6).cgColor,
-            UIColor.white.withAlphaComponent(0.85).cgColor,
-            UIColor.white.cgColor
-        ]
-        layer.locations = [0.0, 0.3, 0.5, 0.75, 1.0]
-        layer.startPoint = CGPoint(x: 0.5, y: 0)
-        layer.endPoint = CGPoint(x: 0.5, y: 1)
-        return layer
-    }()
     private let searchButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "magnifyingglass"), for: .normal)
@@ -144,6 +130,7 @@ final class HomeView: BaseView {
          let cv = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
          cv.backgroundColor = .clear
          cv.showsVerticalScrollIndicator = false
+         cv.isScrollEnabled = false
          return cv
      }()
     
@@ -200,7 +187,6 @@ final class HomeView: BaseView {
         addSubview(headerContainerView)
         headerContainerView.addSubview(curtainImageView)
         headerContainerView.addSubview(gradientView)
-        gradientView.layer.addSublayer(gradientLayer)
         headerContainerView.addSubview(searchButton)
         headerContainerView.addSubview(favoriteButton)
         headerContainerView.addSubview(greetingLabel)
@@ -228,12 +214,6 @@ final class HomeView: BaseView {
         // 커튼 이미지 - 헤더 컨테이너 전체
         curtainImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-        }
-        
-        // 그라데이션 - 이미지 하단
-        gradientView.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview()
-            make.height.equalTo(70)
         }
         
         // 검색 버튼 - Safe Area top 기준 우측 상단
@@ -282,11 +262,6 @@ final class HomeView: BaseView {
         applyInitialSnapshot()
         updateGreeting()
         bindButtons()
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        gradientLayer.frame = gradientView.bounds
     }
     
     // MARK: - Setup Methods
