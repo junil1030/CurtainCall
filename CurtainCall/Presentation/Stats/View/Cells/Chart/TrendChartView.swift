@@ -31,7 +31,16 @@ struct TrendChartView: View {
                     x: .value("기간", point.label),
                     y: .value("관람", point.count)
                 )
-                .foregroundStyle(gradientColor)
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [
+                            Color(red: 194/255, green: 42/255, blue: 54/255),
+                            Color(red: 194/255, green: 42/255, blue: 54/255, opacity: 0.5)
+                        ],
+                        startPoint: .bottom,
+                        endPoint: .top
+                    )
+                )
                 .cornerRadius(4)
             }
         }
@@ -60,50 +69,50 @@ struct TrendChartView: View {
         Color(uiColor: .ccPrimaryText)
     }
     
-    // 기간별 그라데이션 색상
-    private var gradientColor: LinearGradient {
-        switch period {
-        case .weekly:
-            return weeklyGradient
-        case .monthly:
-            return monthlyGradient
-        case .yearly:
-            return yearlyGradient
-        }
-    }
-    
-    private var weeklyGradient: LinearGradient {
-        LinearGradient(
-            colors: [
-                Color(red: 255/255, green: 179/255, blue: 128/255),
-                Color(red: 255/255, green: 217/255, blue: 191/255)
-            ],
-            startPoint: .bottom,
-            endPoint: .top
-        )
-    }
-    
-    private var monthlyGradient: LinearGradient {
-        LinearGradient(
-            colors: [
-                Color(red: 92/255, green: 138/255, blue: 138/255),
-                Color(red: 139/255, green: 181/255, blue: 181/255)
-            ],
-            startPoint: .bottom,
-            endPoint: .top
-        )
-    }
-    
-    private var yearlyGradient: LinearGradient {
-        LinearGradient(
-            colors: [
-                Color(red: 255/255, green: 153/255, blue: 102/255),
-                Color(red: 255/255, green: 179/255, blue: 128/255)
-            ],
-            startPoint: .bottom,
-            endPoint: .top
-        )
-    }
+//    // 기간별 그라데이션 색상
+//    private var gradientColor: LinearGradient {
+//        switch period {
+//        case .weekly:
+//            return weeklyGradient
+//        case .monthly:
+//            return monthlyGradient
+//        case .yearly:
+//            return yearlyGradient
+//        }
+//    }
+//    
+//    private var weeklyGradient: LinearGradient {
+//        LinearGradient(
+//            colors: [
+//                Color(red: 255/255, green: 179/255, blue: 128/255),
+//                Color(red: 255/255, green: 217/255, blue: 191/255)
+//            ],
+//            startPoint: .bottom,
+//            endPoint: .top
+//        )
+//    }
+//    
+//    private var monthlyGradient: LinearGradient {
+//        LinearGradient(
+//            colors: [
+//                Color(red: 92/255, green: 138/255, blue: 138/255),
+//                Color(red: 139/255, green: 181/255, blue: 181/255)
+//            ],
+//            startPoint: .bottom,
+//            endPoint: .top
+//        )
+//    }
+//    
+//    private var yearlyGradient: LinearGradient {
+//        LinearGradient(
+//            colors: [
+//                Color(red: 194/255, green: 42/255, blue: 54/255),
+//                Color(red: 194/255, green: 42/255, blue: 54/255, opacity: 0.5)
+//            ],
+//            startPoint: .bottom,
+//            endPoint: .top
+//        )
+//    }
 }
 
 // MARK: - Preview

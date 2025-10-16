@@ -41,7 +41,7 @@ final class CompanionCell: BaseCollectionViewCell {
     private let countLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .bold)
-        label.textColor = .ccPrimary
+        label.textColor = .ccPrimaryText
         label.textAlignment = .center
         return label
     }()

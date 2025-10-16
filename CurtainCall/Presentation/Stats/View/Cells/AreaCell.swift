@@ -44,7 +44,7 @@ final class AreaCell: BaseCollectionViewCell {
     private let countLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .bold)
-        label.textColor = .ccPrimary
+        label.textColor = .ccPrimaryText
         return label
     }()
     
@@ -105,6 +105,9 @@ final class AreaCell: BaseCollectionViewCell {
         
         // 순위별 배지 색상
         rankBadge.backgroundColor = getRankColor(for: item.rank)
+        
+        // 순위별 랭크 색상
+        rankLabel.textColor = getRankTextColor(for: item.rank)
     }
     
     // MARK: - Helper
@@ -112,13 +115,22 @@ final class AreaCell: BaseCollectionViewCell {
     private func getRankColor(for rank: Int) -> UIColor {
         switch rank {
         case 1:
-            return UIColor(red: 255/255, green: 179/255, blue: 128/255, alpha: 1.0) // 금색 느낌
+            return UIColor(red: 165/255, green: 30/255, blue: 46/255, alpha: 1.0)
         case 2:
-            return UIColor(red: 255/255, green: 153/255, blue: 102/255, alpha: 1.0) // 은색 느낌
+            return UIColor(red: 207/255, green: 58/255, blue: 69/255, alpha: 1.0)
         case 3:
-            return UIColor(red: 92/255, green: 138/255, blue: 138/255, alpha: 1.0)  // 동색 느낌
+            return UIColor(red: 235/255, green: 111/255, blue: 111/255, alpha: 1.0)
         default:
-            return UIColor.systemGray
+            return .clear
+        }
+    }
+    
+    private func getRankTextColor(for rank: Int) -> UIColor {
+        switch rank {
+        case 1,2,3:
+            return .white
+        default:
+            return .black
         }
     }
 }

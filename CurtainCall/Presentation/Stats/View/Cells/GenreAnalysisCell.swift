@@ -36,7 +36,7 @@ final class GenreAnalysisCell: BaseCollectionViewCell {
     private let percentageLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .bold)
-        label.textColor = .ccPrimary
+        label.textColor = .ccPrimaryText
         return label
     }()
     
@@ -144,21 +144,21 @@ final class GenreAnalysisCell: BaseCollectionViewCell {
     private func getGenreColor(for genre: String) -> UIColor {
         switch genre {
         case "뮤지컬":
-            return UIColor(red: 255/255, green: 179/255, blue: 128/255, alpha: 1.0)
+            return .ccMusicalChart
         case "연극":
-            return UIColor(red: 255/255, green: 153/255, blue: 102/255, alpha: 1.0)
+            return .ccPlayChart
         case "클래식":
-            return UIColor(red: 92/255, green: 138/255, blue: 138/255, alpha: 1.0)
+            return .ccClassicChart
         case "무용":
-            return UIColor(red: 139/255, green: 181/255, blue: 181/255, alpha: 1.0)
+            return .ccDanceChart
         case "대중음악":
-            return UIColor(red: 255/255, green: 200/255, blue: 150/255, alpha: 1.0)
+            return .ccPopularMusicChart
         case "복합":
-            return UIColor(red: 180/255, green: 180/255, blue: 180/255, alpha: 1.0)
+            return .ccComplexChart
         case "서커스/마술":
-            return UIColor(red: 220/255, green: 150/255, blue: 200/255, alpha: 1.0)
+            return .ccCircus_MagicChart
         case "기타":
-            return UIColor.systemGray
+            return .ccSomeChart
         default:
             return UIColor.ccPrimary
         }

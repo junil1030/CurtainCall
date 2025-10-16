@@ -26,7 +26,7 @@ final class StatsSummaryCell: BaseCollectionViewCell {
     private let mainCountLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 48, weight: .bold)
-        label.textColor = .ccPrimary
+        label.textColor = .ccPrimaryText
         label.textAlignment = .center
         return label
     }()
@@ -138,7 +138,7 @@ final class StatsSummaryCell: BaseCollectionViewCell {
         // 변화량
         let changeText = item.changeText
         let changeColor: UIColor = item.changeCount > 0 ? .systemRed :
-                                   item.changeCount < 0 ? .systemBlue : .ccSecondaryText
+                                   item.changeCount < 0 ? .systemBlue : .ccPrimaryText
         
         changeInfoView.configure(
             title: "지난 기간 대비",
@@ -151,14 +151,14 @@ final class StatsSummaryCell: BaseCollectionViewCell {
         ratingInfoView.configure(
             title: "평균 평점",
             value: ratingText,
-            valueColor: .ccPrimary
+            valueColor: .ccPrimaryText
         )
         
         // 특별 정보 (최다 요일/장르/달)
         specialInfoView.configure(
             title: item.specialInfoTitle,
             value: item.specialInfoValue,
-            valueColor: .ccPrimary
+            valueColor: .ccPrimaryText
         )
     }
     
