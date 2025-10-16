@@ -88,4 +88,29 @@ extension UIColor {
     
     /// 정보 상태
     static let ccInfo = UIColor.systemBlue
+    
+    // MARK: - Genre Chart Colors
+    // 뮤지컬
+    static let ccMusicalChart = UIColor(red: 165/255, green: 30/255, blue: 46/255, alpha: 1.0)
+    
+    // 연극
+    static let ccPlayChart = UIColor(red: 179/255, green: 34/255, blue: 52/255, alpha: 1.0)
+    
+    // 대중음악
+    static let ccPopularMusicChart = UIColor(red: 194/255, green: 42/255, blue: 54/255, alpha: 1.0)
+    
+    // 서커스/마술
+    static let ccCircus_MagicChart = UIColor(red: 207/255, green: 58/255, blue: 69/255, alpha: 1.0)
+    
+    // 클래식
+    static let ccClassicChart = UIColor(red: 216/255, green: 76/255, blue: 83/255, alpha: 1.0)
+    
+    // 무용
+    static let ccDanceChart = UIColor(red: 225/255, green: 94/255, blue: 97/255, alpha: 1.0)
+    
+    // 복합
+    static let ccComplexChart = UIColor(red: 235/255, green: 111/255, blue: 111/255, alpha: 1.0)
+    
+    // 기타
+    static let ccSomeChart = UIColor(red: 242/255, green: 127/255, blue: 125/255, alpha: 1.0)
 }
