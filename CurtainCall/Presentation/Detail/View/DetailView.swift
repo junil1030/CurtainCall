@@ -117,13 +117,13 @@ final class DetailView: BaseView {
     override func setupLayout() {
         collectionView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(recordButton.snp.top)
+            make.bottom.equalTo(recordButton.snp.top).offset(-8)
         }
         
         recordButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(16)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(4)
-            make.height.equalTo(56)
+            make.height.equalTo(44)
         }
     }
     
