@@ -73,14 +73,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             "https://example.com/poster3.jpg"
         ]
         
-        let areas = ["서울", "경기", "대학로", "인천"]
+        let areas = AreaCode.allCases.map { $0.displayName }
+        let genres = GenreCode.allCases.map { $0.displayName }
         let locations = ["블루스퀘어", "세종문화회관", "샤롯데씨어터", "LG아트센터"]
-        let genres = ["뮤지컬", "연극", "서양음악(클래식)", "무용(서양/한국무용)"]
         let companions = ["혼자", "친구", "가족", "연인"]
         let casts = ["홍길동", "김철수", "이영희", "박보검", "아이유"]
         
         try! realm.write {
-            for i in 1...100 {
+            for i in 1...500 {
                 let record = ViewingRecord()
                 record.performanceId = UUID().uuidString
                 record.title = titles.randomElement()!
