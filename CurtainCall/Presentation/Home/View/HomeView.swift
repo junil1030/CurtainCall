@@ -79,13 +79,16 @@ final class HomeView: BaseView {
         let layer = CAGradientLayer()
         layer.colors = [
             UIColor.white.withAlphaComponent(0).cgColor,
+            UIColor.white.withAlphaComponent(0.3).cgColor,
+            UIColor.white.withAlphaComponent(0.6).cgColor,
+            UIColor.white.withAlphaComponent(0.85).cgColor,
             UIColor.white.cgColor
         ]
+        layer.locations = [0.0, 0.3, 0.5, 0.75, 1.0]
         layer.startPoint = CGPoint(x: 0.5, y: 0)
         layer.endPoint = CGPoint(x: 0.5, y: 1)
         return layer
     }()
-    
     private let searchButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "magnifyingglass"), for: .normal)
@@ -139,7 +142,7 @@ final class HomeView: BaseView {
     // MARK: - CollectionView
      private lazy var collectionView: UICollectionView = {
          let cv = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-         cv.backgroundColor = .ccBackground
+         cv.backgroundColor = .clear
          cv.showsVerticalScrollIndicator = false
          return cv
      }()
@@ -213,12 +216,13 @@ final class HomeView: BaseView {
         
         let screenHeight = UIScreen.main.bounds.height
         let headerHeight = screenHeight / 5
+        let containerheight = headerHeight + 50
         
         // 헤더 컨테이너 - 화면 최상단부터 104pt
         headerContainerView.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(headerHeight)
+            make.height.equalTo(containerheight)
         }
         
         // 커튼 이미지 - 헤더 컨테이너 전체
@@ -229,7 +233,7 @@ final class HomeView: BaseView {
         // 그라데이션 - 이미지 하단
         gradientView.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
-            make.height.equalTo(50)
+            make.height.equalTo(70)
         }
         
         // 검색 버튼 - Safe Area top 기준 우측 상단
@@ -266,7 +270,7 @@ final class HomeView: BaseView {
         
         // CollectionView - 헤더 아래부터
         collectionView.snp.makeConstraints { make in
-            make.top.equalTo(headerContainerView.snp.bottom)
+            make.top.equalTo(headerContainerView.snp.bottom).offset(-30)
             make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(safeAreaLayoutGuide)
         }
