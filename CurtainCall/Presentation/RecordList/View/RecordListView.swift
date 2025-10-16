@@ -71,6 +71,7 @@ final class RecordListView: BaseView {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         cv.backgroundColor = .ccBackground
         cv.showsVerticalScrollIndicator = true
+        cv.keyboardDismissMode = .onDrag
         return cv
     }()
     
