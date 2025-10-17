@@ -17,8 +17,7 @@ final class HomeView: BaseView {
     
     // MARK: - Subject
     private let selectedCategorySubject = PublishSubject<CategoryCode?>()
-    private let filterStateSubject = PublishSubject<FilterButtonContainer.FilterState>()
-    private let favoriteButtonTappedSubject = PublishSubject<String>()
+    private let filterStateSubject = PublishSubject<FilterButtonCell.FilterState>()
     private let searchButtonTappedSubject = PublishSubject<Void>()
     private let headerFavoriteButtonTappedSubject = PublishSubject<Void>()
     
@@ -38,12 +37,8 @@ final class HomeView: BaseView {
         return selectedCategorySubject.asObservable()
     }
     
-    var filterState: Observable<FilterButtonContainer.FilterState> {
+    var filterState: Observable<FilterButtonCell.FilterState> {
         return filterStateSubject.asObservable()
-    }
-    
-    var favoriteButtonTapped: Observable<String> {
-        return favoriteButtonTappedSubject.asObservable()
     }
     
     var searchButtonTapped: Observable<Void> {
@@ -101,14 +96,6 @@ final class HomeView: BaseView {
         return button
     }()
     
-    private let greetingLabel: UILabel = {
-        let label = UILabel()
-        label.font = .ccCallout
-        label.textColor = .white
-        label.numberOfLines = 1
-        return label
-    }()
-    
     private let nicknameLabel: UILabel = {
         let label = UILabel()
         label.font = .ccTitle2Bold
@@ -119,9 +106,9 @@ final class HomeView: BaseView {
     
     private let suggestionLabel: UILabel = {
         let label = UILabel()
-        label.font = .ccSubheadline
+        label.font = .ccTitle2Bold
         label.textColor = .white
-        label.numberOfLines = 1
+        label.numberOfLines = 2
         return label
     }()
     
@@ -171,7 +158,6 @@ final class HomeView: BaseView {
                     withReuseIdentifier: CardCell.identifier,
                     for: indexPath
                 ) as! CardCell
-                cell.delegate = self
                 cell.configure(with: cardItem)
                 return cell
             }
@@ -189,7 +175,6 @@ final class HomeView: BaseView {
         headerContainerView.addSubview(gradientView)
         headerContainerView.addSubview(searchButton)
         headerContainerView.addSubview(favoriteButton)
-        headerContainerView.addSubview(greetingLabel)
         headerContainerView.addSubview(nicknameLabel)
         headerContainerView.addSubview(suggestionLabel)
         
@@ -230,22 +215,18 @@ final class HomeView: BaseView {
             make.width.height.equalTo(40)
         }
         
-        // 인사말 레이블 - 이미지 하단 영역
-        greetingLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().inset(20)
-            make.top.equalTo(searchButton)
-        }
-        
         // 닉네임 레이블
         nicknameLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(20)
-            make.top.equalTo(greetingLabel.snp.bottom).offset(2)
+            make.top.equalTo(searchButton)
+            make.trailing.lessThanOrEqualTo(favoriteButton.snp.leading)
         }
         
         // 제안 레이블
         suggestionLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(20)
             make.top.equalTo(nicknameLabel.snp.bottom).offset(2)
+            make.trailing.lessThanOrEqualTo(favoriteButton.snp.leading)
         }
         
         // CollectionView - 헤더 아래부터
@@ -321,18 +302,18 @@ final class HomeView: BaseView {
     private func createFilterSection() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(100)
+            heightDimension: .absolute(44)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(100)
+            heightDimension: .absolute(44)
         )
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 0)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 12, bottom: 4, trailing: 12)
         
         return section
     }
@@ -340,9 +321,10 @@ final class HomeView: BaseView {
     private func createBoxOfficeSection() -> NSCollectionLayoutSection {
         let screenWidth = UIScreen.main.bounds.width
         
+        // 높이 바꿔야함 날짜 잘린다  ~
         let cardWidth = screenWidth * 0.65
         let posterHeight = cardWidth * (4.0 / 3.0)
-        let textAreaHeight: CGFloat = 60
+        let textAreaHeight: CGFloat = 80
         let cardHeight = posterHeight + textAreaHeight
         
         let itemSize = NSCollectionLayoutSize(
@@ -405,10 +387,6 @@ final class HomeView: BaseView {
     // MARK: - Greeting Methods
     private func updateGreeting() {
         let timeOfDay = getCurrentTimeOfDay()
-        
-        // 랜덤 인사말 선택
-        let greeting = timeOfDay.greetings.randomElement() ?? "안녕하세요"
-        greetingLabel.text = greeting
         
         // 랜덤 제안 문구 선택
         let suggestion = timeOfDay.suggestions.randomElement() ?? "오늘은 어떤 공연을 볼까요?"
@@ -476,28 +454,6 @@ final class HomeView: BaseView {
         
         collectionView.scrollToItem(at: firstBoxOfficeIndexPath, at: .centeredHorizontally, animated: true)
     }
-    
-    // 좋아요 상태 업데이트 메서드 추가
-    func updateFavoriteStatus(performanceID: String, isFavorite: Bool) {
-        guard let indexPath = dataSource.indexPath(for: .boxOffice(CardItem(
-            id: performanceID,
-            imageURL: "",
-            title: "",
-            subtitle: "",
-            badge: "",
-            isFavorite: false
-        ))) else { return }
-        
-        if let cell = collectionView.cellForItem(at: indexPath) as? CardCell {
-            cell.updateFavoriteStatus(isFavorite)
-        }
-    }
-}
-
-extension HomeView: CardCellDelegate {
-    func cardCell(_ cell: CardCell, didTapFavoriteButton performanceID: String) {
-        favoriteButtonTappedSubject.onNext(performanceID)
-    }
 }
 
 // MARK: - TimeOfDay
@@ -508,21 +464,6 @@ extension HomeView {
         case afternoon
         case evening
         case lateNight
-        
-        var greetings: [String] {
-            switch self {
-            case .morning:
-                return ["좋은 아침이에요", "상쾌한 아침입니다", "행복한 아침 되세요", "오늘도 화이팅!"]
-            case .lunch:
-                return ["점심은 드셨나요?", "맛있는 점심 시간이에요", "오늘 점심 메뉴는?", "활기찬 점심시간!"]
-            case .afternoon:
-                return ["오후도 힘내세요", "느긋한 오후입니다", "여유로운 오후에요", "편안한 오후 보내세요"]
-            case .evening:
-                return ["즐거운 저녁이에요", "오늘 하루 수고하셨어요", "편안한 저녁 되세요", "좋은 밤 되세요"]
-            case .lateNight:
-                return ["아직 안 주무세요?", "조용한 밤이네요", "편안한 밤 되세요", "오늘도 수고하셨어요"]
-            }
-        }
         
         var suggestions: [String] {
             switch self {

@@ -55,7 +55,6 @@ final class HomeViewController: BaseViewController {
             selectedCard: homeView.selectedCard,
             selectedCategory: homeView.selectedCategory,
             filterState: homeView.filterState,
-            favoriteButtonTapped: homeView.favoriteButtonTapped,
             searchButtonTapped: homeView.searchButtonTapped,
             headerFavoriteButtonTapped: homeView.headerFavoriteButtonTapped
         )
@@ -72,14 +71,6 @@ final class HomeViewController: BaseViewController {
         output.cardItems
             .drive(with: self) { owner, cardItems in
                 owner.homeView.updateCardItems(cardItems)
-            }
-            .disposed(by: disposeBag)
-        
-        // 좋아요 상태 변경 처리 추가
-        output.favoriteStatusChanged
-            .emit(with: self) { owner, data in
-                let (performanceID, isFavorite) = data
-                owner.homeView.updateFavoriteStatus(performanceID: performanceID, isFavorite: isFavorite)
             }
             .disposed(by: disposeBag)
         

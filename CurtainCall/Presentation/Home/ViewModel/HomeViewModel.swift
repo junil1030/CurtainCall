@@ -17,16 +17,13 @@ final class HomeViewModel: BaseViewModel {
     
     // MARK: - UseCases
     private let getUserProfileUseCase: GetUserProfileUseCase
-    private let toggleFavoriteUseCase: ToggleFavoriteUseCase
-    private let checkMultipleFavoriteStatusUseCase: CheckMultipleFavoriteStatusUseCase
     
     // MARK: - Input / Output
     struct Input {
         let viewWillAppear: Observable<Void>
         let selectedCard: Observable<CardItem>
         let selectedCategory: Observable<CategoryCode?>
-        let filterState: Observable<FilterButtonContainer.FilterState>
-        let favoriteButtonTapped: Observable<String>
+        let filterState: Observable<FilterButtonCell.FilterState>
         let searchButtonTapped: Observable<Void>
         let headerFavoriteButtonTapped: Observable<Void>
     }
@@ -36,7 +33,6 @@ final class HomeViewModel: BaseViewModel {
         let cardItems: Driver<[CardItem]>
         let scrollToFirst: Signal<Void>
         let isLoading: Driver<Bool>
-        let favoriteStatusChanged: Signal<(String, Bool)>
         let navigateToSearch: Signal<Void>
         let navigateToFavorite: Signal<Void>
     }
@@ -48,17 +44,12 @@ final class HomeViewModel: BaseViewModel {
     private let isLoadingRelay = BehaviorRelay<Bool>(value: false)
     private let errorRelay = PublishRelay<NetworkError>()
     private let scrollToFirstRelay = PublishRelay<Void>()
-    private let favoriteStatusChangedRelay = PublishRelay<(String, Bool)>()
     
     // MARK: - Init
     init(
         getUserProfileUseCase: GetUserProfileUseCase,
-        toggleFavoriteUseCase: ToggleFavoriteUseCase,
-        checkMultipleFavoriteStatusUseCase: CheckMultipleFavoriteStatusUseCase
     ) {
         self.getUserProfileUseCase = getUserProfileUseCase
-        self.toggleFavoriteUseCase = toggleFavoriteUseCase
-        self.checkMultipleFavoriteStatusUseCase = checkMultipleFavoriteStatusUseCase
         super.init()
         
         loadInitialData()
@@ -71,7 +62,6 @@ final class HomeViewModel: BaseViewModel {
         input.viewWillAppear
             .bind(with: self) { owner, _ in
                 owner.loadUserProfile()
-                owner.syncFavoriteStatus()
             }
             .disposed(by: disposeBag)
         
@@ -108,13 +98,6 @@ final class HomeViewModel: BaseViewModel {
             }
             .disposed(by: disposeBag)
         
-        // 좋아요 버튼 탭 처리
-        input.favoriteButtonTapped
-            .bind(with: self) { owner, performanceID in
-                owner.handleFavoriteToggle(performanceID: performanceID)
-            }
-            .disposed(by: disposeBag)
-        
         // 검색 버튼 탭 처리
         let navigateToSearch = input.searchButtonTapped
             .asSignal(onErrorSignalWith: .empty())
@@ -128,7 +111,6 @@ final class HomeViewModel: BaseViewModel {
             cardItems: cardItemsRelay.asDriver(),
             scrollToFirst: scrollToFirstRelay.asSignal(),
             isLoading: isLoadingRelay.asDriver(),
-            favoriteStatusChanged: favoriteStatusChangedRelay.asSignal(),
             navigateToSearch: navigateToSearch,
             navigateToFavorite: navigateToFavorite
         )
@@ -151,7 +133,7 @@ final class HomeViewModel: BaseViewModel {
         loadBoxOffice(startDate: startDate, endDate: endDate, category: .play, area: nil)
     }
     
-    private func performSearch(category: CategoryCode?, filterState: FilterButtonContainer.FilterState) {
+    private func performSearch(category: CategoryCode?, filterState: FilterButtonCell.FilterState) {
         // 초기화 상태인 경우 기본값으로 검색
         if filterState.isReset {
             let yesterday = Date().yesterday
@@ -193,60 +175,15 @@ final class HomeViewModel: BaseViewModel {
             .disposed(by: disposeBag)
     }
     
-    private func syncFavoriteStatus() {
-        let currentBoxOffices = boxOfficeListRelay.value
-        guard !currentBoxOffices.isEmpty else { return }
-        
-        let cardItems = convertToCardItems(from: currentBoxOffices)
-        cardItemsRelay.accept(cardItems)
-    }
-    
-    // 좋아요 토글 처리
-    private func handleFavoriteToggle(performanceID: String) {
-        guard let boxOffice = boxOfficeListRelay.value.first(where: { $0.performanceID == performanceID }) else {
-            print("BoxOffice를 찾을 수 없습니다: \(performanceID)")
-            return
-        }
-        
-        let favoriteDTO = BoxOfficeToFavoriteDTOMapper.map(from: boxOffice)
-        let result = toggleFavoriteUseCase.execute(favoriteDTO)
-        
-        switch result {
-        case .success(let isFavorite):
-            favoriteStatusChangedRelay.accept((performanceID, isFavorite))
-            
-            var currentCardItems = cardItemsRelay.value
-            if let index = currentCardItems.firstIndex(where: { $0.id == performanceID }) {
-                let updatedCardItem = CardItem(
-                    id: currentCardItems[index].id,
-                    imageURL: currentCardItems[index].imageURL,
-                    title: currentCardItems[index].title,
-                    subtitle: currentCardItems[index].subtitle,
-                    badge: currentCardItems[index].badge,
-                    isFavorite: isFavorite
-                )
-                currentCardItems[index] = updatedCardItem
-                cardItemsRelay.accept(currentCardItems)
-            }
-            
-        case .failure(let error):
-            print("좋아요 토글 실패: \(error.localizedDescription)")
-        }
-    }
-    
     private func convertToCardItems(from boxOffices: [BoxOffice]) -> [CardItem] {
-        let performanceIDs = boxOffices.map { $0.performanceID }
-        let favoriteStatuses = checkMultipleFavoriteStatusUseCase.execute(performanceIDs)
-        
         return boxOffices.map { boxOffice in
-            let isFavorite = favoriteStatuses[boxOffice.performanceID] ?? false
             return CardItem(
                 id: boxOffice.performanceID,
                 imageURL: boxOffice.posterURL,
                 title: boxOffice.title,
                 subtitle: boxOffice.location,
-                badge: boxOffice.rank,
-                isFavorite: isFavorite
+                period: boxOffice.performancePeriod,
+                badge: boxOffice.rank
             )
         }
     }
