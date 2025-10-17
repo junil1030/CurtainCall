@@ -31,11 +31,11 @@ struct CCFont {
     static let subheadline: CGFloat = 15
     
     // Footnote
-    static let footnote: CGFloat = 13
+    static let footnote: CGFloat = 11
     
     // Caption
-    static let caption1: CGFloat = 12
-    static let caption2: CGFloat = 11
+    static let caption1: CGFloat = 10
+    static let caption2: CGFloat = 9
 }
 
 // MARK: - NanumSquare Font Helper
