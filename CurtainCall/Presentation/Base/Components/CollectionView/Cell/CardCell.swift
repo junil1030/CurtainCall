@@ -10,21 +10,12 @@ import RxSwift
 import SnapKit
 import Kingfisher
 
-protocol CardCellDelegate: AnyObject {
-    func cardCell(_ cell: CardCell, didTapFavoriteButton performanceID: String)
-}
-
-final class CardCell: UICollectionViewCell {
+final class CardCell: BaseCollectionViewCell {
     
     // MARK: - Properties
-    static let identifier = "CardCell"
     private var disposeBag = DisposeBag()
-    weak var delegate: CardCellDelegate?
     private var currentPerformanceID: String?
-    
-    // MARK: - Constants
-    private let minimumTitleFontSize: CGFloat = 14
-    private let maximumTitleFontSize: CGFloat = 20
+    private var isInitialLayoutCompleted = false
     
     // MARK: - UI Components
     private let posterImageView: UIImageView = {
@@ -47,31 +38,43 @@ final class CardCell: UICollectionViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .ccTitle3Bold
+        label.font = .ccSubheadline
         label.textColor = .ccPrimaryText
-        label.numberOfLines = 1
-        label.textAlignment = .center
-        label.adjustsFontSizeToFitWidth = true
-        label.minimumScaleFactor = 0.7
+        label.numberOfLines = 2
+        label.textAlignment = .left
         return label
     }()
     
     private let subtitleLabel: UILabel = {
         let label = UILabel()
-        label.font = .ccCallout
+        label.font = .ccFootnote
         label.textColor = .ccSecondaryText
         label.numberOfLines = 1
-        label.textAlignment = .center
+        label.textAlignment = .left
         return label
     }()
     
-    private let favoriteButton = FavoriteButton()
+    private let periodLabel: UILabel = {
+        let label = UILabel()
+        label.font = .ccFootnote
+        label.textColor = .ccSecondaryText
+        label.numberOfLines = 1
+        label.textAlignment = .left
+        return label
+    }()
+    
+    private lazy var textStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel, periodLabel])
+        stackView.axis = .vertical
+        stackView.spacing = 4
+        stackView.alignment = .leading
+        stackView.distribution = .fill
+        return stackView
+    }()
     
     // MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupUI()
-        bindFavoriteButton()
     }
     
     required init?(coder: NSCoder) {
@@ -84,58 +87,54 @@ final class CardCell: UICollectionViewCell {
         posterImageView.image = nil
         titleLabel.text = nil
         subtitleLabel.text = nil
+        periodLabel.text = nil
         rankLabel.text = nil
-        favoriteButton.setFavorite(false)
         currentPerformanceID = nil
-        
-        bindFavoriteButton()
+        isInitialLayoutCompleted = false
     }
     
-    // MARK: - Setup Methods
-    private func setupUI() {
-        [posterImageView, rankLabel, titleLabel, subtitleLabel, favoriteButton].forEach {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        let cardHeight = bounds.height
+        let fontSize = cardHeight / 6
+        rankLabel.font = .nanumSquare(size: fontSize, isBold: true)
+        
+        if !isInitialLayoutCompleted {
+            isInitialLayoutCompleted = true
+            
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.posterImageView.addBottomGradient()
+            }
+        }
+    }
+    
+    override func setupHierarchy() {
+        super.setupHierarchy()
+        
+        [posterImageView, rankLabel, textStackView].forEach {
             contentView.addSubview($0)
         }
-        
-        setupConstraints()
     }
     
-    private func setupConstraints() {
+    override func setupLayout() {
+        super.setupLayout()
+        
         posterImageView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview().inset(8)
-            make.bottom.equalTo(titleLabel.snp.top).offset(-8)
+            make.height.equalTo(posterImageView.snp.width).multipliedBy(4.0/3.0)
         }
         
         rankLabel.snp.makeConstraints { make in
-            make.bottom.leading.equalTo(posterImageView).inset(8)
-            make.width.height.lessThanOrEqualTo(50)
+            make.bottom.leading.equalTo(posterImageView).inset(12)
         }
         
-        favoriteButton.snp.makeConstraints { make in
-            make.bottom.trailing.equalTo(posterImageView).inset(12)
-            make.width.height.equalTo(36)
-        }
-        
-        titleLabel.snp.makeConstraints { make in
+        textStackView.snp.makeConstraints { make in
+            make.top.equalTo(posterImageView.snp.bottom).offset(8)
             make.leading.trailing.equalToSuperview().inset(12)
-            make.height.equalTo(28)
-            make.bottom.equalTo(subtitleLabel.snp.top).offset(-4)
+            make.bottom.lessThanOrEqualToSuperview().inset(8)
         }
-        
-        subtitleLabel.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(12)
-            make.height.equalTo(20)
-            make.bottom.equalToSuperview().inset(8)
-        }
-    }
-    
-    private func bindFavoriteButton() {
-        favoriteButton.tapEvent
-            .subscribe(with: self) { owner, _ in
-                guard let performanceID = owner.currentPerformanceID else { return }
-                owner.delegate?.cardCell(owner, didTapFavoriteButton: performanceID)
-            }
-            .disposed(by: disposeBag)
     }
     
     // MARK: - Configure
@@ -144,7 +143,7 @@ final class CardCell: UICollectionViewCell {
         titleLabel.text = data.title
         subtitleLabel.text = data.subtitle
         rankLabel.text = data.badge
-        favoriteButton.setFavorite(data.isFavorite)
+        periodLabel.text = data.period
         
         // 포스터 이미지 로드
         if let url = data.imageURL.safeImageURL {
@@ -155,21 +154,11 @@ final class CardCell: UICollectionViewCell {
                     .transition(.fade(0.3)),
                     .cacheOriginalImage
                 ]
-            ) { [weak self] result in
-                switch result {
-                case .success:
-                    self?.posterImageView.addBottomGradient()
-                case .failure:
-                    break
-                }
-            }
-        } else {
-            posterImageView.addBottomGradient()
+            )
         }
-    }
-    
-    // MARK: - Public Methods
-    func updateFavoriteStatus(_ isFavorite: Bool) {
-        favoriteButton.setFavorite(isFavorite)
+        
+        if !isInitialLayoutCompleted {
+            layoutIfNeeded()
+        }
     }
 }
