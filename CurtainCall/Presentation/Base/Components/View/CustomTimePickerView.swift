@@ -32,6 +32,7 @@ final class CustomTimePickerView: BaseViewController {
         picker.locale = Locale(identifier: "ko_KR")
         picker.timeZone = TimeZone(identifier: "Asia/Seoul")
         picker.date = initialDate
+        picker.tintColor = .ccAccent
         return picker
     }()
     
@@ -63,15 +64,15 @@ final class CustomTimePickerView: BaseViewController {
         view.addSubview(confirmButton)
         
         timePicker.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(20)
-            make.leading.trailing.equalToSuperview().inset(20)
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(12)
+            make.leading.trailing.equalToSuperview().inset(12)
         }
         
         confirmButton.snp.makeConstraints { make in
-            make.top.equalTo(timePicker.snp.bottom).offset(20)
-            make.leading.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(50)
-            make.bottom.lessThanOrEqualTo(view.safeAreaLayoutGuide).offset(-20)
+            make.top.equalTo(timePicker.snp.bottom).offset(12)
+            make.leading.trailing.equalToSuperview().inset(12)
+            make.height.equalTo(44)
+            make.bottom.lessThanOrEqualTo(view.safeAreaLayoutGuide).offset(-12)
         }
     }
     
@@ -87,7 +88,6 @@ final class CustomTimePickerView: BaseViewController {
         confirmButton.rx.tap
             .subscribe(with: self) { owner, _ in
                 owner.selectedTimeRelay.accept(owner.timePicker.date)
-                owner.dismiss(animated: true)
             }
             .disposed(by: disposeBag)
     }
