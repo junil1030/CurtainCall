@@ -16,8 +16,8 @@ struct FavoriteDTOToCardItemMapper {
             imageURL: dto.safePosterURL,
             title: dto.title,
             subtitle: dto.safeLocation,
+            period: "\(dto.safeStartDate)~\(dto.safeEndDate)",
             badge: "",  // 찜한 공연 목록에는 순위 정보 없음
-            isFavorite: true  // 이미 찜한 목록이므로 항상 true
         )
     }
     

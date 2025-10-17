@@ -16,6 +16,7 @@ struct CardItem: Hashable {
     let imageURL: String
     let title: String
     let subtitle: String
+    let period: String
     let badge: String?
     let isFavorite: Bool
     
@@ -33,6 +34,7 @@ struct CardItem: Hashable {
         imageURL: String,
         title: String,
         subtitle: String,
+        period: String,
         badge: String? = nil,
         isFavorite: Bool = false
     ) {
@@ -40,6 +42,7 @@ struct CardItem: Hashable {
         self.imageURL = imageURL
         self.title = title
         self.subtitle = subtitle
+        self.period = period
         self.badge = badge
         self.isFavorite = isFavorite
     }
