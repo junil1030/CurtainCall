@@ -48,16 +48,11 @@ final class MainTabBarController: UITabBarController {
     
     private func createHomeViewController() -> UINavigationController {
         let userRepository = UserRepository()
-        let favoriteRepository = FavoriteRepository()
         
         let getUserProfileUseCase = GetUserProfileUseCase(repository: userRepository)
-        let toggleFavoriteUseCase = ToggleFavoriteUseCase(repository: favoriteRepository)
-        let checkMultipleFavoriteStatusUseCase = CheckMultipleFavoriteStatusUseCase(repository: favoriteRepository)
         
         let viewModel = HomeViewModel(
             getUserProfileUseCase: getUserProfileUseCase,
-            toggleFavoriteUseCase: toggleFavoriteUseCase,
-            checkMultipleFavoriteStatusUseCase: checkMultipleFavoriteStatusUseCase
         )
         
         let vc = HomeViewController(viewModel: viewModel)
