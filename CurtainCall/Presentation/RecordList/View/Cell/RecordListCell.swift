@@ -12,15 +12,18 @@ import Kingfisher
 
 final class RecordListCell: BaseCollectionViewCell {
     
+    // MARK: - Size Static
+    static let height = Metric.posterHeight + (Metric.verticalInset * 2)
+    
     // MARK: - Properties
     var disposeBag = DisposeBag()
     
     // MARK: - Constants
     private enum Metric {
-        static let posterWidth: CGFloat = 60
-        static let posterHeight: CGFloat = 85
+        static let posterWidth: CGFloat = 112
+        static let posterHeight: CGFloat = 150
         static let posterCornerRadius: CGFloat = 8
-        static let horizontalInset: CGFloat = 16
+        static let horizontalInset: CGFloat = 12
         static let verticalInset: CGFloat = 12
         static let contentSpacing: CGFloat = 12
         static let infoSpacing: CGFloat = 4
@@ -82,14 +85,22 @@ final class RecordListCell: BaseCollectionViewCell {
         return stack
     }()
     
-    private let dateInfoView: InfoItemView = {
-        let view = InfoItemView()
-        return view
+    private let dateInfoLabel: UILabel = {
+        let label = UILabel()
+        label.font = .ccSubheadline
+        label.textColor = .ccPrimaryText
+        label.numberOfLines = 2
+        label.textAlignment = .left
+        return label
     }()
     
-    private let locationInfoView: InfoItemView = {
-        let view = InfoItemView()
-        return view
+    private let locationInfoLabel: UILabel = {
+        let label = UILabel()
+        label.font = .ccFootnote
+        label.textColor = .ccSecondaryText
+        label.numberOfLines = 2
+        label.textAlignment = .left
+        return label
     }()
     
     private let starRatingView: StarRatingView = {
@@ -99,9 +110,9 @@ final class RecordListCell: BaseCollectionViewCell {
     
     private let memoLabel: UILabel = {
         let label = UILabel()
-        label.font = .ccCallout
+        label.font = .ccCaption2
         label.textColor = .ccSecondaryText
-        label.numberOfLines = 2
+        label.numberOfLines = 5
         return label
     }()
     
@@ -135,8 +146,8 @@ final class RecordListCell: BaseCollectionViewCell {
         containerView.addSubview(contentStackView)
         containerView.addSubview(editButton)
         
-        infoStackView.addArrangedSubview(dateInfoView)
-        infoStackView.addArrangedSubview(locationInfoView)
+        infoStackView.addArrangedSubview(dateInfoLabel)
+        infoStackView.addArrangedSubview(locationInfoLabel)
         
         contentStackView.addArrangedSubview(titleLabel)
         contentStackView.addArrangedSubview(infoStackView)
@@ -209,11 +220,10 @@ final class RecordListCell: BaseCollectionViewCell {
         titleLabel.text = record.title
         
         // 날짜
-        let dateString = record.viewingDate.toDateWithWeekday
-        dateInfoView.configure(symbol: "calendar", text: dateString, symbolColor: .ccPrimaryText)
+        dateInfoLabel.text = record.viewingDate.toDateWithWeekday
         
         // 장소
-        locationInfoView.configure(symbol: "location.fill", text: record.safeLocation, symbolColor: .ccPrimaryText)
+        locationInfoLabel.text = record.safeLocation
         
         // 별점
         starRatingView.setRating(record.rating)

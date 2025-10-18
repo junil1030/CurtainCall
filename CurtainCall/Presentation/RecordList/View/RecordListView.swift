@@ -44,19 +44,19 @@ final class RecordListView: BaseView {
         return stack
     }()
     
-    private lazy var ratingFilterButton: FilterButton = {
+    private lazy var ratingFilterButton: DropdownFilterButton = {
         let items = RatingFilterOption.allCases.map { option in
-            FilterButton.DropdownItem(title: option.displayName, value: option)
+            DropdownFilterButton.Item(title: option.displayName, value: option)
         }
-        let button = FilterButton(type: .dropdown(items: items), title: "평점")
+        let button = DropdownFilterButton(items: items, title: "평점")
         return button
     }()
     
-    private lazy var sortFilterButton: FilterButton = {
+    private lazy var sortFilterButton: DropdownFilterButton = {
         let items = RecordSortType.allCases.map { type in
-            FilterButton.DropdownItem(title: type.displayName, value: type)
+            DropdownFilterButton.Item(title: type.displayName, value: type)
         }
-        let button = FilterButton(type: .dropdown(items: items), title: RecordSortType.latest.displayName)
+        let button = DropdownFilterButton(items: items, title: RecordSortType.latest.displayName)
         return button
     }()
     
@@ -172,7 +172,7 @@ final class RecordListView: BaseView {
         filterContainerView.snp.makeConstraints { make in
             make.top.equalTo(categoryCollectionView.snp.bottom).offset(8)
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(60)
+            make.height.equalTo(48)
         }
         
         filterStackView.snp.makeConstraints { make in
@@ -267,13 +267,13 @@ extension RecordListView {
     private func createMainSection() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(150)
+            heightDimension: .estimated(RecordListCell.height)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(150)
+            heightDimension: .estimated(RecordListCell.height)
         )
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
