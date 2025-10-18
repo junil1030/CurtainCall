@@ -38,7 +38,7 @@ final class CardCell: BaseCollectionViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .ccSubheadline
+        label.font = .ccSubheadlineBold
         label.textColor = .ccPrimaryText
         label.numberOfLines = 2
         label.textAlignment = .left
