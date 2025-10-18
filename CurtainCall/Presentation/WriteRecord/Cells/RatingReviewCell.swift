@@ -15,6 +15,11 @@ final class RatingReviewCell: BaseCollectionViewCell {
     var disposeBag = DisposeBag()
     private let maxCharacterCount = 1000
     
+    // MARK: - Public Access
+    var reviewTextView: UITextView {
+        return _reviewTextView
+    }
+    
     // MARK: - Subjects
     private let ratingChangedSubject = PublishSubject<Int>()
     private let reviewTextChangedSubject = PublishSubject<String>()
@@ -73,7 +78,7 @@ final class RatingReviewCell: BaseCollectionViewCell {
         return label
     }()
     
-    private let reviewTextView: UITextView = {
+    private let _reviewTextView: UITextView = {
         let textView = UITextView()
         textView.font = .ccCallout
         textView.textColor = .ccPrimaryText
@@ -107,7 +112,7 @@ final class RatingReviewCell: BaseCollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         disposeBag = DisposeBag()
-        reviewTextView.text = ""
+        _reviewTextView.text = ""
         placeholderLabel.isHidden = false
         starRatingView.setRating(0)
         updateCharacterCount(0)
@@ -123,9 +128,9 @@ final class RatingReviewCell: BaseCollectionViewCell {
         ratingRowStackView.addArrangedSubview(starRatingView)
         
         // 한줄평 섹션
-        reviewTextView.addSubview(placeholderLabel)
+        _reviewTextView.addSubview(placeholderLabel)
         reviewRowStackView.addArrangedSubview(reviewTitleLabel)
-        reviewRowStackView.addArrangedSubview(reviewTextView)
+        reviewRowStackView.addArrangedSubview(_reviewTextView)
         reviewRowStackView.addArrangedSubview(characterCountLabel)
         
         // 전체 컨테이너에 추가
@@ -142,7 +147,7 @@ final class RatingReviewCell: BaseCollectionViewCell {
             make.height.equalTo(44)
         }
         
-        reviewTextView.snp.makeConstraints { make in
+        _reviewTextView.snp.makeConstraints { make in
             make.height.greaterThanOrEqualTo(100)
         }
         
@@ -165,12 +170,12 @@ final class RatingReviewCell: BaseCollectionViewCell {
             .disposed(by: disposeBag)
         
         // 텍스트 변경 처리
-        reviewTextView.rx.text.orEmpty
+        _reviewTextView.rx.text.orEmpty
             .subscribe(with: self) { owner, text in
                 // 1000자 제한
                 let limitedText = String(text.prefix(owner.maxCharacterCount))
                 if text != limitedText {
-                    owner.reviewTextView.text = limitedText
+                    owner._reviewTextView.text = limitedText
                 }
                 
                 // Placeholder 표시/숨김
@@ -196,7 +201,7 @@ final class RatingReviewCell: BaseCollectionViewCell {
         starRatingView.setRating(rating)
         
         // 리뷰 설정
-        reviewTextView.text = review
+        _reviewTextView.text = review
         placeholderLabel.isHidden = !review.isEmpty
         reviewTextChangedSubject.onNext(review)
     }

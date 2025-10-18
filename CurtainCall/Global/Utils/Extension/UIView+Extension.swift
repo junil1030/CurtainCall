@@ -24,4 +24,18 @@ extension UIView {
         gradient.locations = [0.5, 1.0]
         layer.addSublayer(gradient)
     }
+    
+    func findFirstResponderInSubviews() -> UIView? {
+        if self.isFirstResponder {
+            return self
+        }
+        
+        for subview in subviews {
+            if let firstResponder = subview.findFirstResponderInSubviews() {
+                return firstResponder
+            }
+        }
+        
+        return nil
+    }
 }

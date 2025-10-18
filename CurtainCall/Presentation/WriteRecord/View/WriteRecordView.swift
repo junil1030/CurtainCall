@@ -253,28 +253,88 @@ extension WriteRecordView {
     }
     
     private func setupKeyboardHandling() {
-        // 키보드 높이 감지
+        // 키보드가 나타날 때
         NotificationCenter.default.rx
             .notification(UIResponder.keyboardWillShowNotification)
-            .compactMap { notification -> CGFloat? in
-                guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+            .compactMap { notification -> (CGFloat, TimeInterval, UIView.AnimationCurve)? in
+                guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+                      let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval,
+                      let curveValue = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? Int,
+                      let curve = UIView.AnimationCurve(rawValue: curveValue) else {
                     return nil
                 }
-                return keyboardFrame.height
+                return (keyboardFrame.height, duration, curve)
             }
-            .subscribe(with: self) { owner, keyboardHeight in
-                owner.collectionView.contentInset.bottom = keyboardHeight
-                owner.collectionView.verticalScrollIndicatorInsets.bottom = keyboardHeight
+            .subscribe(with: self) { owner, info in
+                let (keyboardHeight, _, _) = info
+                
+                // 키보드 높이만큼 contentInset 조정
+                let contentInset = UIEdgeInsets(
+                    top: 0,
+                    left: 0,
+                    bottom: keyboardHeight,
+                    right: 0
+                )
+                owner.collectionView.contentInset = contentInset
+                owner.collectionView.verticalScrollIndicatorInsets = contentInset
+                
+                // 활성화된 입력 필드가 보이도록 스크롤
+                owner.fitScrollingMinDistance(keyboardHeight: keyboardHeight)
             }
             .disposed(by: disposeBag)
         
+        // 키보드가 사라질 때
         NotificationCenter.default.rx
             .notification(UIResponder.keyboardWillHideNotification)
             .subscribe(with: self) { owner, _ in
-                owner.collectionView.contentInset.bottom = 0
-                owner.collectionView.verticalScrollIndicatorInsets.bottom = 0
+                // contentInset 원상복구
+                owner.collectionView.contentInset = .zero
+                owner.collectionView.verticalScrollIndicatorInsets = .zero
             }
             .disposed(by: disposeBag)
+    }
+
+    private func fitScrollingMinDistance(keyboardHeight: CGFloat) {
+        // 현재 first responder 찾기
+        guard let activeField = findFirstResponder() else { return }
+        
+        // superView 결정 (window가 있으면 window, 없으면 collectionView)
+        let superView = window ?? collectionView
+        
+        // activeField의 하단 Y 좌표 계산
+        let fieldBottomY = activeField.convert(activeField.bounds, to: superView).maxY
+        
+        // 키보드를 제외한 보이는 영역의 높이
+        let visibleAreaHeight = superView.frame.height - keyboardHeight
+        
+        // 입력 필드와 키보드 사이 최소 여유 공간
+        let minDistance: CGFloat = 20.0
+        
+        // 필요한 스크롤 오프셋 계산
+        let offsetY = fieldBottomY + minDistance - visibleAreaHeight
+        
+        // offsetY가 양수일 때만 스크롤 (가려진 경우에만)
+        guard offsetY > 0 else { return }
+        
+        // 현재 contentOffset에 필요한 만큼 추가
+        let currentContentOffset = collectionView.contentOffset
+        let newOffset = CGPoint(
+            x: currentContentOffset.x,
+            y: currentContentOffset.y + offsetY
+        )
+        
+        // 애니메이션과 함께 스크롤
+        collectionView.setContentOffset(newOffset, animated: true)
+    }
+
+    private func findFirstResponder() -> UIView? {
+        // collectionView의 모든 visible cells를 순회하며 first responder 찾기
+        for cell in collectionView.visibleCells {
+            if let textView = cell.findFirstResponderInSubviews() {
+                return textView
+            }
+        }
+        return nil
     }
     
     private func bindActions() {
