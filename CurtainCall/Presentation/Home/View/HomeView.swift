@@ -137,7 +137,7 @@ final class HomeView: BaseView {
                 
                 cell.selectedCategory
                     .bind(to: self.selectedCategorySubject)
-                    .disposed(by: self.disposeBag)
+                    .disposed(by: cell.disposeBag)
                 
                 return cell
                 
@@ -149,7 +149,7 @@ final class HomeView: BaseView {
                 
                 cell.filterState
                     .bind(to: self.filterStateSubject)
-                    .disposed(by: self.disposeBag)
+                    .disposed(by: cell.disposeBag)
                 
                 return cell
                 

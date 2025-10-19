@@ -40,7 +40,7 @@ final class FilterButtonCell: BaseCollectionViewCell {
     }
     
     // MARK: - Properties
-    private var disposeBag = DisposeBag()
+    var disposeBag = DisposeBag()
     
     // MARK: - UI Components
     private let scrollView: UIScrollView = {
