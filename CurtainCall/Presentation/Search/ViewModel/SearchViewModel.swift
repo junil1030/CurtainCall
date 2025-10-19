@@ -27,13 +27,13 @@ final class SearchViewModel: BaseViewModel {
     private let isLoadingRelay = BehaviorRelay<Bool>(value: false)
     private let errorRelay = PublishRelay<NetworkError>()
     private let currentKeywordRelay = BehaviorRelay<String>(value: "")
-    private let currentFilterStateRelay = BehaviorRelay<FilterButtonContainer.FilterState>(value: FilterButtonContainer.FilterState())
+    private let currentFilterStateRelay = BehaviorRelay<FilterButtonCell.FilterState>(value: FilterButtonCell.FilterState())
     
     // MARK: - Input / Output
     struct Input {
         let viewWillAppear: Observable<Void>
         let searchKeyword: Observable<String>
-        let filterStateChanged: Observable<FilterButtonContainer.FilterState>
+        let filterStateChanged: Observable<FilterButtonCell.FilterState>
         let getCurrentKeyword: Observable<String>
         let recentSearchSelected: Observable<RecentSearch>
         let deleteRecentSearch: Observable<RecentSearch>
@@ -158,7 +158,7 @@ final class SearchViewModel: BaseViewModel {
     }
     
     /// 검색 수행
-    private func performSearch(keyword: String, filterState: FilterButtonContainer.FilterState, page: Int) {
+    private func performSearch(keyword: String, filterState: FilterButtonCell.FilterState, page: Int) {
         isLoadingRelay.accept(true)
         
         let startDateString = filterState.startDate

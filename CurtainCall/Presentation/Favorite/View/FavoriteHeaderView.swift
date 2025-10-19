@@ -63,38 +63,29 @@ final class FavoriteHeaderView: BaseView {
         return stack
     }()
     
-    private lazy var sortButton: FilterButton = {
+    private lazy var sortButton: DropdownFilterButton = {
         let items = SortType.allCases.map { type in
-            FilterButton.DropdownItem(title: type.rawValue, value: type)
+            DropdownFilterButton.Item(title: type.rawValue, value: type)
         }
-        let button = FilterButton(
-            type: .dropdown(items: items),
-            title: SortType.latest.rawValue
-        )
+        let button = DropdownFilterButton(items: items, title: SortType.latest.rawValue)
         return button
     }()
     
-    private lazy var genreButton: FilterButton = {
-        var items = [FilterButton.DropdownItem(title: "전체장르", value: "all")]
+    private lazy var genreButton: DropdownFilterButton = {
+        var items = [DropdownFilterButton.Item(title: "전체장르", value: "all")]
         items += GenreCode.allCases.map { genre in
-            FilterButton.DropdownItem(title: genre.displayName, value: genre)
+            DropdownFilterButton.Item(title: genre.displayName, value: genre)
         }
-        let button = FilterButton(
-            type: .dropdown(items: items),
-            title: "전체장르"
-        )
+        let button = DropdownFilterButton(items: items, title: "전체장르")
         return button
     }()
     
-    private lazy var areaButton: FilterButton = {
-        var items = [FilterButton.DropdownItem(title: "전체지역", value: "all")]
+    private lazy var areaButton: DropdownFilterButton = {
+        var items = [DropdownFilterButton.Item(title: "전체지역", value: "all")]
         items += AreaCode.allCases.map { area in
-            FilterButton.DropdownItem(title: area.displayName, value: area)
+            DropdownFilterButton.Item(title: area.displayName, value: area)
         }
-        let button = FilterButton(
-            type: .dropdown(items: items),
-            title: "전체지역"
-        )
+        let button = DropdownFilterButton(items: items, title: "전체지역")
         return button
     }()
     
@@ -170,7 +161,7 @@ final class FavoriteHeaderView: BaseView {
         filterStackView.snp.makeConstraints { make in
             make.top.equalTo(dividerView.snp.bottom).offset(12)
             make.leading.trailing.equalToSuperview().inset(16)
-            make.height.equalTo(44)
+            make.height.equalTo(32)
             make.bottom.equalToSuperview().inset(12)
         }
     }

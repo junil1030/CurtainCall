@@ -13,11 +13,11 @@ import SnapKit
 final class SearchView: BaseView {
     
     // MARK: - Properties
-    private let disposebag = DisposeBag()
+    private let disposeBag = DisposeBag()
     private var currentKeyword: String = ""
     
     // MARK: - Subjects
-    private let filterStateSubject = PublishSubject<FilterButtonContainer.FilterState>()
+    private let filterStateSubject = PublishSubject<FilterButtonCell.FilterState>()
     private let recentKeywordSubject = PublishSubject<RecentSearch>()
     private let searchResultSubject = PublishSubject<SearchResult>()
     private let searchTriggerSubject = PublishSubject<String>()
@@ -59,10 +59,12 @@ final class SearchView: BaseView {
                     return cell
                     
                 case .filter:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchFilterButtonCell.identifier, for: indexPath) as! SearchFilterButtonCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterButtonCell.identifier, for: indexPath) as! FilterButtonCell
+                    
                     cell.filterState
                         .bind(to: self.filterStateSubject)
                         .disposed(by: cell.disposeBag)
+                    
                     return cell
                     
                 case .searchResult(let searchResult):
@@ -122,7 +124,7 @@ final class SearchView: BaseView {
         return searchTriggerSubject.asObservable()
     }
     
-    var filterState: Observable<FilterButtonContainer.FilterState> {
+    var filterState: Observable<FilterButtonCell.FilterState> {
         return filterStateSubject.asObservable()
     }
     
@@ -261,7 +263,6 @@ extension SearchView {
             let section = sections[sectionIndex]
             
             switch section {
-                // MARK: - ToDo: v1.1 최근 검색어 기능
             case .recentSearch:
                 return self.createRecentSearchSection()
             case .filter:
@@ -303,7 +304,7 @@ extension SearchView {
         collectionView.register(RecentSearchCell.self, forCellWithReuseIdentifier: RecentSearchCell.identifier)
         collectionView.register(EmptySearchCell.self, forCellWithReuseIdentifier: EmptySearchCell.identifier)
         collectionView.register(SearchResultCell.self, forCellWithReuseIdentifier: SearchResultCell.identifier)
-        collectionView.register(SearchFilterButtonCell.self, forCellWithReuseIdentifier: SearchFilterButtonCell.identifier)
+        collectionView.register(FilterButtonCell.self, forCellWithReuseIdentifier: FilterButtonCell.identifier)
         
         // HeaderView
         collectionView.register(
@@ -356,13 +357,13 @@ extension SearchView {
     private func createFilterSection() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(100)
+            heightDimension: .absolute(44)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(100)
+            heightDimension: .absolute(44)
         )
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
