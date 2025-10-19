@@ -8,6 +8,7 @@
 enum GenreCode: String, CaseIterable {
     // 변수명: shcate
     // 필드명: genrenm
+    case musical        = "GGGA"
     case play           = "AAAA"
     case dance          = "BBBC"
     case popularDance   = "BBBE"
@@ -16,7 +17,6 @@ enum GenreCode: String, CaseIterable {
     case popularMusic   = "CCCD"
     case complex        = "EEEA"
     case circus_Magic   = "EEEB"
-    case musical        = "GGGA"
     
     var displayName: String {
         switch self {
