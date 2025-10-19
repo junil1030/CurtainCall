@@ -114,9 +114,7 @@ final class WriteRecordViewModel: BaseViewModel {
             reviewRelay
         )
         .map { companion, seat, rating, review in
-            print("companion: \(companion), seat: \(seat), rating: \(rating), review: \(review)")
             let result = !companion.isEmpty &&
-            !seat.isEmpty &&
             rating > 0 &&
             !review.isEmpty
             return result

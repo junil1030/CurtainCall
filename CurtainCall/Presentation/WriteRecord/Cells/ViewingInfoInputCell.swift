@@ -64,9 +64,8 @@ final class ViewingInfoInputCell: BaseCollectionViewCell {
         return label
     }()
     
-    private lazy var dateSelectorButton: FilterButton = {
-        let button = FilterButton(type: .datePicker(allowFuture: false), title: Date().toDateWithWeekday)
-        return button
+    private lazy var dateSelectorButton: DatePickerFilterButton = {
+        return DatePickerFilterButton(allowFuture: false, initialDate: Date())
     }()
     
     // 관람 시간 행
@@ -87,9 +86,8 @@ final class ViewingInfoInputCell: BaseCollectionViewCell {
         return label
     }()
     
-    private lazy var timeSelectorButton: FilterButton = {
-        let button = FilterButton(type: .timePicker, title: Date().toTime24Hour)
-        return button
+    private lazy var timeSelectorButton: TimePickerFilterButton = {
+        return TimePickerFilterButton(initialTime: Date())
     }()
     
     // 함께한 사람 행
@@ -247,19 +245,13 @@ final class ViewingInfoInputCell: BaseCollectionViewCell {
         // 날짜 버튼 탭
         dateSelectorButton.selectedValue
             .compactMap { $0 as? Date }
-            .subscribe(with: self) { owner, date in
-                owner.updateDateButton(date: date)
-                owner.dateButtonTappedSubject.onNext(date)
-            }
+            .bind(to: dateButtonTappedSubject)
             .disposed(by: disposeBag)
         
         // 시간 버튼 탭
         timeSelectorButton.selectedValue
             .compactMap { $0 as? Date }
-            .subscribe(with: self) { owner, date in
-                owner.updateTimeButton(time: date)
-                owner.timeButtonTappedSubject.onNext(date)
-            }
+            .bind(to: timeButtonTappedSubject)
             .disposed(by: disposeBag)
         
         // 함께한 사람 버튼들 처리
@@ -301,11 +293,9 @@ final class ViewingInfoInputCell: BaseCollectionViewCell {
     // MARK: - Private Methods
     func configure(date: Date, time: Date, companion: String, seat: String) {
         // 날짜 설정
-        dateSelectorButton.setSelectedValue(date)
         updateDateButton(date: date)
         
         // 시간 설정
-        timeSelectorButton.setSelectedValue(time)
         updateTimeButton(time: time)
         
         // 동행인 설정
@@ -323,24 +313,14 @@ final class ViewingInfoInputCell: BaseCollectionViewCell {
         placeholderLabel.isHidden = !seat.isEmpty
         seatTextChangedSubject.onNext(seat)
     }
-
+    
     private func updateDateButton(date: Date) {
         let dateString = date.toDateWithWeekday
-        print("날짜 업데이트: \(dateString)")
-        dateSelectorButton.setTitle(dateString)
-        
-        // 레이아웃 강제 업데이트
-        dateSelectorButton.setNeedsLayout()
-        dateSelectorButton.layoutIfNeeded()
+        dateSelectorButton.updateTitle(dateString)
     }
-
+    
     private func updateTimeButton(time: Date) {
         let timeString = time.toTime24Hour
-        print("시간 업데이트: \(timeString)")
-        timeSelectorButton.setTitle(timeString)
-        
-        // 레이아웃 강제 업데이트
-        timeSelectorButton.setNeedsLayout()
-        timeSelectorButton.layoutIfNeeded()
+        timeSelectorButton.updateTitle(timeString)
     }
 }
