@@ -19,6 +19,11 @@ final class FilterButtonCell: BaseCollectionViewCell {
         case monthly = "월간"
     }
     
+    enum ScreenType {
+        case home
+        case search
+    }
+    
     struct FilterState {
         let area: AreaCode?
         let dateType: DateRangeType
@@ -41,6 +46,7 @@ final class FilterButtonCell: BaseCollectionViewCell {
     
     // MARK: - Properties
     var disposeBag = DisposeBag()
+    private var screenType: ScreenType = .home
     
     // MARK: - UI Components
     private let scrollView: UIScrollView = {
@@ -75,15 +81,45 @@ final class FilterButtonCell: BaseCollectionViewCell {
         return DropdownFilterButton(items: items, title: "일간")
     }()
     
-    private lazy var dateSelectorButton: DatePickerFilterButton = {
-        return DatePickerFilterButton(allowFuture: false, initialDate: Date().yesterday)
-    }()
+    private var dateSelectorButton: DatePickerFilterButton?
     
     // MARK: - State Management
     private let filterStateRelay = BehaviorRelay<FilterState>(value: FilterState())
     private let selectedAreaRelay = BehaviorRelay<AreaCode?>(value: nil)
     private let selectedDateTypeRelay = BehaviorRelay<DateRangeType>(value: .daily)
-    private let selectedDateRelay = BehaviorRelay<Date>(value: Date().yesterday)
+    private lazy var selectedDateRelay = BehaviorRelay<Date>(value: screenType == .search ? Date() : Date().yesterday)
+    
+    // MARK: - Public Configuration
+    func configure(screenType: ScreenType) {
+        self.screenType = screenType
+        setupDateSelectorButton()
+    }
+    
+    // MARK: - Private Setup
+    private func setupDateSelectorButton() {
+        // 기존 버튼이 있다면 제거
+        if let existingButton = dateSelectorButton {
+            existingButton.removeFromSuperview()
+            contentStackView.removeArrangedSubview(existingButton)
+        }
+        
+        // 새로운 버튼 생성
+        let allowFuture = (screenType == .search)
+        let initialDate = allowFuture ? Date() : Date().yesterday
+        let button = DatePickerFilterButton(
+            allowFuture: allowFuture,
+            initialDate: initialDate
+        )
+        
+        self.dateSelectorButton = button
+        
+        // 스택뷰에 추가 (마지막 위치)
+        contentStackView.addArrangedSubview(button)
+        
+        button.snp.makeConstraints { make in
+            make.height.equalTo(32)
+        }
+    }
     
     // MARK: - Public Observables
     var filterState: Observable<FilterState> {
@@ -104,7 +140,7 @@ final class FilterButtonCell: BaseCollectionViewCell {
         contentView.addSubview(scrollView)
         scrollView.addSubview(contentStackView)
         
-        [resetButton, areaButton, dateTypeButton, dateSelectorButton].forEach {
+        [resetButton, areaButton, dateTypeButton].forEach {
             contentStackView.addArrangedSubview($0)
         }
     }
@@ -123,7 +159,7 @@ final class FilterButtonCell: BaseCollectionViewCell {
         }
         
         // 각 버튼들의 최소 너비 설정 (intrinsicContentSize 활용)
-        [resetButton, areaButton, dateTypeButton, dateSelectorButton].forEach { button in
+        [resetButton, areaButton, dateTypeButton].forEach { button in
             button.snp.makeConstraints { make in
                 make.height.equalTo(32)
             }
@@ -167,7 +203,7 @@ final class FilterButtonCell: BaseCollectionViewCell {
             .disposed(by: disposeBag)
         
         // 날짜 선택 버튼
-        dateSelectorButton.selectedValue
+        dateSelectorButton?.selectedValue
             .skip(1)
             .subscribe(with: self) { owner, value in
                 if let date = value as? Date {
@@ -253,7 +289,7 @@ final class FilterButtonCell: BaseCollectionViewCell {
     
     private func updateDateSelectorTitle(dateType: DateRangeType, date: Date) {
         let title = formatDateTitle(dateType, date)
-        dateSelectorButton.updateTitle(title)
+        dateSelectorButton?.updateTitle(title)
     }
     
     private func calculateDateRange(for dateType: DateRangeType, selectedDate: Date) -> (String, String) {

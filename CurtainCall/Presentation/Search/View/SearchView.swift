@@ -61,6 +61,8 @@ final class SearchView: BaseView {
                 case .filter:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterButtonCell.identifier, for: indexPath) as! FilterButtonCell
                     
+                    cell.configure(screenType: .search)
+                    
                     cell.filterState
                         .bind(to: self.filterStateSubject)
                         .disposed(by: cell.disposeBag)

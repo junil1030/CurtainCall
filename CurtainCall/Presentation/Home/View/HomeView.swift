@@ -147,6 +147,8 @@ final class HomeView: BaseView {
                     for: indexPath
                 ) as! FilterButtonCell
                 
+                cell.configure(screenType: .home)
+                
                 cell.filterState
                     .bind(to: self.filterStateSubject)
                     .disposed(by: cell.disposeBag)
