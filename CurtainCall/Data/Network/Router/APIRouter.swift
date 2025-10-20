@@ -66,7 +66,7 @@ extension APIRouter {
                 "stdate": startDate,
                 "eddate": endDate,
                 "cpage": page,
-                "rows": "10",
+                "rows": "100",
                 "shprfnm": keyword
             ]
             
