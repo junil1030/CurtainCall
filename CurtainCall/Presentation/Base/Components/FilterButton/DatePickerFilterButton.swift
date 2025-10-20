@@ -20,8 +20,6 @@ final class DatePickerFilterButton: BaseFilterButton {
         self.allowFuture = allowFuture
         self.selectedDate = initialDate
         super.init(frame: .zero)
-        
-        updateTitle(formatDate(initialDate))
     }
     
     required init?(coder: NSCoder) {
@@ -63,15 +61,7 @@ final class DatePickerFilterButton: BaseFilterButton {
     
     private func handleSelection(_ date: Date) {
         selectedDate = date
-        updateTitle(formatDate(date))
         updateSelectedValue(date)
-    }
-    
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "yyyy.MM.dd(E)"
-        return formatter.string(from: date)
     }
     
     // MARK: - Helper Methods

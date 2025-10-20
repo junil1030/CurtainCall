@@ -113,12 +113,26 @@ final class FilterButtonCell: BaseCollectionViewCell {
         
         self.dateSelectorButton = button
         
+        // 초기 타이틀 설정 (현재 날짜 타입에 맞춰)
+        let currentDateType = selectedDateTypeRelay.value
+        updateDateSelectorTitle(dateType: currentDateType, date: initialDate)
+        
         // 스택뷰에 추가 (마지막 위치)
         contentStackView.addArrangedSubview(button)
         
         button.snp.makeConstraints { make in
             make.height.equalTo(32)
         }
+        
+        // 날짜 선택 버튼
+        button.selectedValue
+            .skip(1)
+            .subscribe(with: self) { owner, value in
+                if let date = value as? Date {
+                    owner.handleDateSelection(date)
+                }
+            }
+            .disposed(by: disposeBag)
     }
     
     // MARK: - Public Observables
@@ -202,16 +216,6 @@ final class FilterButtonCell: BaseCollectionViewCell {
             }
             .disposed(by: disposeBag)
         
-        // 날짜 선택 버튼
-        dateSelectorButton?.selectedValue
-            .skip(1)
-            .subscribe(with: self) { owner, value in
-                if let date = value as? Date {
-                    owner.handleDateSelection(date)
-                }
-            }
-            .disposed(by: disposeBag)
-        
         // 상태 변경 감지
         bindStateChanges()
     }
@@ -265,6 +269,10 @@ final class FilterButtonCell: BaseCollectionViewCell {
     }
     
     private func handleDateSelection(_ date: Date) {
+        // 날짜 변경 전에 현재 날짜 타입에 맞는 타이틀로 즉시 업데이트
+        let currentDateType = selectedDateTypeRelay.value
+        updateDateSelectorTitle(dateType: currentDateType, date: date)
+        
         selectedDateRelay.accept(date)
     }
     
