@@ -27,7 +27,7 @@ final class RecordListView: BaseView {
         return searchBar
     }()
     
-    private let categoryCollectionView = CategoryCollectionView()
+    private let categoryCollectionView = CategoryCollectionView(excludeRankingOnly: true)
     
     private let filterContainerView: UIView = {
         let view = UIView()
