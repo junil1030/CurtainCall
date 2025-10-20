@@ -17,7 +17,14 @@ final class RealmManager {
     private var realm: Realm?
     
     // MARK: - Schema Version
-    private let currentSchemaVersion: UInt64 = 1
+    private enum RealmSchemaVersion: UInt64 {
+        case initial = 1
+        case changeGenreCode = 2
+        
+        static var current: UInt64 {
+            return RealmSchemaVersion.changeGenreCode.rawValue
+        }
+    }
     
     // MARK: - Init
     private init() {
@@ -27,10 +34,10 @@ final class RealmManager {
     // MARK: - Configuration
     private func configureRealm() {
         let config = Realm.Configuration(
-            schemaVersion: currentSchemaVersion,
+            schemaVersion: RealmSchemaVersion.current,
             migrationBlock: { migration, oldSchemaVersion in
                 
-                if oldSchemaVersion < self.currentSchemaVersion {
+                if oldSchemaVersion < RealmSchemaVersion.current {
                     self.performMigration(migration: migration, oldVersion: oldSchemaVersion)
                 }
             },
@@ -56,13 +63,65 @@ final class RealmManager {
     
     // MARK: - Migration
     private func performMigration(migration: Migration, oldVersion: UInt64) {
-        Logger.data.info("마이그레이션 시작: v\(oldVersion) -> v\(self.currentSchemaVersion)")
+        Logger.data.info("마이그레이션 시작: v\(oldVersion) -> v\(RealmSchemaVersion.current)")
         
-        // v0 -> v1 마이그레이션
-        if oldVersion < 1 {
-            // 필요한 마이그레이션 로직 추가
-            Logger.data.info("v0 -> v1 마이그레이션 완료")
+        // v1(initial) -> v2(changeGenreCode) 마이그레이션
+        if oldVersion < RealmSchemaVersion.changeGenreCode.rawValue {
+            migrateToChangeGenreCode(migration: migration)
         }
+    }
+    
+    // MARK: - Migration Methods
+    // v1 -> v2: ViewingRecord의 genre 필드를 DisplayName에서 Code로 변환
+    private func migrateToChangeGenreCode(migration: Migration) {
+        migration.enumerateObjects(ofType: ViewingRecord.className()) { oldObject, newObject in
+            guard let oldObject = oldObject,
+                  let newObject = newObject else { return }
+            
+            // 기존 장르 값 가져오기
+            if let oldGenre = oldObject["genre"] as? String, !oldGenre.isEmpty {
+                // DisplayName -> Code 변환
+                let genreCode = self.convertDisplayNameToCode(oldGenre)
+                newObject["genre"] = genreCode
+                
+                Logger.data.debug("장르 마이그레이션: \(oldGenre) -> \(genreCode)")
+            }
+        }
+        
+        Logger.data.info("v\(RealmSchemaVersion.initial.rawValue) -> v\(RealmSchemaVersion.changeGenreCode.rawValue) 마이그레이션 완료: ViewingRecord 장르 필드 Code 변환")
+    }
+    
+    // MARK: - Migration Helper
+    
+    // DisplayName을 GenreCode로 변환
+    private func convertDisplayNameToCode(_ displayName: String) -> String {
+        // 1. 괄호 제거한 버전으로 매칭 시도
+        let cleanedDisplayName = removeParenthesesContent(from: displayName)
+        
+        // 2. GenreCode에서 displayName으로 찾기
+        if let genreCode = GenreCode.allCases.first(where: { $0.displayName == cleanedDisplayName }) {
+            return genreCode.rawValue
+        }
+        
+        // 3. 원본으로도 한번 더 시도 (이미 괄호가 없는 경우 대비)
+        if let genreCode = GenreCode.allCases.first(where: { $0.displayName == displayName }) {
+            return genreCode.rawValue
+        }
+        
+        // 4. 이미 Code 형식인 경우 (GGGA, AAAA 등)
+        if GenreCode(rawValue: displayName) != nil {
+            return displayName
+        }
+        
+        // 5. 매칭 실패 시 원본 반환
+        Logger.data.warning("알 수 없는 장르 값: \(displayName)")
+        return displayName
+    }
+    
+    // 괄호와 괄호 안의 내용 제거
+    private func removeParenthesesContent(from text: String) -> String {
+        // 정규식으로 괄호와 내용 제거: "문자열(내용)" -> "문자열"
+        return text.replacingOccurrences(of: "\\([^)]*\\)", with: "", options: .regularExpression)
     }
     
     // MARK: - Realm Instance

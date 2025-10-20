@@ -11,7 +11,7 @@ import Alamofire
 enum APIRouter {
     case boxOffice(startDate: String, endDate: String, category: CategoryCode?, area: AreaCode?)
     case detailPerformance(performanceID: String)
-    case searchPerformance(startDate: String, endDate: String, page: String, keyword: String)
+    case searchPerformance(startDate: String, endDate: String, page: String, keyword: String, area: AreaCode?)
 }
 
 extension APIRouter {
@@ -61,14 +61,18 @@ extension APIRouter {
         case .detailPerformance:
             return [:]
             
-        case .searchPerformance(let startDate, let endDate, let page, let keyword):
-            let parameters: Parameters = [
+        case .searchPerformance(let startDate, let endDate, let page, let keyword, let area):
+            var parameters: Parameters = [
                 "stdate": startDate,
                 "eddate": endDate,
                 "cpage": page,
                 "rows": "10",
                 "shprfnm": keyword
             ]
+            
+            if let area = area {
+                parameters["signgucode"] = area.rawValue
+            }
             
             return parameters
         }

@@ -15,7 +15,7 @@ class ViewingRecord: Object {
     @Persisted var posterURL: String                          // 포스터 URL - 옵셔널
     @Persisted var area: String                               // 지역 - 옵셔널
     @Persisted var location: String                           // 공연장 - 옵셔널
-    @Persisted var genre: String                              // 장르 - 옵셔널
+    @Persisted var genre: String                              // 장르(Code로 저장) - 옵셔널
     @Persisted var viewingDate: Date                          // 관람한 날짜
     @Persisted var rating: Int = 0                            // 별점 (0~5, 0은 미평가)
     @Persisted var seat: String = ""                          // 좌석 정보
@@ -34,10 +34,41 @@ class ViewingRecord: Object {
         self.posterURL = detail.posterURL ?? ""
         self.area = detail.area ?? ""
         self.location = detail.location ?? ""
-        self.genre = detail.genre ?? ""
+        self.genre = Self.convertToGenreCode(detail.genre ?? "")
         self.viewingDate = viewingDate
         self.imagePaths = List<String>()
         self.createdAt = Date()
         self.updatedAt = Date()
+    }
+    
+    // MARK: - Private Helper
+    
+    // DisplayName 또는 Code를 받아서 Code로 변환
+    private static func convertToGenreCode(_ value: String) -> String {
+        guard !value.isEmpty else { return "" }
+        
+        // 1. 이미 Code 형식인지 확인
+        if GenreCode(rawValue: value) != nil {
+            return value
+        }
+        
+        // 2. 괄호 제거한 버전으로 매칭 시도
+        let cleanedValue = removeParenthesesContent(from: value)
+        if let genreCode = GenreCode.from(displayName: cleanedValue) {
+            return genreCode.rawValue
+        }
+        
+        // 3. 원본으로도 한번 더 시도 (이미 괄호가 없는 경우)
+        if let genreCode = GenreCode.from(displayName: value) {
+            return genreCode.rawValue
+        }
+        
+        // 4. 변환 실패 시 원본 반환
+        return value
+    }
+    
+    // 괄호와 괄호 안의 내용 제거
+    private static func removeParenthesesContent(from text: String) -> String {
+        return text.replacingOccurrences(of: "\\([^)]*\\)", with: "", options: .regularExpression)
     }
 }

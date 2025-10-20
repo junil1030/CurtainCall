@@ -247,13 +247,8 @@ final class ViewingRecordRepository: ViewingRecordRepositoryProtocol {
             // 장르별 통계
             var genreCount: [String: Int] = [:]
             for record in records {
-                // GenreCode의 displayName을 키로 사용
-                if let genreCode = GenreCode(rawValue: record.genre) {
-                    genreCount[genreCode.displayName, default: 0] += 1
-                } else {
-                    // GenreCode에 없는 경우 "기타"로 분류
-                    genreCount["기타", default: 0] += 1
-                }
+                let displayName = convertGenreToDisplayName(record.genre)
+                genreCount[displayName, default: 0] += 1
             }
             
             return ViewingStatistics(
@@ -402,13 +397,8 @@ extension ViewingRecordRepository {
             var genreCounts: [String: Int] = [:]
             
             for record in records {
-                let genre: String
-                if let genreCode = CategoryCode.allCases.first(where: { $0.displayName == record.genre }) {
-                    genre = genreCode.displayName
-                } else {
-                    genre = record.genre.isEmpty ? "기타" : record.genre
-                }
-                genreCounts[genre, default: 0] += 1
+                let displayName = convertGenreToDisplayName(record.genre)
+                genreCounts[displayName, default: 0] += 1
             }
             
             let totalCount = records.count
@@ -482,9 +472,7 @@ extension ViewingRecordRepository {
     
     func getMostFrequentGenre(from startDate: Date, to endDate: Date) -> String? {
         let genreStats = getGenreStats(from: startDate, to: endDate)
-        let maxStat = genreStats.max(by: { $0.count < $1.count })
-        
-        return maxStat?.count ?? 0 > 0 ? maxStat?.genre : nil
+        return genreStats.first?.genre
     }
     
     func getMostFrequentMonth(from startDate: Date, to endDate: Date) -> String? {
@@ -492,6 +480,27 @@ extension ViewingRecordRepository {
         let maxStat = monthlyStats.max(by: { $0.count < $1.count })
         
         return maxStat?.count ?? 0 > 0 ? maxStat?.displayName : nil
+    }
+    
+    // MARK: - Private Helper
+    
+    // Genre 값을 DisplayName으로 변환
+    // - Code면 DisplayName으로, 이미 DisplayName이면 그대로 반환
+    private func convertGenreToDisplayName(_ genreValue: String) -> String {
+        guard !genreValue.isEmpty else { return "기타" }
+        
+        // 1. Code로 간주하고 변환 시도
+        if let genreCode = GenreCode(rawValue: genreValue) {
+            return genreCode.displayName
+        }
+        
+        // 2. 이미 DisplayName인 경우 (마이그레이션 전 데이터 대비)
+        if GenreCode.allCases.contains(where: { $0.displayName == genreValue }) {
+            return genreValue
+        }
+        
+        // 3. 알 수 없는 값
+        return "기타"
     }
 }
 
