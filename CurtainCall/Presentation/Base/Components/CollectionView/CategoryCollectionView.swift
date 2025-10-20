@@ -39,6 +39,24 @@ final class CategoryCollectionView: BaseView {
         return selectedCategoryRelay.asObservable()
     }
     
+    // MARK: - Init
+    init(excludeRankingOnly: Bool = false) {
+        super.init(frame: .zero)
+        
+        // 기록뷰에서는 아동, 오픈런 제외
+        if excludeRankingOnly {
+            let filteredCategories = CategoryCode.allCases.filter { category in
+                category != .kid && category != .openRun
+            }
+            categoriesRelay.accept(filteredCategories)
+            selectedCategoryRelay.accept(filteredCategories.first)
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - BaseView Override Methods
     override func setupHierarchy() {
         addSubview(collectionView)
