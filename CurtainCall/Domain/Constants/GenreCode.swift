@@ -26,7 +26,7 @@ enum GenreCode: String, CaseIterable {
         case .classic:      return "서양음악"
         case .koreanMusic:  return "한국음악"
         case .popularMusic: return "대중음악"
-        case .complex:      return "복합공연"
+        case .complex:      return "복합"
         case .circus_Magic: return "서커스/마술"
         case .musical:      return "뮤지컬"
         }
