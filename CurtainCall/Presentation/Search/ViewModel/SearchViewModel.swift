@@ -22,7 +22,7 @@ final class SearchViewModel: BaseViewModel {
     private let clearAllRecentSearchesUseCase: ClearAllRecentSearchesUseCase
     
     // MARK: - Streams
-    private let searchResultsRelay = PublishRelay<[SearchResult]>()
+    private let searchResultsRelay = BehaviorRelay<[SearchResult]>(value: [])
     private let recentSearchesRelay = BehaviorRelay<[RecentSearch]>(value: [])
     private let isLoadingRelay = BehaviorRelay<Bool>(value: false)
     private let errorRelay = PublishRelay<NetworkError>()
@@ -86,7 +86,13 @@ final class SearchViewModel: BaseViewModel {
             .disposed(by: disposeBag)
         
         input.filterStateChanged
-            .skip(1) // 초기값 스킵
+            .skip(1)
+            .distinctUntilChanged { prev, curr in
+                return prev.area?.rawValue == curr.area?.rawValue &&
+                       prev.dateType == curr.dateType &&
+                       prev.startDate == curr.startDate &&
+                       prev.endDate == curr.endDate
+            }
             .withLatestFrom(input.getCurrentKeyword) { ($0, $1) }
             .withUnretained(self)
             .filter { owner, data in
@@ -163,6 +169,7 @@ final class SearchViewModel: BaseViewModel {
         
         let startDateString = filterState.startDate
         let endDateString = filterState.endDate
+        let areaString = filterState.area
         let pageString = String(page)
         
         CustomObservable.request(
@@ -170,7 +177,8 @@ final class SearchViewModel: BaseViewModel {
                 startDate: startDateString,
                 endDate: endDateString,
                 page: pageString,
-                keyword: keyword
+                keyword: keyword,
+                area: areaString
             ),
             responseType: SearchResponseDTO.self
         )

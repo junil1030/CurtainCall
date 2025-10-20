@@ -87,6 +87,13 @@ final class SearchViewController: BaseViewController {
             owner.searchView.updateSearchResults(results: results, keyword: keyword)
         }
         .disposed(by: disposeBag)
+            
+        output.currentSearchKeyword
+            .filter { !$0.isEmpty }
+            .drive(with: self) { owner, keyword in
+                owner.searchView.updateSearchKeyword(keyword)
+            }
+            .disposed(by: disposeBag)
         
         // 로딩 상태 바인딩
         output.isLoading

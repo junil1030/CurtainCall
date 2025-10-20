@@ -223,6 +223,10 @@ final class SearchView: BaseView {
         }
     }
     
+    func updateSearchKeyword(_ keyword: String) {
+        searchBar.text = keyword
+    }
+    
     func getCurrentKeyword() -> String {
         return searchBar.text ?? ""
     }
