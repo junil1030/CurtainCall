@@ -244,7 +244,14 @@ final class WriteRecordViewModel: BaseViewModel {
                 posterURL: recordDTO.posterURL,
                 detailPosterURL: nil,
                 cast: castAry,
-                bookingSites: nil
+                bookingSites: nil,
+                runtime: nil,
+                ageRating: nil,
+                ticketPrice: nil,
+                producer: nil,
+                planning: nil,
+                host: nil,
+                management: nil
             )
             
             performanceDetail = detail
