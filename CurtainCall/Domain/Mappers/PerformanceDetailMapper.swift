@@ -33,7 +33,14 @@ struct PerformanceDetailMapper {
             posterURL: dto.poster ?? "",
             detailPosterURL: detailPosterURL,
             cast: castArray,
-            bookingSites: bookingSites
+            bookingSites: bookingSites,
+            runtime: dto.prfruntime,
+            ageRating: dto.prfage,
+            ticketPrice: dto.pcseguidance,
+            producer: dto.entrpsnmP,    // P = 제작사
+            planning: dto.entrpsnmA,    // A = 기획사
+            host: dto.entrpsnmH,        // H = 주최
+            management: dto.entrpsnmS   // S = 주관
         )
     }
     
