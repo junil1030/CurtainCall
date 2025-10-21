@@ -12,16 +12,11 @@ import SnapKit
 
 final class DetailView: BaseView {
     
+    // MARK: - DetailItem 재정의
     enum DetailItem: Hashable {
         case poster(String)
-        case info(InfoData)
-        case bookingSite(BookingSite)
+        case tabContent(PerformanceDetail)
         case detailPoster(String)
-    }
-    
-    struct InfoData: Hashable {
-        let symbol: String
-        let text: String
     }
     
     // MARK: - Properties
@@ -45,7 +40,7 @@ final class DetailView: BaseView {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         cv.backgroundColor = .ccBackground
         cv.showsVerticalScrollIndicator = false
-        cv.contentInsetAdjustmentBehavior = .never
+        cv.contentInsetAdjustmentBehavior = .automatic
         return cv
     }()
     
@@ -75,23 +70,15 @@ final class DetailView: BaseView {
                 cell.configure(with: url)
                 return cell
                 
-            case .info(let data):
+            case .tabContent(let detail):
                 let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: InfoCell.identifier,
+                    withReuseIdentifier: DetailTabContentCell.identifier,
                     for: indexPath
-                ) as! InfoCell
-                cell.configure(with: data)
-                return cell
+                ) as! DetailTabContentCell
+                cell.configure(with: detail)
                 
-            case .bookingSite(let site):
-                let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: BookingSiteCell.identifier,
-                    for: indexPath
-                ) as! BookingSiteCell
-                cell.configure(with: site)
-                
-                cell.buttonTapped
-                    .map { site.url }
+                // 예매 버튼 탭 이벤트 전달
+                cell.bookingSiteSelected
                     .bind(to: self.bookingSiteTappedSubject)
                     .disposed(by: cell.disposeBag)
                 
@@ -116,7 +103,7 @@ final class DetailView: BaseView {
     
     override func setupLayout() {
         collectionView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.bottom.equalTo(recordButton.snp.top).offset(-8)
         }
         
@@ -134,18 +121,17 @@ final class DetailView: BaseView {
     }
     
     // MARK: - Setup Methods
-     private func setupCollectionView() {
-         collectionView.register(PosterCell.self, forCellWithReuseIdentifier: PosterCell.identifier)
-         collectionView.register(InfoCell.self, forCellWithReuseIdentifier: InfoCell.identifier)
-         collectionView.register(BookingSiteCell.self, forCellWithReuseIdentifier: BookingSiteCell.identifier)
-         collectionView.register(DetailPosterCell.self, forCellWithReuseIdentifier: DetailPosterCell.identifier)
-     }
+    private func setupCollectionView() {
+        collectionView.register(PosterCell.self, forCellWithReuseIdentifier: PosterCell.identifier)
+        collectionView.register(DetailTabContentCell.self, forCellWithReuseIdentifier: DetailTabContentCell.identifier)
+        collectionView.register(DetailPosterCell.self, forCellWithReuseIdentifier: DetailPosterCell.identifier)
+    }
      
-     private func bindActions() {
-         recordButton.rx.tap
-             .bind(to: recordButtonTappedSubject)
-             .disposed(by: disposeBag)
-     }
+    private func bindActions() {
+        recordButton.rx.tap
+            .bind(to: recordButtonTappedSubject)
+            .disposed(by: disposeBag)
+    }
     
     private func createLayout() -> UICollectionViewLayout {
         UICollectionViewCompositionalLayout { sectionIndex, environment in
@@ -156,10 +142,8 @@ final class DetailView: BaseView {
             switch section {
             case .poster:
                 return Self.createPosterSection()
-            case .info:
-                return Self.createInfoSection()
-            case .bookingSite:
-                return Self.createBookingSiteSection()
+            case .tabContent:
+                return Self.createTabContentSection()
             case .detailPoster:
                 return Self.createDetailPosterSection()
             }
@@ -174,33 +158,9 @@ final class DetailView: BaseView {
         snapshot.appendSections([.poster])
         snapshot.appendItems([.poster(detail.posterURL ?? "")], toSection: .poster)
         
-        // 정보 섹션 (날짜, 장소, 캐스트)
-        snapshot.appendSections([.info])
-        
-        let dateInfo: InfoData
-        if let startDate = detail.startDate, let endDate = detail.endDate {
-            dateInfo = InfoData(symbol: "calendar", text: "\(startDate) ~ \(endDate)")
-        } else {
-            dateInfo = InfoData(symbol: "calendar", text: "공연 날짜에 대한 정보가 없어요")
-        }
-        
-        let locationInfo: InfoData
-        if let area = detail.area, let location = detail.location {
-            locationInfo = InfoData(symbol: "map", text: "\(area) > \(location)")
-        } else {
-            locationInfo = InfoData(symbol: "map", text: "장소에 대한 정보가 없어요")
-        }
-        
-        let castInfo = InfoData(symbol: "person.3", text: detail.castText ?? "출연진 정보가 없어요")
-        
-        snapshot.appendItems([.info(dateInfo), .info(locationInfo), .info(castInfo)], toSection: .info)
-        
-        // 예매 사이트 섹션
-        if let bookingSites = detail.bookingSites, !bookingSites.isEmpty {
-            snapshot.appendSections([.bookingSite])
-            let bookingItems = bookingSites.map { DetailItem.bookingSite($0) }
-            snapshot.appendItems(bookingItems, toSection: .bookingSite)
-        }
+        // 탭 컨텐츠 섹션
+        snapshot.appendSections([.tabContent])
+        snapshot.appendItems([.tabContent(detail)], toSection: .tabContent)
         
         // 상세 포스터 섹션
         if let detailPosters = detail.detailPosterURL, !detailPosters.isEmpty {
@@ -232,60 +192,36 @@ extension DetailView {
     }
     
     private static func createPosterSection() -> NSCollectionLayoutSection {
-        let screenWidth = UIScreen.main.bounds.width
-        let posterHeight = screenWidth * (4.0 / 3.0)
-        
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(posterHeight)
+            heightDimension: .absolute(320)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(posterHeight)
+            heightDimension: .absolute(320)
         )
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
-        let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 10, trailing: 0)
-        return section
+        return NSCollectionLayoutSection(group: group)
     }
     
-    private static func createInfoSection() -> NSCollectionLayoutSection {
+    private static func createTabContentSection() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(60)
+            heightDimension: .estimated(300)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(60)
+            heightDimension: .estimated(300)
         )
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
-        return section
-    }
-    
-    private static func createBookingSiteSection() -> NSCollectionLayoutSection {
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(50)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(50)
-        )
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        
-        let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = 12
-        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 0)
         return section
     }
     
@@ -303,7 +239,8 @@ extension DetailView {
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
+        section.interGroupSpacing = 16
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 10, trailing: 20)
         return section
     }
 }
