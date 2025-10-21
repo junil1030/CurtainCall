@@ -14,6 +14,7 @@ final class DetailTabContentCell: BaseCollectionViewCell {
     
     // MARK: - Properties
     var disposeBag = DisposeBag()
+    private let cellDisposeBag = DisposeBag()  // Cell의 생명주기 동안 유지
     private var currentTab: DetailTab = .info
     
     // MARK: - Subjects
@@ -112,12 +113,12 @@ final class DetailTabContentCell: BaseCollectionViewCell {
             .subscribe(with: self) { owner, tab in
                 owner.showContentView(for: tab)
             }
-            .disposed(by: disposeBag)
+            .disposed(by: cellDisposeBag)
         
         // 예매 버튼 탭 이벤트 전달
         bookingInfoView.bookingSiteSelected
             .bind(to: bookingSiteSelectedSubject)
-            .disposed(by: disposeBag)
+            .disposed(by: cellDisposeBag)
     }
     
     // MARK: - Public Methods

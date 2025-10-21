@@ -101,7 +101,7 @@ final class CastInfoView: BaseView {
         
         let nameLabel = UILabel()
         nameLabel.text = name
-        nameLabel.font = .ccBody
+        nameLabel.font = .ccSubheadline
         nameLabel.textColor = .ccPrimaryText
         nameLabel.numberOfLines = 0
         

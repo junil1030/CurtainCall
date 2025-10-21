@@ -76,12 +76,12 @@ final class PerformanceInfoView: BaseView {
         let containerView = UIView()
         
         let titleLabel = UILabel()
-        titleLabel.font = .ccBody
+        titleLabel.font = .ccBodyBold
         titleLabel.textColor = .ccSecondaryText
         titleLabel.tag = 100 // title label tag
         
         let valueLabel = UILabel()
-        valueLabel.font = .ccBody
+        valueLabel.font = .ccSubheadline
         valueLabel.textColor = .ccPrimaryText
         valueLabel.numberOfLines = 0
         valueLabel.tag = 200 // value label tag
