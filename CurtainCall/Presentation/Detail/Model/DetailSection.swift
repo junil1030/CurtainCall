@@ -9,7 +9,6 @@ import Foundation
 
 enum DetailSection: Int, CaseIterable {
     case poster
-    case info
-    case bookingSite
+    case tabContent
     case detailPoster
 }
