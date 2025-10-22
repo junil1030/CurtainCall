@@ -21,7 +21,7 @@ final class FavoriteButton: BaseView {
         button.setImage(UIImage(systemName: "heart"), for: .normal)
         button.setImage(UIImage(systemName: "heart.fill"), for: .selected)
         button.tintColor = .systemRed
-        button.backgroundColor = .black.withAlphaComponent(0.7)
+        button.backgroundColor = .clear
         button.layer.cornerRadius = 18
         button.clipsToBounds = true
         return button
