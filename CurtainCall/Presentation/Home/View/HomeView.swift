@@ -73,26 +73,14 @@ final class HomeView: BaseView {
     private let searchButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "magnifyingglass"), for: .normal)
-        button.tintColor = .ccPrimary
-        button.backgroundColor = .white.withAlphaComponent(0.95)
-        button.layer.cornerRadius = 20
-        button.layer.shadowColor = UIColor.black.cgColor
-        button.layer.shadowOpacity = 0.1
-        button.layer.shadowOffset = CGSize(width: 0, height: 2)
-        button.layer.shadowRadius = 4
+        button.tintColor = .white
         return button
     }()
     
     private let favoriteButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "heart"), for: .normal)
-        button.tintColor = .ccPrimary
-        button.backgroundColor = .white.withAlphaComponent(0.95)
-        button.layer.cornerRadius = 20
-        button.layer.shadowColor = UIColor.black.cgColor
-        button.layer.shadowOpacity = 0.1
-        button.layer.shadowOffset = CGSize(width: 0, height: 2)
-        button.layer.shadowRadius = 4
+        button.tintColor = .white
         return button
     }()
     
