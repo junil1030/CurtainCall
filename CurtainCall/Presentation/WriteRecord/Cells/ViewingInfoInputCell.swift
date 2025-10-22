@@ -238,14 +238,17 @@ final class ViewingInfoInputCell: BaseCollectionViewCell {
     override func setupStyle() {
         super.setupStyle()
         setupBind()
+        updateDateButton(date: Date())
     }
     
     private func setupBind() {
         
         // 날짜 버튼 탭
         dateSelectorButton.selectedValue
-            .compactMap { $0 as? Date }
-            .bind(to: dateButtonTappedSubject)
+            .compactMap { $0 as? Date}
+            .bind(with: self) { owner, date in
+                owner.updateDateButton(date: date)
+            }
             .disposed(by: disposeBag)
         
         // 시간 버튼 탭
@@ -290,8 +293,9 @@ final class ViewingInfoInputCell: BaseCollectionViewCell {
         }
     }
     
-    // MARK: - Private Methods
+    // MARK: - Configure
     func configure(date: Date, time: Date, companion: String, seat: String) {
+        print(date)
         // 날짜 설정
         updateDateButton(date: date)
         
@@ -314,6 +318,7 @@ final class ViewingInfoInputCell: BaseCollectionViewCell {
         seatTextChangedSubject.onNext(seat)
     }
     
+    // MARK: - Private Methods
     private func updateDateButton(date: Date) {
         let dateString = date.toDateWithWeekday
         dateSelectorButton.updateTitle(dateString)
