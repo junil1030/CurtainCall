@@ -29,6 +29,7 @@ struct CCFont {
     
     // Subhead
     static let subheadline: CGFloat = 15
+    static let subheadline2: CGFloat = 13
     
     // Footnote
     static let footnote: CGFloat = 11
@@ -57,6 +58,7 @@ extension UIFont {
     static var ccBody: UIFont { nanumSquare(size: CCFont.body) }
     static var ccCallout: UIFont { nanumSquare(size: CCFont.callout) }
     static var ccSubheadline: UIFont { nanumSquare(size: CCFont.subheadline) }
+    static var ccSubheadline2: UIFont { nanumSquare(size: CCFont.subheadline2) }
     static var ccFootnote: UIFont { nanumSquare(size: CCFont.footnote) }
     static var ccCaption1: UIFont { nanumSquare(size: CCFont.caption1) }
     static var ccCaption2: UIFont { nanumSquare(size: CCFont.caption2) }
@@ -70,6 +72,7 @@ extension UIFont {
     static var ccBodyBold: UIFont { nanumSquare(size: CCFont.body, isBold: true) }
     static var ccCalloutBold: UIFont { nanumSquare(size: CCFont.callout, isBold: true) }
     static var ccSubheadlineBold: UIFont { nanumSquare(size: CCFont.subheadline, isBold: true) }
+    static var ccSubheadlineBold2: UIFont { nanumSquare(size: CCFont.subheadline2, isBold: true) }
     static var ccFootnoteBold: UIFont { nanumSquare(size: CCFont.footnote, isBold: true) }
     static var ccCaption1Bold: UIFont { nanumSquare(size: CCFont.caption1, isBold: true) }
     static var ccCaption2Bold: UIFont { nanumSquare(size: CCFont.caption2, isBold: true) }
