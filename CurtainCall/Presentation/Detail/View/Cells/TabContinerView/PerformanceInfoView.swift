@@ -14,8 +14,8 @@ final class PerformanceInfoView: BaseView {
     private let stackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
-        stack.spacing = 20
-        stack.distribution = .fill
+        stack.spacing = 12
+        stack.distribution = .fillEqually
         stack.alignment = .fill
         return stack
     }()
@@ -76,12 +76,12 @@ final class PerformanceInfoView: BaseView {
         let containerView = UIView()
         
         let titleLabel = UILabel()
-        titleLabel.font = .ccBodyBold
+        titleLabel.font = .ccCallout
         titleLabel.textColor = .ccSecondaryText
         titleLabel.tag = 100 // title label tag
         
         let valueLabel = UILabel()
-        valueLabel.font = .ccSubheadline
+        valueLabel.font = .ccSubheadline2
         valueLabel.textColor = .ccPrimaryText
         valueLabel.numberOfLines = 0
         valueLabel.tag = 200 // value label tag

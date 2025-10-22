@@ -103,7 +103,8 @@ final class DetailView: BaseView {
     
     override func setupLayout() {
         collectionView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalTo(safeAreaLayoutGuide)
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.bottom.equalTo(recordButton.snp.top).offset(-8)
         }
         
@@ -210,13 +211,13 @@ extension DetailView {
     private static func createTabContentSection() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(300)
+            heightDimension: .estimated(230)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(300)
+            heightDimension: .estimated(230)
         )
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         

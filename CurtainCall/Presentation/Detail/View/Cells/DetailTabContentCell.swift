@@ -26,28 +26,7 @@ final class DetailTabContentCell: BaseCollectionViewCell {
     }
     
     // MARK: - UI Components
-    private let tabSegmentedControl: UISegmentedControl = {
-        let items = DetailTab.allCases.map { $0.title }
-        let control = UISegmentedControl(items: items)
-        control.selectedSegmentIndex = 0
-        
-        control.backgroundColor = .ccBackground
-        control.selectedSegmentTintColor = .ccPrimary
-        
-        // 텍스트 색상
-        control.setTitleTextAttributes([
-            .foregroundColor: UIColor.ccSecondaryText,
-            .font: UIFont.ccCallout
-        ], for: .normal)
-        
-        control.setTitleTextAttributes([
-            .foregroundColor: UIColor.white,
-            .font: UIFont.ccCalloutBold
-        ], for: .selected)
-        
-        return control
-    }()
-    
+    private let tabBar = DetailTabBar()
     private let containerView = UIView()
     
     // MARK: - Content Views
@@ -61,14 +40,14 @@ final class DetailTabContentCell: BaseCollectionViewCell {
         super.prepareForReuse()
         disposeBag = DisposeBag()
         currentTab = .info
-        tabSegmentedControl.selectedSegmentIndex = 0
+        tabBar.selectTab(.info, animated: false)
         showContentView(for: .info)
     }
     
     override func setupHierarchy() {
         super.setupHierarchy()
         
-        contentView.addSubview(tabSegmentedControl)
+        contentView.addSubview(tabBar)
         contentView.addSubview(containerView)
         
         [performanceInfoView, bookingInfoView, castInfoView, productionInfoView].forEach {
@@ -79,17 +58,17 @@ final class DetailTabContentCell: BaseCollectionViewCell {
     override func setupLayout() {
         super.setupLayout()
         
-        tabSegmentedControl.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(16)
-            make.leading.trailing.equalToSuperview().inset(16)
-            make.height.equalTo(36)
+        tabBar.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(4)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(48)
         }
         
         containerView.snp.makeConstraints { make in
-            make.top.equalTo(tabSegmentedControl.snp.bottom).offset(16)
+            make.top.equalTo(tabBar.snp.bottom).offset(4)
             make.leading.trailing.equalToSuperview()
             make.bottom.equalToSuperview().offset(-16)
-            make.height.greaterThanOrEqualTo(200)
+            make.height.greaterThanOrEqualTo(150)
         }
         
         [performanceInfoView, bookingInfoView, castInfoView, productionInfoView].forEach { view in
@@ -108,8 +87,7 @@ final class DetailTabContentCell: BaseCollectionViewCell {
         showContentView(for: .info)
         
         // 탭 선택 이벤트
-        tabSegmentedControl.rx.selectedSegmentIndex
-            .map { DetailTab(rawValue: $0) ?? .info }
+        tabBar.tabSelected
             .subscribe(with: self) { owner, tab in
                 owner.showContentView(for: tab)
             }
