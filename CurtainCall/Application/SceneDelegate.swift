@@ -55,45 +55,53 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     private func seedDummyViewingRecordsIfNeeded() {
-        let realm = try! Realm()
+        let container = DIContainer.shared
+        let realmProvider = container.resolve(RealmProvider.self)
+        let networkManager = container.resolve(NetworkManagerProtocol.self)
         
-        // 이미 데이터가 있으면 skip
-        if realm.objects(ViewingRecord.self).isEmpty == false {
-            return
-        }
-        
-        // API에서 실제 공연 데이터 가져오기
-        Task {
-            do {
-                let startDate = "20251001"
-                let endDate = "20251030"
-                
-                // API 호출
-                let response = try await NetworkManager.shared.request(
-                    .searchPerformance(
-                        startDate: startDate,
-                        endDate: endDate,
-                        page: "1",
-                        keyword: "",
-                        area: nil
-                    ),
-                    responseType: SearchResponseDTO.self
-                )
-                
-                let performances = response.dbs.db
-                
-                // 실제 데이터를 기반으로 더미 관람 기록 생성
-                await MainActor.run {
-                    self.createViewingRecords(from: performances, realm: realm)
-                }
-                
-            } catch {
-                print("더미 데이터 생성 실패: \(error.localizedDescription)")
+        do {
+            let realm = try realmProvider.realm()
+            
+            // 이미 데이터가 있으면 skip
+            if realm.objects(ViewingRecord.self).isEmpty == false {
+                return
             }
+            
+            // API에서 실제 공연 데이터 가져오기
+            Task {
+                do {
+                    let startDate = "20251001"
+                    let endDate = "20251030"
+                    
+                    // API 호출
+                    let response = try await networkManager.request(
+                        .searchPerformance(
+                            startDate: startDate,
+                            endDate: endDate,
+                            page: "1",
+                            keyword: "",
+                            area: nil
+                        ),
+                        responseType: SearchResponseDTO.self
+                    )
+                    
+                    let performances = response.dbs.db
+                    
+                    // 실제 데이터를 기반으로 더미 관람 기록 생성
+                    await MainActor.run {
+                        self.createViewingRecords(from: performances, realmProvider: realmProvider)
+                    }
+                    
+                } catch {
+                    print("더미 데이터 생성 실패: \(error.localizedDescription)")
+                }
+            }
+        } catch {
+            print("Realm 접근 실패: \(error.localizedDescription)")
         }
     }
     
-    private func createViewingRecords(from performances: [SearchItemDTO], realm: Realm) {
+    private func createViewingRecords(from performances: [SearchItemDTO], realmProvider: RealmProvider) {
         let companions = ["혼자", "친구", "가족", "연인"]
         let casts = ["홍길동", "김철수", "이영희", "박보검", "아이유"]
         
@@ -103,34 +111,39 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let endDate = calendar.date(from: DateComponents(year: 2025, month: 10, day: 29))!
         let timeInterval = endDate.timeIntervalSince(startDate)
         
-        try! realm.write {
-            // API에서 받은 데이터만큼 (최대 100개) 관람 기록 생성
-            for performance in performances {
-                let record = ViewingRecord()
+        do {
+            let realm = try realmProvider.realm()
+            try realm.write {
+                // API에서 받은 데이터만큼 (최대 100개) 관람 기록 생성
+                for performance in performances {
+                    let record = ViewingRecord()
+                    
+                    // 실제 API 데이터 사용
+                    record.performanceId = performance.mt20id
+                    record.title = performance.prfnm
+                    record.posterURL = performance.poster ?? ""
+                    record.location = performance.fcltynm ?? "공연장 정보 없음"
+                    record.genre = convertToGenreCode(performance.genrenm ?? "")
+                    record.area = performance.area ?? "지역 정보 없음"
+                    
+                    // 더미 데이터 (랜덤 생성)
+                    let randomDate = startDate.addingTimeInterval(Double.random(in: 0...timeInterval))
+                    record.viewingDate = randomDate
+                    record.rating = Int.random(in: 0...5)
+                    record.seat = "R석 \(Int.random(in: 1...30))열 \(Int.random(in: 1...50))번"
+                    record.companion = companions.randomElement()!
+                    record.cast = casts.shuffled().prefix(Int.random(in: 1...3)).joined(separator: ", ")
+                    record.memo = "\(performance.prfnm)의 관람 후기입니다."
+                    record.createdAt = randomDate
+                    record.updatedAt = randomDate + 1
+                    
+                    realm.add(record)
+                }
                 
-                // 실제 API 데이터 사용
-                record.performanceId = performance.mt20id
-                record.title = performance.prfnm
-                record.posterURL = performance.poster ?? ""
-                record.location = performance.fcltynm ?? "공연장 정보 없음"
-                record.genre = convertToGenreCode(performance.genrenm ?? "")
-                record.area = performance.area ?? "지역 정보 없음"
-                
-                // 더미 데이터 (랜덤 생성)
-                let randomDate = startDate.addingTimeInterval(Double.random(in: 0...timeInterval))
-                record.viewingDate = randomDate
-                record.rating = Int.random(in: 0...5)
-                record.seat = "R석 \(Int.random(in: 1...30))열 \(Int.random(in: 1...50))번"
-                record.companion = companions.randomElement()!
-                record.cast = casts.shuffled().prefix(Int.random(in: 1...3)).joined(separator: ", ")
-                record.memo = "\(performance.prfnm)의 관람 후기입니다."
-                record.createdAt = randomDate
-                record.updatedAt = randomDate + 1
-                
-                realm.add(record)
+                print("✅ 더미 데이터 \(performances.count)개 생성 완료")
             }
-            
-            print("✅ 더미 데이터 \(performances.count)개 생성 완료")
+        } catch {
+            print("더미 데이터 생성 중 Realm 오류: \(error.localizedDescription)")
         }
     }
     
