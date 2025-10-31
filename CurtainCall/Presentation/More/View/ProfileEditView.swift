@@ -248,9 +248,15 @@ final class ProfileEditView: BaseView {
         nicknameTextField.text = profile.nickname
         
         // 프로필 이미지 로드
-        if !profile.profileImageURL.isEmpty,
-           let image = ProfileImageManager.shared.loadProfileImage(from: profile.profileImageURL) {
-            profileImageView.image = image
+        if !profile.profileImageURL.isEmpty {
+            let container = DIContainer.shared
+            let imageStorage = container.resolve(ImageStorageProtocol.self)
+            if let image = imageStorage.loadProfileImage(from: profile.profileImageURL) {
+                profileImageView.image = image
+            } else {
+                profileImageView.image = UIImage(systemName: "person.circle.fill")
+                profileImageView.tintColor = .ccPrimary
+            }
         } else {
             profileImageView.image = UIImage(systemName: "person.circle.fill")
             profileImageView.tintColor = .ccPrimary

@@ -138,9 +138,15 @@ final class ProfileExperienceView: BaseView {
         nicknameLabel.text = nickname
         
         // 프로필 이미지 로드
-        if !profileImageURL.isEmpty,
-           let image = ProfileImageManager.shared.loadProfileImage(from: profileImageURL) {
-            profileImageView.image = image
+        if !profileImageURL.isEmpty {
+            let container = DIContainer.shared
+            let imageStorage = container.resolve(ImageStorageProtocol.self)
+            if let image = imageStorage.loadProfileImage(from: profileImageURL) {
+                profileImageView.image = image
+            } else {
+                profileImageView.image = UIImage(systemName: "person.circle.fill")
+                profileImageView.tintColor = .ccPrimary
+            }
         } else {
             profileImageView.image = UIImage(systemName: "person.circle.fill")
             profileImageView.tintColor = .ccPrimary
