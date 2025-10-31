@@ -8,10 +8,7 @@
 import UIKit
 import OSLog
 
-final class ProfileImageManager {
-    
-    // MARK: - Singleton
-    static let shared = ProfileImageManager()
+final class ProfileImageManager: ImageStorageProtocol {
     
     // MARK: - Properties
     private let fileManager = FileManager.default
@@ -19,24 +16,26 @@ final class ProfileImageManager {
     private let compressionQuality: CGFloat = 0.8
     
     // MARK: - Init
-    private init() {
+    init() {
+        Logger.data.info("📸 ProfileImageManager init 시작")
         createProfileDirectoryIfNeeded()
+        Logger.data.info("📸 ProfileImageManager init 완료")
     }
     
     // MARK: - Directory Management
     
-    /// 프로필 이미지 디렉토리 경로
+    // 프로필 이미지 디렉토리 경로
     private var profileImageDirectory: URL {
         let documentDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
         return documentDirectory.appendingPathComponent("ProfileImages", isDirectory: true)
     }
     
-    /// 프로필 이미지 파일 전체 경로
+    // 프로필 이미지 파일 전체 경로
     private var profileImageURL: URL {
         return profileImageDirectory.appendingPathComponent(profileImageFileName)
     }
     
-    /// 프로필 이미지 디렉토리 생성
+    // 프로필 이미지 디렉토리 생성
     private func createProfileDirectoryIfNeeded() {
         guard !fileManager.fileExists(atPath: profileImageDirectory.path) else { return }
         
@@ -54,10 +53,7 @@ final class ProfileImageManager {
     
     // MARK: - Public Methods
     
-    /// 프로필 이미지 저장 (기존 이미지 삭제 후 새 이미지 저장)
-    /// - Parameter image: 저장할 UIImage
-    /// - Returns: 저장된 이미지 파일명 (상대 경로)
-    /// - Throws: 이미지 저장 실패 시 에러
+    // 프로필 이미지 저장 (기존 이미지 삭제 후 새 이미지 저장)
     func saveProfileImage(_ image: UIImage) throws -> String {
         // 1. 기존 이미지 삭제
         deleteProfileImageIfExists()
@@ -79,8 +75,7 @@ final class ProfileImageManager {
         }
     }
     
-    /// 저장된 프로필 이미지 로드
-    /// - Returns: 저장된 UIImage 또는 nil
+    // 저장된 프로필 이미지 로드
     func loadProfileImage() -> UIImage? {
         guard fileManager.fileExists(atPath: profileImageURL.path) else {
             Logger.data.info("저장된 프로필 이미지가 없습니다.")
@@ -97,9 +92,7 @@ final class ProfileImageManager {
         return image
     }
     
-    /// URL 경로 문자열로 이미지 로드
-    /// - Parameter urlString: 이미지 파일명 또는 경로 문자열
-    /// - Returns: UIImage 또는 nil
+    // URL 경로 문자열로 이미지 로드
     func loadProfileImage(from urlString: String) -> UIImage? {
         guard !urlString.isEmpty else { return nil }
         
@@ -127,7 +120,7 @@ final class ProfileImageManager {
         return image
     }
     
-    /// 프로필 이미지 삭제
+    // 프로필 이미지 삭제
     func deleteProfileImage() throws {
         guard fileManager.fileExists(atPath: profileImageURL.path) else {
             Logger.data.info("삭제할 프로필 이미지가 없습니다.")
@@ -143,21 +136,19 @@ final class ProfileImageManager {
         }
     }
     
-    /// 프로필 이미지 파일 경로 반환
-    /// - Returns: 파일명 (상대 경로)
+    // 프로필 이미지 파일 경로 반환
     func getProfileImagePath() -> String {
         return profileImageFileName
     }
     
-    /// 프로필 이미지 존재 여부 확인
-    /// - Returns: 파일 존재 여부
+    // 프로필 이미지 존재 여부 확인
     func hasProfileImage() -> Bool {
         return fileManager.fileExists(atPath: profileImageURL.path)
     }
     
     // MARK: - Private Methods
     
-    /// 기존 프로필 이미지가 있으면 삭제
+    // 기존 프로필 이미지가 있으면 삭제
     private func deleteProfileImageIfExists() {
         guard fileManager.fileExists(atPath: profileImageURL.path) else { return }
         

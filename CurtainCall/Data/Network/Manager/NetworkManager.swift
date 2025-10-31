@@ -7,19 +7,16 @@
 
 import Foundation
 import OSLog
-
 import Alamofire
 import Parsely
 
-final class NetworkManager {
-    
-    // MARK: - Properties
-    static let shared = NetworkManager()
+// MARK: - Protocol 채택
+final class NetworkManager: NetworkManagerProtocol {
     
     // MARK: - Init
-    private init() {}
+    init() {}
     
-    // MARK: - Private Network Request
+    // MARK: - NetworkManagerProtocol
     func request<T: ParselyType>(_ router: APIRouter, responseType: T.Type) async throws -> T {
         let url = APIConfig.baseURL + router.path
         
@@ -29,17 +26,21 @@ final class NetworkManager {
         #endif
         
         do {
-            // Session 설정 개선
             let configuration = URLSessionConfiguration.default
             configuration.timeoutIntervalForRequest = 30
             configuration.timeoutIntervalForResource = 60
             
             let session = Session(configuration: configuration)
             
-            let response = try await session.request(url, method: router.method, parameters: router.params, headers: router.header)
-                .validate(statusCode: 200..<300)
-                .serializingString(encoding: .utf8)
-                .value
+            let response = try await session.request(
+                url,
+                method: router.method,
+                parameters: router.params,
+                headers: router.header
+            )
+            .validate(statusCode: 200..<300)
+            .serializingString(encoding: .utf8)
+            .value
             
             #if DEBUG
             Logger.network.info("API 응답 성공")
@@ -66,8 +67,7 @@ final class NetworkManager {
         }
     }
     
-    // MARK: - Private Method
-    /// API 에러 응답 체크
+    // MARK: - Private Methods
     private func checkAPIError(response: String) throws {
         // 에러 응답인지 확인 (returncode 필드가 있는지)
         guard response.contains("<returncode>") else {
@@ -104,7 +104,6 @@ final class NetworkManager {
         }
     }
     
-    /// Alamofire 에러를 NetworkError로 변환
     private func handleAlamofireError(_ error: AFError) -> NetworkError {
         switch error {
         case .sessionTaskFailed(let sessionError):
