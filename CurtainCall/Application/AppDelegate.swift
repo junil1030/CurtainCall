@@ -37,7 +37,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func applicationWillTerminate(_ application: UIApplication) {
-        RealmManager.shared.compact()
+        let container = DIContainer.shared
+        let realmProvider = container.resolve(RealmProvider.self)
+        realmProvider.compact()
         Logger.config.info("Realm DB 압축 및 앱 종료")
     }
     
@@ -65,12 +67,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Logger.config.info("Realm 설정")
         
         do {
-            _ = RealmManager.shared
+            let container = DIContainer.shared
+            let realmProvider = container.resolve(RealmProvider.self)
             
-            try RealmManager.shared.initializeDefaultUser()
+            try realmProvider.initializeDefaultUser()
             
             #if DEBUG
-            RealmManager.shared.printDebugInfo()
+            realmProvider.printDebugInfo()
             #endif
             
             Logger.config.info("Realm 설정 완료")
