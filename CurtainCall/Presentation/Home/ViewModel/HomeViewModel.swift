@@ -12,7 +12,6 @@ import RxCocoa
 final class HomeViewModel: BaseViewModel {
     
     // MARK: - Properties
-    private let networkManager = NetworkManager.shared
     private let disposeBag = DisposeBag()
     
     // MARK: - UseCases
@@ -46,21 +45,15 @@ final class HomeViewModel: BaseViewModel {
     private let scrollToFirstRelay = PublishRelay<Void>()
     
     // MARK: - Init
-    init(
-        getUserProfileUseCase: GetUserProfileUseCase,
-    ) {
+    init(getUserProfileUseCase: GetUserProfileUseCase) {
         self.getUserProfileUseCase = getUserProfileUseCase
         super.init()
-        
-        loadInitialData()
-        loadUserProfile()
     }
     
     func transform(input: Input) -> Output {
-        
-        // viewWillAppear 시 프로필 로드 및 찜 상태 동기화
         input.viewWillAppear
             .bind(with: self) { owner, _ in
+                owner.loadInitialData()
                 owner.loadUserProfile()
             }
             .disposed(by: disposeBag)
