@@ -6,3 +6,9 @@
 //
 
 import Foundation
+
+protocol PerformanceRepositoryProtocol {
+    
+    func fetchBoxOffice(genre: String, area: String) async throws -> [BoxOffice]
+    func searchPerformances(keyword: String, area: String?)
+}

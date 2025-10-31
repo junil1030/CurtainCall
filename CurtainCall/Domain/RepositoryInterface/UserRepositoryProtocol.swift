@@ -25,7 +25,4 @@ protocol UserRepositoryProtocol {
     
     // Validation
     func validateNickname(_ nickname: String) -> Bool
-    
-    // Statistics
-    func getUserStatistics() -> UserStatistics
 }
