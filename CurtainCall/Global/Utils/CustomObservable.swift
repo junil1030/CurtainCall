@@ -16,7 +16,9 @@ final class CustomObservable {
             
             Task {
                 do {
-                    let result = try await NetworkManager.shared.request(apiRouter, responseType: responseType)
+                    let container = DIContainer.shared
+                    let networkManager = container.resolve(NetworkManagerProtocol.self)
+                    let result = try await networkManager.request(apiRouter, responseType: responseType)
                     
                     await MainActor.run {
                         single(.success(result))
