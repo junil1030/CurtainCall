@@ -18,6 +18,7 @@ final class MoreViewController: BaseViewController {
     private let viewModel: MoreViewModel
     private let viewWillAppearSubject = PublishSubject<Void>()
     private let disposeBag = DisposeBag()
+    private let container = DIContainer.shared
     
     // MARK: - Init
     init(viewModel: MoreViewModel) {
@@ -83,23 +84,6 @@ final class MoreViewController: BaseViewController {
     }
     
     // MARK: - Private Methods
-    
-    private func navigateToProfileEdit() {
-        let repository = UserRepository()
-        let getUserProfileUseCase = GetUserProfileUseCase(repository: repository)
-        let updateProfileImageUseCase = UpdateProfileImageUseCase(repository: repository)
-        let updateNicknameUseCase = UpdateNicknameUseCase(repository: repository)
-        
-        let viewModel = ProfileEditViewModel(
-            getUserProfileUseCase: getUserProfileUseCase,
-            updateProfileImageUseCase: updateProfileImageUseCase,
-            updateNicknameUseCase: updateNicknameUseCase
-        )
-        
-        let viewController = ProfileEditViewController(viewModel: viewModel)
-        navigationController?.pushViewController(viewController, animated: true)
-    }
-    
     private func handleMenuAction(_ action: MoreViewModel.MenuAction) {
         switch action {
         case .showPrivacyPolicy:
@@ -179,6 +163,16 @@ final class MoreViewController: BaseViewController {
         guard let url = URL(string: urlString) else { return }
         
         UIApplication.shared.open(url)
+    }
+}
+
+// MARK: - Navigation
+extension MoreViewController {
+    private func navigateToProfileEdit() {
+        let viewModel = container.makeProfileEditViewModel()
+        let viewController = ProfileEditViewController(viewModel: viewModel)
+        
+        navigationController?.pushViewController(viewController, animated: true)
     }
 }
 

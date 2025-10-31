@@ -15,6 +15,7 @@ final class RecordListViewController: BaseViewController {
     private let recordListView = RecordListView()
     private let viewModel: RecordListViewModel
     private let disposeBag = DisposeBag()
+    private let container = DIContainer.shared
     
     // MARK: - Subjects
     private let viewWillAppearSubject = PublishSubject<Void>()
@@ -97,38 +98,21 @@ final class RecordListViewController: BaseViewController {
     private func setupNavigationBar() {
         navigationItem.title = "관람 기록"
     }
-    
+}
+
+// MARK: - Navigation
+extension RecordListViewController {
     private func navigateToDetailView(with id: String) {
-        let repository = FavoriteRepository()
-        
-        let toggleFavoriteUseCase = ToggleFavoriteUseCase(repository: repository)
-        let checkFavoriteUseCase = CheckFavoriteStatusUseCase(repository: repository)
-        
-        let viewModel = DetailViewModel(
-            performanceID: id,
-            toggleFavoriteUseCase: toggleFavoriteUseCase,
-            checkFavoriteStatusUseCase: checkFavoriteUseCase
-        )
-        
+        let viewModel = container.makeDetailViewModel(performanceID: id)
         let viewController = DetailViewController(viewModel: viewModel)
+        
         self.navigationController?.pushViewController(viewController, animated: true)
     }
     
     private func navigateToEdit(recordId: String) {
-        let repository = ViewingRecordRepository()
-        
-        let addViewingRecordUseCase = AddViewingRecordUseCase(repository: repository)
-        let getViewingRecordByIdUseCase = GetViewingRecordByIdUseCase(repository: repository)
-        let updateViewingRecordUseCase = UpdateViewingRecordUseCase(repository: repository)
-        
-        let viewModel = WriteRecordViewModel(
-            mode: .edit(recordId: recordId),
-            addViewingRecordUseCase: addViewingRecordUseCase,
-            getViewingRecordByIdUseCase: getViewingRecordByIdUseCase,
-            updateViewingRecordUseCase: updateViewingRecordUseCase
-        )
-        
+        let viewModel = container.makeWriteRecordViewModel(mode: .edit(recordId: recordId))
         let viewController = WriteRecordViewController(viewModel: viewModel)
+        
         navigationController?.pushViewController(viewController, animated: true)
     }
 }

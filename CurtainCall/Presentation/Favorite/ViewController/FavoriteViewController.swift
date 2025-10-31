@@ -15,6 +15,7 @@ final class FavoriteViewController: BaseViewController {
     private let favoriteView = FavoriteView()
     private let viewModel: FavoriteViewModel
     private let disposeBag = DisposeBag()
+    private let container = DIContainer.shared
     
     // viewWillAppear 트리거를 위한 Subject
     private let viewWillAppearSubject = PublishSubject<Void>()
@@ -91,18 +92,19 @@ final class FavoriteViewController: BaseViewController {
         // 카드 탭 - 상세 화면 이동
         favoriteView.selectedCard
             .bind(with: self) { owner, cardItem in
-                let repository = FavoriteRepository()
-                let toggleUseCase = ToggleFavoriteUseCase(repository: repository)
-                let checkUseCase = CheckFavoriteStatusUseCase(repository: repository)
-                
-                let vm = DetailViewModel(
-                    performanceID: cardItem.id,
-                    toggleFavoriteUseCase: toggleUseCase,
-                    checkFavoriteStatusUseCase: checkUseCase
-                )
-                let vc = DetailViewController(viewModel: vm)
-                owner.navigationController?.pushViewController(vc, animated: true)
+                owner.navigateToDetailView(with: cardItem)
             }
             .disposed(by: disposeBag)
     }
+}
+
+// MARK: - Navigation
+extension FavoriteViewController {
+    private func navigateToDetailView(with item: CardItem) {
+        let viewModel = DIContainer.shared.makeDetailViewModel(performanceID: item.id)
+        let viewController = DetailViewController(viewModel: viewModel)
+        
+        navigationController?.pushViewController(viewController, animated: true)
+    }
+
 }

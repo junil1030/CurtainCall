@@ -35,6 +35,7 @@ class BaseViewController: UIViewController {
         navigationBar.compactScrollEdgeAppearance = appearance
         
         navigationBar.backgroundColor = .clear
+        navigationBar.tintColor = .ccPrimary
     }
     
     func setupBind() {}

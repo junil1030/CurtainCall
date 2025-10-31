@@ -16,6 +16,7 @@ final class DetailViewController: BaseViewController {
     private let viewModel: DetailViewModel
     private let detailView = DetailView()
     private let disposeBag = DisposeBag()
+    private let container = DIContainer.shared
     
     // MARK: - UI Components
     private let favoriteButton = FavoriteButton()
@@ -117,22 +118,14 @@ final class DetailViewController: BaseViewController {
         safariViewController.modalPresentationStyle = .pageSheet
         present(safariViewController, animated: true)
     }
-    
+}
+
+// MARK: - Navigation
+extension DetailViewController {
     private func navigateToWriteRecord(mode: WriteRecordMode) {
-        let repository = ViewingRecordRepository()
-        
-        let addViewingRecordUseCase = AddViewingRecordUseCase(repository: repository)
-        let getViewingRecordByIdUseCase = GetViewingRecordByIdUseCase(repository: repository)
-        let updateViewingRecordUseCase = UpdateViewingRecordUseCase(repository: repository)
-        
-        let viewModel = WriteRecordViewModel(
-            mode: mode,
-            addViewingRecordUseCase: addViewingRecordUseCase,
-            getViewingRecordByIdUseCase: getViewingRecordByIdUseCase,
-            updateViewingRecordUseCase: updateViewingRecordUseCase
-        )
-        
+        let viewModel = container.makeWriteRecordViewModel(mode: mode)
         let viewController = WriteRecordViewController(viewModel: viewModel)
+        
         navigationController?.pushViewController(viewController, animated: true)
     }
 }

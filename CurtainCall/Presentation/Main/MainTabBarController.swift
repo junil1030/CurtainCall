@@ -8,6 +8,9 @@
 import UIKit
 
 final class MainTabBarController: UITabBarController {
+    
+    // MARK: - Properties
+    private let container = DIContainer.shared
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,16 +50,10 @@ final class MainTabBarController: UITabBarController {
     }
     
     private func createHomeViewController() -> UINavigationController {
-        let userRepository = UserRepository()
+        let viewModel = container.makeHomeViewModel()
+        let homeViewController = HomeViewController(viewModel: viewModel)
         
-        let getUserProfileUseCase = GetUserProfileUseCase(repository: userRepository)
-        
-        let viewModel = HomeViewModel(
-            getUserProfileUseCase: getUserProfileUseCase,
-        )
-        
-        let vc = HomeViewController(viewModel: viewModel)
-        let nav = UINavigationController(rootViewController: vc)
+        let nav = UINavigationController(rootViewController: homeViewController)
         nav.tabBarItem = UITabBarItem(
             title: CCStrings.Title.homeViewName,
             image: UIImage(systemName: "house"),
@@ -68,9 +65,7 @@ final class MainTabBarController: UITabBarController {
     }
     
     private func createRecordListViewController() -> UINavigationController {
-        let repository = ViewingRecordRepository()
-        let getAllViewingRecordsUseCase = GetAllViewingRecordsUseCase(repository: repository)
-        let viewModel = RecordListViewModel(getAllViewingRecordsUseCase: getAllViewingRecordsUseCase)
+        let viewModel = container.makeRecordListViewModel()
         let recordListViewController = RecordListViewController(viewModel: viewModel)
         
         let nav = UINavigationController(rootViewController: recordListViewController)
@@ -85,9 +80,7 @@ final class MainTabBarController: UITabBarController {
     }
     
     private func createStatisticsViewController() -> UINavigationController {
-        let repository = ViewingRecordRepository()
-        let fetchStatsUseCase = FetchStatsUseCase(repository: repository)
-        let viewModel = StatsViewModel(useCase: fetchStatsUseCase)
+        let viewModel = container.makeStatsViewModel()
         let statsViewController = StatsViewController(viewModel: viewModel)
         
         let nav = UINavigationController(rootViewController: statsViewController)
@@ -102,9 +95,7 @@ final class MainTabBarController: UITabBarController {
     }
     
     private func createMoreViewController() -> UINavigationController {
-        let repository = UserRepository()
-        let getUserProfileUseCase = GetUserProfileUseCase(repository: repository)
-        let viewModel = MoreViewModel(getUserProfileUseCase: getUserProfileUseCase)
+        let viewModel = container.makeMoreViewModel()
         let moreViewController = MoreViewController(viewModel: viewModel)
         
         let nav = UINavigationController(rootViewController: moreViewController)

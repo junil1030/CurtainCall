@@ -15,6 +15,7 @@ final class HomeViewController: BaseViewController {
     private let homeView = HomeView()
     private let viewModel: HomeViewModel
     private let disposeBag = DisposeBag()
+    private let container = DIContainer.shared
     
     // MARK: - Subjects
     private let viewWillAppearSubject = PublishSubject<Void>()
@@ -108,72 +109,37 @@ final class HomeViewController: BaseViewController {
             }
             .disposed(by: disposeBag)
     }
+}
+
+// MARK: - Navigation
+extension HomeViewController {
     
-    // MARK: - Private Methods
     private func navigateToSearchView() {
-        let repository = RecentSearchRepository()
-        
-        let addRecentSearchUseCase = AddRecentSearchUseCase(repository: repository)
-        let getRecentSearchesUseCase = GetRecentSearchesUseCase(repository: repository)
-        let deleteRecentSearchUseCase = DeleteRecentSearchUseCase(repository: repository)
-        let clearAllRecentSearchesUseCase = ClearAllRecentSearchesUseCase(repository: repository)
-        
-        let viewModel = SearchViewModel(
-            addRecentSearchUseCase: addRecentSearchUseCase,
-            getRecentSearchesUseCase: getRecentSearchesUseCase,
-            deleteRecentSearchUseCase: deleteRecentSearchUseCase,
-            clearAllRecentSearchesUseCase: clearAllRecentSearchesUseCase
-        )
+        let viewModel = container.makeSearchViewModel()
         let viewController = SearchViewController(viewModel: viewModel)
         
         navigationController?.pushViewController(viewController, animated: true)
     }
     
     private func navigateToDetailView(with item: CardItem) {
-        let repository = FavoriteRepository()
-        
-        let toggleFavoriteUseCase = ToggleFavoriteUseCase(repository: repository)
-        let checkFavoriteUseCase = CheckFavoriteStatusUseCase(repository: repository)
-        
-        let viewModel = DetailViewModel(performanceID: item.id, toggleFavoriteUseCase: toggleFavoriteUseCase, checkFavoriteStatusUseCase: checkFavoriteUseCase)
-        
+        let viewModel = container.makeDetailViewModel(performanceID: item.id)
         let viewController = DetailViewController(viewModel: viewModel)
+        
         self.navigationController?.pushViewController(viewController, animated: true)
     }
     
     private func navigateToFavoriteView() {
-        let repository = FavoriteRepository()
-        
-        let fetchFavoritesUseCase = FetchFavoritesUseCase(repository: repository)
-        let removeFavoriteUseCase = RemoveFavoriteUseCase(repository: repository)
-        let getMonthlyFavoriteCountUseCase = GetMonthlyFavoriteCountUseCase(repository: repository)
-        let getFavoriteStatisticsUseCase = GetFavoriteStatisticsUseCase(repository: repository)
-        
-        let viewModel = FavoriteViewModel(
-            fetchFavoritesUseCase: fetchFavoritesUseCase,
-            removeFavoriteUseCase: removeFavoriteUseCase,
-            getMonthlyFavoriteCountUseCase: getMonthlyFavoriteCountUseCase,
-            getFavoriteStatisticsUseCase: getFavoriteStatisticsUseCase
-        )
-        
+        let viewModel = container.makeFavoriteViewModel()
         let viewController = FavoriteViewController(viewModel: viewModel)
+        
         self.navigationController?.pushViewController(viewController, animated: true)
     }
     
     private func navigateToProfileEdit() {
-        let repository = UserRepository()
-        
-        let getUserProfileUseCase = GetUserProfileUseCase(repository: repository)
-        let updateProfileImageUseCase = UpdateProfileImageUseCase(repository: repository)
-        let updateNicknameUseCase = UpdateNicknameUseCase(repository: repository)
-        
-        let viewModel = ProfileEditViewModel(
-            getUserProfileUseCase: getUserProfileUseCase,
-            updateProfileImageUseCase: updateProfileImageUseCase,
-            updateNicknameUseCase: updateNicknameUseCase
-        )
-        
+        let viewModel = container.makeProfileEditViewModel()
         let viewController = ProfileEditViewController(viewModel: viewModel)
+        
         navigationController?.pushViewController(viewController, animated: true)
     }
+
 }

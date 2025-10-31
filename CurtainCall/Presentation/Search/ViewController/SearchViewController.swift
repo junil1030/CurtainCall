@@ -15,6 +15,7 @@ final class SearchViewController: BaseViewController {
     private let searchView = SearchView()
     private let viewModel: SearchViewModel
     private let disposeBag = DisposeBag()
+    private let container = DIContainer.shared
     
     // MARK: - Subjects
     private let viewWillAppearSubject = PublishSubject<Void>()
@@ -113,13 +114,19 @@ final class SearchViewController: BaseViewController {
         
         searchView.selectedSearchResult
             .bind(with: self) { owner, searchResult in
-                let repository = FavoriteRepository()
-                let toggleFavoriteUseCase = ToggleFavoriteUseCase(repository: repository)
-                let checkFavoriteUseCase = CheckFavoriteStatusUseCase(repository: repository)
-                let vm = DetailViewModel(performanceID: searchResult.id, toggleFavoriteUseCase: toggleFavoriteUseCase, checkFavoriteStatusUseCase: checkFavoriteUseCase)
-                let vc = DetailViewController(viewModel: vm)
-                owner.navigationController?.pushViewController(vc, animated: true)
+                owner.navigateToDetailView(performanceID: searchResult.id)
             }
             .disposed(by: disposeBag)
     }
+}
+
+// MARK: - Navigation
+extension SearchViewController {
+    private func navigateToDetailView(performanceID: String) {
+        let viewModel = container.makeDetailViewModel(performanceID: performanceID)
+        let viewController = DetailViewController(viewModel: viewModel)
+        
+        navigationController?.pushViewController(viewController, animated: true)
+    }
+
 }
