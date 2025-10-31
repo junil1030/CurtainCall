@@ -11,7 +11,7 @@ import OSLog
 
 final class RealmManager {
     
-    static let shared = RealmManager()
+//    static let shared = RealmManager()
     
     // MARK: - Properties
     private var realm: Realm?

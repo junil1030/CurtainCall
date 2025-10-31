@@ -12,8 +12,13 @@ import OSLog
 final class RecentSearchRepository: RecentSearchRepositoryProtocol {
     
     // MARK: - Properties
-    private let realmManager = RealmManager.shared
+    private let realmProvider: RealmProvider
     private let maxSearchCount = 10  // 최대 저장 개수
+    
+    // MARK: - Init
+    init(realmProvider: RealmProvider) {
+        self.realmProvider = realmProvider
+    }
     
     // MARK: - Create
     func addSearch(_ keyword: String) throws {
@@ -25,7 +30,9 @@ final class RecentSearchRepository: RecentSearchRepositoryProtocol {
         }
         
         do {
-            try realmManager.write { realm in
+            let realm = try realmProvider.realm()
+            
+            try realm.write {
                 // 1. 기존에 같은 검색어가 있으면 삭제
                 let existingSearches = realm.objects(RecentSearchKeyword.self)
                     .filter("keyword == %@", trimmedKeyword)
@@ -58,7 +65,7 @@ final class RecentSearchRepository: RecentSearchRepositoryProtocol {
     // MARK: - Read
     func getRecentSearches(limit: Int = 10) -> [RecentSearch] {
         do {
-            let realm = try realmManager.getRealm()
+            let realm = try realmProvider.realm()
             let searches = realm.objects(RecentSearchKeyword.self)
                 .sorted(byKeyPath: "createdAt", ascending: false)
                 .prefix(limit)
@@ -79,7 +86,7 @@ final class RecentSearchRepository: RecentSearchRepositoryProtocol {
     
     func searchKeyword(_ keyword: String) -> [RecentSearch] {
         do {
-            let realm = try realmManager.getRealm()
+            let realm = try realmProvider.realm()
             let searches = realm.objects(RecentSearchKeyword.self)
                 .filter("keyword CONTAINS[c] %@", keyword)
                 .sorted(byKeyPath: "createdAt", ascending: false)
@@ -99,7 +106,7 @@ final class RecentSearchRepository: RecentSearchRepositoryProtocol {
     
     func getSearchCount() -> Int {
         do {
-            let realm = try realmManager.getRealm()
+            let realm = try realmProvider.realm()
             return realm.objects(RecentSearchKeyword.self).count
         } catch {
             Logger.data.error("검색어 개수 조회 실패: \(error.localizedDescription)")
@@ -110,7 +117,9 @@ final class RecentSearchRepository: RecentSearchRepositoryProtocol {
     // MARK: - Delete
     func deleteSearch(id: ObjectId) throws {
         do {
-            try realmManager.write { realm in
+            let realm = try realmProvider.realm()
+            
+            try realm.write {
                 guard let search = realm.object(ofType: RecentSearchKeyword.self, forPrimaryKey: id) else {
                     throw NSError(domain: "RecentSearchRepository", code: -1, userInfo: [
                         NSLocalizedDescriptionKey: "해당 ID의 검색어를 찾을 수 없습니다."
@@ -129,7 +138,9 @@ final class RecentSearchRepository: RecentSearchRepositoryProtocol {
     
     func deleteSearchByKeyword(_ keyword: String) throws {
         do {
-            try realmManager.write { realm in
+            let realm = try realmProvider.realm()
+            
+            try realm.write {
                 let searches = realm.objects(RecentSearchKeyword.self)
                     .filter("keyword == %@", keyword)
                 
@@ -150,7 +161,9 @@ final class RecentSearchRepository: RecentSearchRepositoryProtocol {
     
     func clearAllSearches() throws {
         do {
-            try realmManager.write { realm in
+            let realm = try realmProvider.realm()
+            
+            try realm.write {
                 let searches = realm.objects(RecentSearchKeyword.self)
                 realm.delete(searches)
                 Logger.data.info("모든 최근 검색어 삭제 성공")
@@ -164,7 +177,9 @@ final class RecentSearchRepository: RecentSearchRepositoryProtocol {
     // MARK: - Utility
     func clearOldSearches(olderThan days: Int) throws {
         do {
-            try realmManager.write { realm in
+            let realm = try realmProvider.realm()
+            
+            try realm.write {
                 let cutoffDate = Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
                 let oldSearches = realm.objects(RecentSearchKeyword.self)
                     .filter("createdAt < %@", cutoffDate)

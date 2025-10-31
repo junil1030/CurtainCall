@@ -12,28 +12,30 @@ import OSLog
 final class ViewingRecordRepository: ViewingRecordRepositoryProtocol {
     
     // MARK: - Properties
-    private let realmManager = RealmManager.shared
+    private let realmProvider: RealmProvider
+    
+    // MARK: - Init
+    init(realmProvider: RealmProvider) {
+        self.realmProvider = realmProvider
+    }
     
     // MARK: - Create
     func addRecord(_ record: ViewingRecord) throws {
-        do {
-            try realmManager.write { realm in
-                realm.add(record)
-                Logger.data.info("관람 기록 추가 성공: \(record.title)")
-            }
-        } catch {
-            Logger.data.error("관람 기록 추가 실패: \(error.localizedDescription)")
-            throw error
+        let realm = try realmProvider.realm()
+        
+        try realm.write {
+            realm.add(record, update: .modified)
         }
+        
+        Logger.data.info("관람 기록 추가 성공: \(record.title)")
     }
     
     // MARK: - Read
     func getRecords() -> [ViewingRecord] {
         do {
-            let realm = try realmManager.getRealm()
+            let realm = try realmProvider.realm()
             let records = realm.objects(ViewingRecord.self)
                 .sorted(byKeyPath: "viewingDate", ascending: false)
-            
             return Array(records)
         } catch {
             Logger.data.error("관람 기록 조회 실패: \(error.localizedDescription)")
@@ -43,25 +45,23 @@ final class ViewingRecordRepository: ViewingRecordRepositoryProtocol {
     
     func getRecordsByDate(from startDate: Date, to endDate: Date) -> [ViewingRecord] {
         do {
-            let realm = try realmManager.getRealm()
+            let realm = try realmProvider.realm()
             let records = realm.objects(ViewingRecord.self)
                 .filter("viewingDate >= %@ AND viewingDate <= %@", startDate, endDate)
                 .sorted(byKeyPath: "viewingDate", ascending: false)
-            
             return Array(records)
         } catch {
-            Logger.data.error("날짜별 관람 기록 조회 실패: \(error.localizedDescription)")
+            Logger.data.error("기간별 관람 기록 조회 실패: \(error.localizedDescription)")
             return []
         }
     }
     
     func getRecordsByPerformance(performanceId: String) -> [ViewingRecord] {
         do {
-            let realm = try realmManager.getRealm()
+            let realm = try realmProvider.realm()
             let records = realm.objects(ViewingRecord.self)
                 .filter("performanceId == %@", performanceId)
                 .sorted(byKeyPath: "viewingDate", ascending: false)
-            
             return Array(records)
         } catch {
             Logger.data.error("공연별 관람 기록 조회 실패: \(error.localizedDescription)")
@@ -71,7 +71,7 @@ final class ViewingRecordRepository: ViewingRecordRepositoryProtocol {
     
     func getRecordCount() -> Int {
         do {
-            let realm = try realmManager.getRealm()
+            let realm = try realmProvider.realm()
             return realm.objects(ViewingRecord.self).count
         } catch {
             Logger.data.error("관람 기록 개수 조회 실패: \(error.localizedDescription)")
@@ -81,13 +81,8 @@ final class ViewingRecordRepository: ViewingRecordRepositoryProtocol {
     
     func getRecord(by id: String) -> ViewingRecord? {
         do {
-            guard let objectId = try? ObjectId(string: id) else {
-                Logger.data.error("유효하지 않은 ID: \(id)")
-                return nil
-            }
-            
-            let realm = try realmManager.getRealm()
-            return realm.object(ofType: ViewingRecord.self, forPrimaryKey: objectId)
+            let realm = try realmProvider.realm()
+            return realm.object(ofType: ViewingRecord.self, forPrimaryKey: id)
         } catch {
             Logger.data.error("관람 기록 단건 조회 실패: \(error.localizedDescription)")
             return nil
@@ -96,147 +91,101 @@ final class ViewingRecordRepository: ViewingRecordRepositoryProtocol {
     
     // MARK: - Update
     func updateRecord(_ record: ViewingRecord) throws {
-        do {
-            try realmManager.write { realm in
-                record.updatedAt = Date()
-                realm.add(record, update: .modified)
-                Logger.data.info("관람 기록 수정 성공: \(record.title)")
-            }
-        } catch {
-            Logger.data.error("관람 기록 수정 실패: \(error.localizedDescription)")
-            throw error
+        let realm = try realmProvider.realm()
+        
+        try realm.write {
+            realm.add(record, update: .modified)
+            record.updatedAt = Date()
         }
-    }
+        
+        Logger.data.info("관람 기록 수정 성공: \(record.id)")    }
     
     func updateRating(id: String, rating: Int) throws {
-        guard rating >= 0 && rating <= 5 else {
+        let realm = try realmProvider.realm()
+        
+        guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: id) else {
             throw NSError(domain: "ViewingRecordRepository", code: -1, userInfo: [
-                NSLocalizedDescriptionKey: "별점은 0~5 사이여야 합니다."
+                NSLocalizedDescriptionKey: "관람 기록을 찾을 수 없습니다."
             ])
         }
         
-        do {
-            guard let objectId = try? ObjectId(string: id) else {
-                throw NSError(domain: "ViewingRecordRepository", code: -3, userInfo: [
-                    NSLocalizedDescriptionKey: "유효하지 않은 ID 형식입니다."
-                ])
-            }
-            
-            try realmManager.write { realm in
-                guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: objectId) else {
-                    throw NSError(domain: "ViewingRecordRepository", code: -2, userInfo: [
-                        NSLocalizedDescriptionKey: "해당 ID의 관람 기록을 찾을 수 없습니다."
-                    ])
-                }
-                
-                record.rating = rating
-                record.updatedAt = Date()
-                Logger.data.info("별점 수정 성공: \(record.title) - \(rating)점")
-            }
-        } catch {
-            Logger.data.error("별점 수정 실패: \(error.localizedDescription)")
-            throw error
+        try realm.write {
+            record.rating = rating
+            record.updatedAt = Date()
         }
+        
+        Logger.data.info("평점 수정 성공: \(id)")
     }
     
     func updateMemo(id: String, memo: String) throws {
-        do {
-            guard let objectId = try? ObjectId(string: id) else {
-                throw NSError(domain: "ViewingRecordRepository", code: -3, userInfo: [
-                    NSLocalizedDescriptionKey: "유효하지 않은 ID 형식입니다."
-                ])
-            }
-            
-            try realmManager.write { realm in
-                guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: objectId) else {
-                    throw NSError(domain: "ViewingRecordRepository", code: -2, userInfo: [
-                        NSLocalizedDescriptionKey: "해당 ID의 관람 기록을 찾을 수 없습니다."
-                    ])
-                }
-                
-                record.memo = memo
-                record.updatedAt = Date()
-                Logger.data.info("메모 수정 성공: \(record.title)")
-            }
-        } catch {
-            Logger.data.error("메모 수정 실패: \(error.localizedDescription)")
-            throw error
+        let realm = try realmProvider.realm()
+        
+        guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: id) else {
+            throw NSError(domain: "ViewingRecordRepository", code: -1, userInfo: [
+                NSLocalizedDescriptionKey: "관람 기록을 찾을 수 없습니다."
+            ])
         }
+        
+        try realm.write {
+            record.memo = memo
+            record.updatedAt = Date()
+        }
+        
+        Logger.data.info("메모 수정 성공: \(id)")
     }
     
     func updateRecordFields(id: String, viewingDate: Date, companion: String, seat: String, rating: Int, memo: String) throws {
-        do {
-            guard let objectId = try? ObjectId(string: id) else {
-                throw NSError(domain: "ViewingRecordRepository", code: -3, userInfo: [
-                    NSLocalizedDescriptionKey: "유효하지 않은 ID 형식입니다."
-                ])
-            }
-            
-            try realmManager.write { realm in
-                guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: objectId) else {
-                    throw NSError(domain: "ViewingRecordRepository", code: -2, userInfo: [
-                        NSLocalizedDescriptionKey: "해당 ID의 관람 기록을 찾을 수 없습니다."
-                    ])
-                }
-                
-                record.viewingDate = viewingDate
-                record.companion = companion
-                record.seat = seat
-                record.rating = rating
-                record.memo = memo
-                record.updatedAt = Date()
-                
-                Logger.data.info("관람 기록 필드 수정 성공: \(record.title)")
-            }
-        } catch {
-            Logger.data.error("관람 기록 필드 수정 실패: \(error.localizedDescription)")
-            throw error
+        let realm = try realmProvider.realm()
+        
+        guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: id) else {
+            throw NSError(domain: "ViewingRecordRepository", code: -1, userInfo: [
+                NSLocalizedDescriptionKey: "관람 기록을 찾을 수 없습니다."
+            ])
         }
+        
+        try realm.write {
+            record.viewingDate = viewingDate
+            record.companion = companion
+            record.seat = seat
+            record.rating = rating
+            record.memo = memo
+            record.updatedAt = Date()
+        }
+        
+        Logger.data.info("관람 기록 전체 수정 성공: \(id)")
     }
     
     // MARK: - Delete
     func deleteRecord(id: String) throws {
-        do {
-            guard let objectId = try? ObjectId(string: id) else {
-                throw NSError(domain: "ViewingRecordRepository", code: -3, userInfo: [
-                    NSLocalizedDescriptionKey: "유효하지 않은 ID 형식입니다."
-                ])
-            }
-            
-            try realmManager.write { realm in
-                guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: objectId) else {
-                    throw NSError(domain: "ViewingRecordRepository", code: -2, userInfo: [
-                        NSLocalizedDescriptionKey: "해당 ID의 관람 기록을 찾을 수 없습니다."
-                    ])
-                }
-                
-                let title = record.title
-                realm.delete(record)
-                Logger.data.info("관람 기록 삭제 성공: \(title)")
-            }
-        } catch {
-            Logger.data.error("관람 기록 삭제 실패: \(error.localizedDescription)")
-            throw error
+        let realm = try realmProvider.realm()
+        
+        guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: id) else {
+            Logger.data.warning("삭제할 관람 기록을 찾을 수 없음: \(id)")
+            return
         }
+        
+        try realm.write {
+            realm.delete(record)
+        }
+        
+        Logger.data.info("관람 기록 삭제 성공: \(id)")
     }
     
     func deleteAllRecords() throws {
-        do {
-            try realmManager.write { realm in
-                let records = realm.objects(ViewingRecord.self)
-                realm.delete(records)
-                Logger.data.info("모든 관람 기록 삭제 성공")
-            }
-        } catch {
-            Logger.data.error("모든 관람 기록 삭제 실패: \(error.localizedDescription)")
-            throw error
+        let realm = try realmProvider.realm()
+        let records = realm.objects(ViewingRecord.self)
+        
+        try realm.write {
+            realm.delete(records)
         }
+        
+        Logger.data.info("관람 기록 전체 삭제 완료")
     }
     
     // MARK: - Statistics
     func getStatistics() -> ViewingStatistics {
         do {
-            let realm = try realmManager.getRealm()
+            let realm = try realmProvider.realm()
             let records = realm.objects(ViewingRecord.self)
             
             let totalCount = records.count
@@ -269,7 +218,7 @@ extension ViewingRecordRepository {
     
     func getStatsByPeriod(from startDate: Date, to endDate: Date) -> PeriodStatistics {
         do {
-            let realm = try realmManager.getRealm()
+            let realm = try realmProvider.realm()
             
             // 현재 기간 데이터
             let currentRecords = realm.objects(ViewingRecord.self)
@@ -303,7 +252,7 @@ extension ViewingRecordRepository {
     
     func getWeekdayStats(from startDate: Date, to endDate: Date) -> [WeekdayStats] {
         do {
-            let realm = try realmManager.getRealm()
+            let realm = try realmProvider.realm()
             let records = realm.objects(ViewingRecord.self)
                 .filter("viewingDate >= %@ AND viewingDate <= %@", startDate, endDate)
             
@@ -333,7 +282,7 @@ extension ViewingRecordRepository {
     
     func getWeeklyStats(from startDate: Date, to endDate: Date) -> [WeeklyStats] {
         do {
-            let realm = try realmManager.getRealm()
+            let realm = try realmProvider.realm()
             let records = realm.objects(ViewingRecord.self)
                 .filter("viewingDate >= %@ AND viewingDate <= %@", startDate, endDate)
             
@@ -364,7 +313,7 @@ extension ViewingRecordRepository {
     
     func getMonthlyStats(from startDate: Date, to endDate: Date) -> [MonthlyStats] {
         do {
-            let realm = try realmManager.getRealm()
+            let realm = try realmProvider.realm()
             let records = realm.objects(ViewingRecord.self)
                 .filter("viewingDate >= %@ AND viewingDate <= %@", startDate, endDate)
             
@@ -390,7 +339,7 @@ extension ViewingRecordRepository {
     
     func getGenreStats(from startDate: Date, to endDate: Date) -> [GenreStats] {
         do {
-            let realm = try realmManager.getRealm()
+            let realm = try realmProvider.realm()
             let records = realm.objects(ViewingRecord.self)
                 .filter("viewingDate >= %@ AND viewingDate <= %@", startDate, endDate)
             
@@ -417,7 +366,7 @@ extension ViewingRecordRepository {
     
     func getCompanionStats(from startDate: Date, to endDate: Date) -> [CompanionStats] {
         do {
-            let realm = try realmManager.getRealm()
+            let realm = try realmProvider.realm()
             let records = realm.objects(ViewingRecord.self)
                 .filter("viewingDate >= %@ AND viewingDate <= %@", startDate, endDate)
             
@@ -441,7 +390,7 @@ extension ViewingRecordRepository {
     
     func getAreaStats(from startDate: Date, to endDate: Date) -> [AreaStats] {
         do {
-            let realm = try realmManager.getRealm()
+            let realm = try realmProvider.realm()
             let records = realm.objects(ViewingRecord.self)
                 .filter("viewingDate >= %@ AND viewingDate <= %@", startDate, endDate)
             
