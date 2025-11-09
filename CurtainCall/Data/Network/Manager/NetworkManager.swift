@@ -49,6 +49,14 @@ final class NetworkManager: NetworkManagerProtocol {
             
             try checkAPIError(response: response)
             
+            if isEmptyResponse(response) {
+                #if DEBUG
+                Logger.network.info("빈 응답 감지: <dbs/>")
+                #endif
+                // 빈 응답을 정상적으로 파싱할 수 있도록 빈 배열 구조로 변환
+                return try createEmptyResponse(for: T.self)
+            }
+            
             guard let parseData = T.parse(from: response) else {
                 Logger.network.error("XML 파싱 에러")
                 throw NetworkError.parsingFailed
@@ -128,5 +136,34 @@ final class NetworkManager: NetworkManagerProtocol {
         default:
             return .unknown(error)
         }
+    }
+    
+    private func isEmptyResponse(_ response: String) -> Bool {
+        let trimmed = response.trimmingCharacters(in: .whitespacesAndNewlines)
+        // <dbs/> 또는 내용 없는 <dbs></dbs> 체크
+        return trimmed.contains("<dbs/>") ||
+               (trimmed.contains("<dbs>") && trimmed.contains("</dbs>") && !trimmed.contains("<db>"))
+    }
+
+    private func createEmptyResponse<T: ParselyType>(for type: T.Type) throws -> T {
+        // SearchResponseDTO 타입인 경우에만 처리
+        if type == SearchResponseDTO.self {
+            let emptyResponse = SearchResponseDTO(
+                dbs: SearchDatabaseDTO(db: [])
+            )
+            return emptyResponse as! T
+        }
+        
+        // BoxOfficeResponseDTO 타입인 경우
+        if type == BoxOfficeResponseDTO.self {
+            let emptyResponse = BoxOfficeResponseDTO(
+                boxofs: BoxOfficeListDTO(boxof: [])
+            )
+            return emptyResponse as! T
+        }
+        
+        // 다른 타입은 파싱 에러 발생
+        Logger.network.error("지원하지 않는 빈 응답 타입: \(type)")
+        throw NetworkError.parsingFailed
     }
 }
