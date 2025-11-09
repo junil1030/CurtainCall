@@ -44,7 +44,7 @@ final class SearchResultHeaderView: UICollectionReusableView {
     }
     
     // MARK: - Configure
-    func configure(keyword: String, count: Int) {
+    func configure(keyword: String) {
         let attributedString = NSMutableAttributedString()
         
         // keyword만 볼드처리 함
@@ -58,7 +58,7 @@ final class SearchResultHeaderView: UICollectionReusableView {
             .font: UIFont.ccBody,
             .foregroundColor: UIColor.ccPrimaryText
         ]
-        attributedString.append(NSAttributedString(string: " 검색 결과 \(count)건", attributes: normalAttributes))
+        attributedString.append(NSAttributedString(string: " 검색 결과", attributes: normalAttributes))
         
         resultLabel.attributedText = attributedString
     }
