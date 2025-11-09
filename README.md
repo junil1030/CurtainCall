@@ -2,19 +2,19 @@
 
 <br/>
 
-## 🔨 개발기간
-📅 기간: 2025.09.15 ~ 진행 중
-> 최신 버전 : v2.2.0 (개발 중)
+## 개발기간
+기간: 2025.09.15 ~ 진행 중
+> 최신 버전 : v2.3.0
 
 <br/>
 
-## 📱 프로젝트 개요
+## 프로젝트 개요
 **CurtainCall**은 KOPIS(공연예술통합전산망) API를 활용하여 뮤지컬과 연극 공연 정보를 제공하는 iOS 앱입니다.  
 공연 일정 조회부터 찜하기, 관람 기록 관리까지 공연 팬들을 위한 올인원 서비스를 제공합니다.
 
 <br/>
 
-## ⚙️ 앱 개발 환경
+## 앱 개발 환경
 - **최소 버전**: iOS 17.0
 - **디바이스**: iPhone 전용
 - **화면 방향**: 세로 모드 (Portrait)
@@ -23,34 +23,34 @@
 
 <br/>
 
-## 🔧 핵심 기능
+## 핵심 기능
 
-### 1. 🔍 공연 검색
+### 1. 공연 검색
 - 지역(시도)별 뮤지컬/연극 일정 검색
 - 실시간 공연 정보 업데이트
 
-### 2. 📄 상세 정보
+### 2. 상세 정보
 - 공연 상세 정보 조회
 - 공연장 정보 및 좌석 배치도
 - 캐스팅 정보
 - 예매 링크 제공 (인터파크, 예스24 등)
 
-### 3. ❤️ 찜하기
+### 3. 찜하기
 - 관심 공연 저장
 - 찜한 목록 조회 및 관리
 - Realm 기반 로컬 데이터 저장
 
-### 4. 📝 관람 기록
+### 4. 관람 기록
 - 관람한 공연 기록 추가
 - 평점 및 리뷰 작성
 - 관람 날짜, 동반자, 좌석 정보 저장
 
-### 5. 📊 통계 & 순위
+### 5. 통계 & 순위
 - 장르별 예매 순위
 - 지역별 공연 통계
 - 개인 관람 통계 (장르별, 기간별)
 
-## 🏗️ 아키텍처
+## 아키텍처
 
 ### Clean Architecture + MVVM (Input/Output)
 
@@ -107,7 +107,7 @@ protocol ViewModelType {
 
 <br/>
 
-## 🛠 기술 스택
+## 기술 스택
 
 ### Architecture & Pattern
 - **Clean Architecture**: 계층 분리를 통한 유지보수성 향상
@@ -141,18 +141,10 @@ protocol ViewModelType {
 - **OSLog**: 구조화된 로깅
 - **Firebase**: Push Notification
 
-## 🎯 SOLID 원칙 적용
+## SOLID 원칙 적용
 
 ### 1. Single Responsibility Principle (단일 책임 원칙)
 ```swift
-// ❌ Bad: ViewController가 너무 많은 책임을 가짐
-class HomeViewController {
-    func fetchPerformances() { }
-    func saveToRealm() { }
-    func showAlert() { }
-}
-
-// ✅ Good: 각 클래스가 하나의 책임만 가짐
 class HomeViewController {
     // UI만 담당
 }
@@ -168,7 +160,6 @@ class PerformanceRepository {
 
 ### 2. Open/Closed Principle (개방/폐쇄 원칙)
 ```swift
-// 확장에는 열려있고, 수정에는 닫혀있음
 protocol ViewModelType {
     associatedtype Input
     associatedtype Output
@@ -186,14 +177,12 @@ class HomeViewModel: BaseViewModel {
 
 ### 3. Liskov Substitution Principle (리스코프 치환 원칙)
 ```swift
-// 부모 클래스는 자식 클래스로 치환 가능
 let viewModel: ViewModelType = HomeViewModel()
 let output = viewModel.transform(input: input)
 ```
 
 ### 4. Interface Segregation Principle (인터페이스 분리 원칙)
 ```swift
-// 필요한 기능만 프로토콜로 분리
 protocol FavoriteRepositoryProtocol {
     func getFavorites() -> [FavoriteDTO]
     func addFavorite(_ favorite: FavoriteDTO) throws
@@ -206,7 +195,6 @@ protocol SearchRepositoryProtocol {
 
 ### 5. Dependency Inversion Principle (의존성 역전 원칙)
 ```swift
-// 구체적인 구현이 아닌 추상화에 의존
 class HomeViewModel {
     private let performanceRepository: PerformanceRepositoryProtocol
     
@@ -218,7 +206,7 @@ class HomeViewModel {
 
 <br/>
 
-## 🔐 API 설정
+## API 설정
 
 ### 1. KOPIS API 키 발급
 1. [KOPIS 공연예술통합전산망](http://www.kopis.or.kr) 접속
@@ -239,38 +227,6 @@ KOPIS_BASE_URL = http:/$()/www.kopis.or.kr/openApi/restful
 <key>KOPIS_BASE_URL</key>
 <string>$(KOPIS_BASE_URL)</string>
 ```
-
-<br/>
-
-## 🚀 실행 방법
-
-### 1. 저장소 클론
-```bash
-git clone https://github.com/your-username/CurtainCall.git
-cd CurtainCall
-```
-
-### 2. 의존성 설치
-```bash
-# CocoaPods 사용 시
-pod install
-
-# SPM 사용 시 (Xcode에서 자동 다운로드)
-```
-
-### 3. API 키 설정
-```bash
-# Config.xcconfig 파일에 API 키 입력
-KOPIS_API_KEY = api_key
-```
-
-### 4. 프로젝트 실행
-```bash
-# .xcworkspace 파일 열기
-open CurtainCall.xcworkspace
-```
-
-<br/>
 
 ### 구조
 ```swift
@@ -293,13 +249,13 @@ private func setupUI() { }
 @objc private func didTapButton() { }
 ```
 
-## 📄 라이선스
+## 라이선스
 
 MIT_LICENSE
 
 <br/>
 
-## 👨‍💻 개발자
+## 개발자
 
 **서준일**
 - GitHub: [@junil1030](https://github.com/junil1030)
