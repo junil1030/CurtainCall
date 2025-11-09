@@ -13,7 +13,6 @@ final class SearchViewModel: BaseViewModel {
     
     // MARK: - Properties
     private let disposeBag = DisposeBag()
-    private let currentPage = BehaviorRelay<Int>(value: 1)
     
     // MARK: - UseCases
     private let addRecentSearchUseCase: AddRecentSearchUseCase
@@ -25,9 +24,15 @@ final class SearchViewModel: BaseViewModel {
     private let searchResultsRelay = BehaviorRelay<[SearchResult]>(value: [])
     private let recentSearchesRelay = BehaviorRelay<[RecentSearch]>(value: [])
     private let isLoadingRelay = BehaviorRelay<Bool>(value: false)
-    private let errorRelay = PublishRelay<NetworkError>()
+    private let errorRelay = PublishRelay<(NetworkError, isLoadMore: Bool)>()
     private let currentKeywordRelay = BehaviorRelay<String>(value: "")
     private let currentFilterStateRelay = BehaviorRelay<FilterButtonCell.FilterState>(value: FilterButtonCell.FilterState())
+    
+    // MARK: - Pagenation State
+    private let currentPage = BehaviorRelay<Int>(value: 1)
+    private let isLoadingMore = BehaviorRelay<Bool>(value: false)
+    private let hasMoreData = BehaviorRelay<Bool>(value: true)
+
     
     // MARK: - Input / Output
     struct Input {
@@ -38,6 +43,7 @@ final class SearchViewModel: BaseViewModel {
         let recentSearchSelected: Observable<RecentSearch>
         let deleteRecentSearch: Observable<RecentSearch>
         let clearAllRecentSearches: Observable<Void>
+        let loadMore: Observable<Void>
     }
     
     struct Output {
@@ -45,7 +51,7 @@ final class SearchViewModel: BaseViewModel {
         let recentSearches: Driver<[RecentSearch]>
         let currentSearchKeyword: Driver<String>
         let isLoading: Driver<Bool>
-        let error: Signal<NetworkError>
+        let error: Signal<(NetworkError, isLoadMore: Bool)>
     }
     
     init(
@@ -77,9 +83,13 @@ final class SearchViewModel: BaseViewModel {
             }
             .bind { owner, keyword in
                 owner.currentKeywordRelay.accept(keyword)
+                
                 owner.currentPage.accept(1)
+                owner.hasMoreData.accept(true)
+                owner.searchResultsRelay.accept([])
+                
                 let filterState = owner.currentFilterStateRelay.value
-                owner.performSearch(keyword: keyword, filterState: filterState, page: 1)
+                owner.performSearch(keyword: keyword, filterState: filterState, page: 1, isLoadMore: false)
                 
                 owner.saveSearchKeyword(keyword)
             }
@@ -102,8 +112,12 @@ final class SearchViewModel: BaseViewModel {
             .bind { owner, data in
                 let (filterState, keyword) = data
                 owner.currentFilterStateRelay.accept(filterState)
+                
                 owner.currentPage.accept(1)
-                owner.performSearch(keyword: keyword, filterState: filterState, page: 1)
+                owner.hasMoreData.accept(true)
+                owner.searchResultsRelay.accept([])
+                
+                owner.performSearch(keyword: keyword, filterState: filterState, page: 1, isLoadMore: false)
             }
             .disposed(by: disposeBag)
         
@@ -111,14 +125,33 @@ final class SearchViewModel: BaseViewModel {
             .map { $0.keyword }
             .bind(with: self) { owner, keyword in
                 owner.currentKeywordRelay.accept(keyword)
+                
                 owner.currentPage.accept(1)
+                owner.hasMoreData.accept(true)
+                owner.searchResultsRelay.accept([])
+                
                 let filterState = owner.currentFilterStateRelay.value
-                owner.performSearch(keyword: keyword, filterState: filterState, page: 1)
+                owner.performSearch(keyword: keyword, filterState: filterState, page: 1, isLoadMore: false)
                 
                 owner.saveSearchKeyword(keyword)
             }
             .disposed(by: disposeBag)
         
+        input.loadMore
+            .withUnretained(self)
+            .filter { owner, _ in
+                return !owner.isLoadingMore.value && owner.hasMoreData.value && !owner.currentKeywordRelay.value.isEmpty
+            }
+            .bind { owner, _ in
+                let nextpage = owner.currentPage.value + 1
+                owner.currentPage.accept(nextpage)
+                
+                let keyword = owner.currentKeywordRelay.value
+                let filterState = owner.currentFilterStateRelay.value
+                owner.performSearch(keyword: keyword, filterState: filterState, page: nextpage, isLoadMore: true)
+            }
+            .disposed(by: disposeBag)
+
         input.deleteRecentSearch
             .map { $0.keyword }
             .bind(with: self) { owner, keyword in
@@ -164,8 +197,13 @@ final class SearchViewModel: BaseViewModel {
     }
     
     /// 검색 수행
-    private func performSearch(keyword: String, filterState: FilterButtonCell.FilterState, page: Int) {
-        isLoadingRelay.accept(true)
+    private func performSearch(keyword: String, filterState: FilterButtonCell.FilterState, page: Int, isLoadMore: Bool) {
+        
+        if isLoadMore {
+            isLoadingMore.accept(true)
+        } else {
+            isLoadingRelay.accept(true)
+        }
         
         let startDateString = filterState.startDate
         let endDateString = filterState.endDate
@@ -183,18 +221,48 @@ final class SearchViewModel: BaseViewModel {
             responseType: SearchResponseDTO.self
         )
         .subscribe(with: self) { owner, response in
-            owner.isLoadingRelay.accept(false)
+            if isLoadMore {
+                owner.isLoadingMore.accept(false)
+            } else {
+                owner.isLoadingRelay.accept(false)
+            }
             
-            let searchResults = SearchResultMapper.map(from: response.dbs.db)
-            owner.searchResultsRelay.accept(searchResults)
+            let newResults = SearchResultMapper.map(from: response.dbs.db)
+            
+            if newResults.isEmpty {
+                owner.hasMoreData.accept(false)
+                
+                if isLoadMore {
+                    // 추가 로딩에서 빈 응답 → 기존 데이터 유지
+                    return
+                } else {
+                    // 첫 검색에서 0건 → 빈 배열로 업데이트
+                    owner.searchResultsRelay.accept([])
+                    return
+                }
+            }
+            
+            if isLoadMore {
+                let currentResults = owner.searchResultsRelay.value
+                owner.searchResultsRelay.accept(currentResults + newResults)
+            } else {
+                owner.searchResultsRelay.accept(newResults)
+            }
             
         } onFailure: { owner, error in
-            owner.isLoadingRelay.accept(false)
+            if isLoadMore {
+                owner.isLoadingMore.accept(false)
+            } else {
+                owner.isLoadingRelay.accept(false)
+            }
             
             if let networkError = error as? NetworkError {
-                owner.errorRelay.accept(networkError)
+                owner.errorRelay.accept((networkError, isLoadMore: isLoadMore))
             }
-            owner.searchResultsRelay.accept([])
+
+            if !isLoadMore {
+                owner.searchResultsRelay.accept([])
+            }
         }
         .disposed(by: disposeBag)
     }
