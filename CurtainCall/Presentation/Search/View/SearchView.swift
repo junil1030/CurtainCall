@@ -23,6 +23,7 @@ final class SearchView: BaseView {
     private let searchTriggerSubject = PublishSubject<String>()
     private let deleteRecentSearchSubject = PublishSubject<RecentSearch>()
     private let deleteAllRecentSearchesSubject = PublishSubject<Void>()
+    private let loadMoreSubject = PublishSubject<Void>()
     
     // MARK: - UI Components
     private let searchBar: UISearchBar = {
@@ -104,7 +105,7 @@ final class SearchView: BaseView {
                 
                 let snapshot = self.dataSource.snapshot()
                 let resultCount = snapshot.itemIdentifiers(inSection: .searchResult).count
-                header.configure(keyword: self.currentKeyword, count: resultCount)
+                header.configure(keyword: self.currentKeyword)
                 
                 return header
                 
@@ -144,6 +145,10 @@ final class SearchView: BaseView {
     
     var deleteAllRecentSearches: Observable<Void> {
         return deleteAllRecentSearchesSubject.asObservable()
+    }
+    
+    var loadMore: Observable<Void> {
+        loadMoreSubject.asObservable()
     }
 
     // MARK: - BaseView Override Emthods
@@ -255,7 +260,7 @@ final class SearchView: BaseView {
             return
         }
         
-        headerView.configure(keyword: keyword, count: count)
+        headerView.configure(keyword: keyword)
     }
 }
 
@@ -457,6 +462,16 @@ extension SearchView: UICollectionViewDelegate {
             recentKeywordSubject.onNext(recentSearch)
         } else if case .searchResult(let searchResult) = item {
             searchResultSubject.onNext(searchResult)
+        }
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let frameHeight = scrollView.frame.size.height
+        
+        if offsetY > contentHeight - frameHeight - 100 {
+            loadMoreSubject.onNext(())
         }
     }
 }

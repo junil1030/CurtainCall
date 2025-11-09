@@ -67,7 +67,8 @@ final class SearchViewController: BaseViewController {
                 }),
             recentSearchSelected: searchView.selectedRecentKeyowrd,
             deleteRecentSearch: searchView.deleteRecentSearch,
-            clearAllRecentSearches: searchView.deleteAllRecentSearches
+            clearAllRecentSearches: searchView.deleteAllRecentSearches,
+            loadMore: searchView.loadMore
         )
         
         let output = viewModel.transform(input: input)
@@ -106,9 +107,20 @@ final class SearchViewController: BaseViewController {
         
         // 에러 처리
         output.error
-            .emit(with: self) { owner, error in
-                // TODO: 에러 알럿 표시
-                print("에러: \(error.localizedDescription)")
+            .emit(with: self) { owner, errorData in
+                let (networkError, isLoadMore) = errorData
+                
+                let baseMessage: String
+                if isLoadMore {
+                    baseMessage = "추가 데이터를 불러올 수 없습니다"
+                } else {
+                    baseMessage = "검색 결과를 불러오는데 실패했습니다"
+                }
+                
+                let detailMessage = networkError.localizedDescription
+                let fullMessage = "\(baseMessage)\n\(detailMessage)"
+                
+                owner.showToast(message: fullMessage, type: .error)
             }
             .disposed(by: disposeBag)
         
