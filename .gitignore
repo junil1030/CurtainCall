@@ -140,4 +140,7 @@ xcuserdata
 ### Secret ###
 *.xcconfig
 
+### Claude Code ###
+.claude/
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,swift,swiftpackagemanager,xcode
