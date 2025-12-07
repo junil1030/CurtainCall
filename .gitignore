@@ -142,5 +142,6 @@ xcuserdata
 
 ### Claude Code ###
 .claude/
+CLAUDE.md
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,swift,swiftpackagemanager,xcode
