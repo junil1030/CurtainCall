@@ -91,14 +91,15 @@ final class FavoriteRepository: FavoriteRepositoryProtocol {
     // MARK: - Toggle (Primary Method)
     func toggleFavorite(_ dto: FavoriteDTO) throws -> Bool {
         let realm = try realmProvider.realm()
-        
+
+        let result: Bool
         if let existing = realm.object(ofType: FavoritePerformance.self, forPrimaryKey: dto.id) {
             // 이미 존재하면 삭제
             try realm.write {
                 realm.delete(existing)
             }
             Logger.data.info("찜 삭제: \(dto.title)")
-            return false
+            result = false
         } else {
             // 존재하지 않으면 추가
             let favorite = FavoriteRealmMapper.toRealmModel(from: dto)
@@ -106,8 +107,13 @@ final class FavoriteRepository: FavoriteRepositoryProtocol {
                 realm.add(favorite, update: .modified)
             }
             Logger.data.info("찜 추가: \(dto.title)")
-            return true
+            result = true
         }
+
+        // Widget 데이터 업데이트
+        WidgetDataManager.shared.updateWidgetData()
+
+        return result
     }
     
     // MARK: - Delete
@@ -124,6 +130,9 @@ final class FavoriteRepository: FavoriteRepositoryProtocol {
         }
         
         Logger.data.info("찜 삭제 성공: \(id)")
+
+        // Widget 데이터 업데이트
+        WidgetDataManager.shared.updateWidgetData()
     }
     
     func clearAllFavorites() throws {
