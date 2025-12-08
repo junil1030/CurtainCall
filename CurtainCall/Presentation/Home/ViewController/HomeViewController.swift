@@ -37,6 +37,30 @@ final class HomeViewController: BaseViewController {
         view = homeView
     }
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleNavigateToFavorite),
+            name: NSNotification.Name("NavigateToFavorites"),
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleNavigateToDetail(_:)),
+            name: NSNotification.Name("ShowPerformanceDetail"),
+            object: nil
+        )
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        DeepLinkHandler.shared.checkPendingDeepLink()
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setNavigationbarHidden(true)
@@ -142,4 +166,23 @@ extension HomeViewController {
         navigationController?.pushViewController(viewController, animated: true)
     }
 
+    private func navigateToDetailView(with id: String) {
+        let viewModel = container.makeDetailViewModel(performanceID: id)
+        let viewController = DetailViewController(viewModel: viewModel)
+        
+        self.navigationController?.pushViewController(viewController, animated: true)
+    }
+}
+
+// MARK: - Widget Navigate
+extension HomeViewController {
+    
+    @objc private func handleNavigateToFavorite() {
+        navigateToFavoriteView()
+    }
+    
+    @objc private func handleNavigateToDetail(_ notification: Notification) {
+        guard let performanceId = notification.userInfo?["performanceId"] as? String else { return }
+        navigateToDetailView(with: performanceId)
+    }
 }
