@@ -1,0 +1,131 @@
+//
+//  ImageResizer.swift
+//  CurtainCall
+//
+//  Created by 서준일 on 12/7/25.
+//
+
+import UIKit
+import OSLog
+
+/// 이미지 리사이징 유틸리티
+struct ImageResizer {
+    // MARK: - Public Methods
+
+    /// 이미지를 타겟 크기로 리사이징
+    /// - Parameters:
+    ///   - image: 원본 이미지
+    ///   - targetSize: 목표 크기
+    /// - Returns: 리사이징된 이미지 (리사이징 불필요 시 원본 반환)
+    static func resize(image: UIImage, targetSize: CGSize) -> UIImage {
+        let originalSize = image.size
+
+        // 리사이징 필요 여부 확인
+        guard shouldResize(originalSize: originalSize, targetSize: targetSize) else {
+            Logger.data.debug("리사이징 불필요: 원본(\(Int(originalSize.width))x\(Int(originalSize.height))) <= 타겟(\(Int(targetSize.width))x\(Int(targetSize.height)))")
+            return image
+        }
+
+        // 실제 리사이징 크기 계산 (aspect ratio 유지)
+        let resizedSize = calculateResizedSize(originalSize: originalSize, targetSize: targetSize)
+
+        Logger.data.debug("이미지 리사이징: \(Int(originalSize.width))x\(Int(originalSize.height)) → \(Int(resizedSize.width))x\(Int(resizedSize.height))")
+
+        // UIGraphicsImageRenderer로 리사이징
+        let renderer = UIGraphicsImageRenderer(size: resizedSize)
+        let resizedImage = renderer.image { context in
+            image.draw(in: CGRect(origin: .zero, size: resizedSize))
+        }
+
+        return resizedImage
+    }
+
+    /// 이미지를 다운샘플링 (메모리 효율적)
+    /// - Parameters:
+    ///   - data: 이미지 데이터
+    ///   - targetSize: 목표 크기
+    /// - Returns: 다운샘플링된 이미지
+    static func downsample(data: Data, targetSize: CGSize) -> UIImage? {
+        let imageSourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+
+        guard let imageSource = CGImageSourceCreateWithData(data as CFData, imageSourceOptions) else {
+            Logger.data.error("CGImageSource 생성 실패")
+            return nil
+        }
+
+        // 원본 이미지 크기 확인
+        guard let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as? [CFString: Any],
+              let originalWidth = properties[kCGImagePropertyPixelWidth] as? CGFloat,
+              let originalHeight = properties[kCGImagePropertyPixelHeight] as? CGFloat else {
+            Logger.data.warning("이미지 속성 읽기 실패, 일반 디코딩 사용")
+            return UIImage(data: data)
+        }
+
+        let originalSize = CGSize(width: originalWidth, height: originalHeight)
+
+        // 리사이징 필요 여부 확인
+        guard shouldResize(originalSize: originalSize, targetSize: targetSize) else {
+            Logger.data.debug("다운샘플링 불필요")
+            return UIImage(data: data)
+        }
+
+        // 다운샘플링 크기 계산
+        let resizedSize = calculateResizedSize(originalSize: originalSize, targetSize: targetSize)
+        let maxDimensionInPixels = max(resizedSize.width, resizedSize.height) * UIScreen.main.scale
+
+        let downsampleOptions = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxDimensionInPixels
+        ] as CFDictionary
+
+        guard let downsampledImage = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, downsampleOptions) else {
+            Logger.data.error("다운샘플링 실패, 원본 사용")
+            return UIImage(data: data)
+        }
+
+        Logger.data.debug("다운샘플링 완료: \(Int(originalWidth))x\(Int(originalHeight)) → \(Int(resizedSize.width))x\(Int(resizedSize.height))")
+
+        return UIImage(cgImage: downsampledImage)
+    }
+
+    // MARK: - Private Methods
+
+    /// 리사이징 필요 여부 확인
+    /// - Parameters:
+    ///   - originalSize: 원본 크기
+    ///   - targetSize: 목표 크기
+    /// - Returns: 리사이징 필요 여부
+    private static func shouldResize(originalSize: CGSize, targetSize: CGSize) -> Bool {
+        // targetSize가 zero면 리사이징 불필요
+        guard targetSize.width > 0 && targetSize.height > 0 else {
+            return false
+        }
+
+        // 원본이 타겟보다 작거나 같으면 리사이징 불필요
+        if originalSize.width <= targetSize.width && originalSize.height <= targetSize.height {
+            return false
+        }
+
+        return true
+    }
+
+    /// 리사이징 크기 계산 (aspect ratio 유지)
+    /// - Parameters:
+    ///   - originalSize: 원본 크기
+    ///   - targetSize: 목표 크기
+    /// - Returns: 계산된 리사이징 크기
+    private static func calculateResizedSize(originalSize: CGSize, targetSize: CGSize) -> CGSize {
+        let widthRatio = targetSize.width / originalSize.width
+        let heightRatio = targetSize.height / originalSize.height
+
+        // 작은 비율을 사용 (이미지가 타겟 영역에 완전히 들어가도록)
+        let ratio = min(widthRatio, heightRatio)
+
+        let newWidth = originalSize.width * ratio
+        let newHeight = originalSize.height * ratio
+
+        return CGSize(width: newWidth, height: newHeight)
+    }
+}
