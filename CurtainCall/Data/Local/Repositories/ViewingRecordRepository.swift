@@ -22,12 +22,15 @@ final class ViewingRecordRepository: ViewingRecordRepositoryProtocol {
     // MARK: - Create
     func addRecord(_ record: ViewingRecord) throws {
         let realm = try realmProvider.realm()
-        
+
         try realm.write {
             realm.add(record, update: .modified)
         }
-        
+
         Logger.data.info("관람 기록 추가 성공: \(record.title)")
+
+        // Widget 데이터 업데이트
+        WidgetDataManager.shared.updateWidgetData()
     }
     
     // MARK: - Read
@@ -158,17 +161,20 @@ final class ViewingRecordRepository: ViewingRecordRepositoryProtocol {
     // MARK: - Delete
     func deleteRecord(id: String) throws {
         let realm = try realmProvider.realm()
-        
+
         guard let record = realm.object(ofType: ViewingRecord.self, forPrimaryKey: id) else {
             Logger.data.warning("삭제할 관람 기록을 찾을 수 없음: \(id)")
             return
         }
-        
+
         try realm.write {
             realm.delete(record)
         }
-        
+
         Logger.data.info("관람 기록 삭제 성공: \(id)")
+
+        // Widget 데이터 업데이트
+        WidgetDataManager.shared.updateWidgetData()
     }
     
     func deleteAllRecords() throws {
