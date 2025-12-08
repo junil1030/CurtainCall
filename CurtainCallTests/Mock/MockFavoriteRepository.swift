@@ -2,7 +2,7 @@
 //  MockFavoriteRepository.swift
 //  CurtainCallTests
 //
-//  Created by Claude Code
+//  Created by 서준일 on 11/10/25.
 //
 
 import Foundation

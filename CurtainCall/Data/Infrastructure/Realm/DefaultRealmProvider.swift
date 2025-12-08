@@ -27,7 +27,18 @@ final class DefaultRealmProvider: RealmProvider {
     
     // MARK: - Init
     init() {
+        // App Groups 디렉토리 생성
+        AppGroupsContainer.createDirectoriesIfNeeded()
+
+        // App Groups 컨테이너 내 Realm 파일 경로
+        let fileURL = AppGroupsContainer.realmFileURL ?? {
+            // Fallback: 기존 경로
+            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            return documentsURL.appendingPathComponent("default.realm")
+        }()
+
         self.configuration = Realm.Configuration(
+            fileURL: fileURL,
             schemaVersion: RealmSchemaVersion.current,
             migrationBlock: { migration, oldSchemaVersion in
                 if oldSchemaVersion < RealmSchemaVersion.current {
@@ -42,11 +53,11 @@ final class DefaultRealmProvider: RealmProvider {
                 RecentSearchKeyword.self
             ]
         )
-        
+
         // 기본 Configuration 설정
         Realm.Configuration.defaultConfiguration = configuration
-        
-        Logger.data.info("RealmProvider 초기화 완료")
+
+        Logger.data.info("RealmProvider 초기화 완료 - 경로: \(fileURL.path)")
     }
     
     // MARK: - RealmProvider
