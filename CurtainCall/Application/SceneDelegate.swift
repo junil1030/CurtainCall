@@ -70,8 +70,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             // API에서 실제 공연 데이터 가져오기
             Task {
                 do {
-                    let startDate = "20251001"
-                    let endDate = "20251030"
+                    let startDate = "20251201"
+                    let endDate = "20251230"
                     
                     // API 호출
                     let response = try await networkManager.request(
@@ -80,7 +80,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                             endDate: endDate,
                             page: "1",
                             keyword: "",
-                            area: nil
+                            area: nil,
+                            rows: 100
                         ),
                         responseType: SearchResponseDTO.self
                     )
