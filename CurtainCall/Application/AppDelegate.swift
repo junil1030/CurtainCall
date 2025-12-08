@@ -14,11 +14,14 @@ import FirebaseMessaging
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        
+
         configureRealm()
         configureFirebase()
         application.registerForRemoteNotifications()
-        
+
+        // Widget 데이터 초기 업데이트
+        WidgetDataManager.shared.updateWidgetData()
+
         return true
     }
 
