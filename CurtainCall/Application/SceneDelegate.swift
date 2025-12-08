@@ -16,14 +16,28 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        
+
         let mainTabBarController = MainTabBarController()
         window?.rootViewController = mainTabBarController
         window?.makeKeyAndVisible()
-        
+
+        // DeepLinkHandler에 window 설정
+        DeepLinkHandler.shared.configure(window: window)
+
+        // URL Context가 있으면 Deep Link 처리
+        if let urlContext = connectionOptions.urlContexts.first {
+            DeepLinkHandler.shared.handle(url: urlContext.url)
+        }
+
         #if DEBUG
         seedDummyViewingRecordsIfNeeded()
         #endif
+    }
+
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        // Widget에서 앱을 열 때 호출됨
+        guard let url = URLContexts.first?.url else { return }
+        DeepLinkHandler.shared.handle(url: url)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
