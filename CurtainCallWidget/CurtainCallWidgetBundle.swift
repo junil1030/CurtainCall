@@ -12,5 +12,10 @@ import SwiftUI
 struct CurtainCallWidgetBundle: WidgetBundle {
     var body: some Widget {
         CurtainCallWidget()
+
+        // iOS 16+ 잠금 화면 위젯
+        if #available(iOS 16.0, *) {
+            CurtainCallLockScreenWidget()
+        }
     }
 }
