@@ -22,7 +22,7 @@ extension UIColor {
     
     // MARK: - Background Colors
     /// 메인 배경 (흰색)
-    static let ccBackground = UIColor.systemBackground
+    static let ccBackground = UIColor.white
     
     /// 구분선 배경
     static let ccSeparator = UIColor.systemGray4

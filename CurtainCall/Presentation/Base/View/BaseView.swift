@@ -24,6 +24,6 @@ class BaseView: UIView {
     func setupHierarchy() {}
     func setupLayout() {}
     func setupStyle() {
-        self.backgroundColor = .clear
+        self.backgroundColor = UIColor.ccBackground
     }
 }
