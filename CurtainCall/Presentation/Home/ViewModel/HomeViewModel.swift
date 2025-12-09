@@ -43,6 +43,9 @@ final class HomeViewModel: BaseViewModel {
     private let isLoadingRelay = BehaviorRelay<Bool>(value: false)
     private let errorRelay = PublishRelay<NetworkError>()
     private let scrollToFirstRelay = PublishRelay<Void>()
+
+    // MARK: - State
+    private var hasLoadedInitialData = false
     
     // MARK: - Init
     init(getUserProfileUseCase: GetUserProfileUseCase) {
@@ -53,7 +56,12 @@ final class HomeViewModel: BaseViewModel {
     func transform(input: Input) -> Output {
         input.viewWillAppear
             .bind(with: self) { owner, _ in
-                owner.loadInitialData()
+                // 초기 데이터는 최초 1회만 로드
+                if !owner.hasLoadedInitialData {
+                    owner.loadInitialData()
+                    owner.hasLoadedInitialData = true
+                }
+                // 사용자 프로필은 매번 업데이트
                 owner.loadUserProfile()
             }
             .disposed(by: disposeBag)
