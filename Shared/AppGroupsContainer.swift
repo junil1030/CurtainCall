@@ -21,16 +21,6 @@ enum AppGroupsContainer {
 
     // MARK: - Paths
 
-    /// Realm Database 디렉토리
-    static var realmDirectory: URL? {
-        return containerURL?.appendingPathComponent("Database", isDirectory: true)
-    }
-
-    /// Realm 파일 경로
-    static var realmFileURL: URL? {
-        return realmDirectory?.appendingPathComponent("default.realm")
-    }
-
     /// CustomImageCache 디렉토리
     static var imageCacheDirectory: URL? {
         return containerURL?.appendingPathComponent("Library/Caches/CustomImageCache", isDirectory: true)
@@ -43,19 +33,13 @@ enum AppGroupsContainer {
 
     // MARK: - Helper Methods
 
-    /// 디렉토리 생성
+    /// 디렉토리 생성 (Image Cache만)
     static func createDirectoriesIfNeeded() {
-        guard let realmDir = realmDirectory,
-              let cacheDir = imageCacheDirectory else {
+        guard let cacheDir = imageCacheDirectory else {
             return
         }
 
         let fileManager = FileManager.default
-
-        // Realm 디렉토리
-        if !fileManager.fileExists(atPath: realmDir.path) {
-            try? fileManager.createDirectory(at: realmDir, withIntermediateDirectories: true)
-        }
 
         // Image Cache 디렉토리
         if !fileManager.fileExists(atPath: cacheDir.path) {
