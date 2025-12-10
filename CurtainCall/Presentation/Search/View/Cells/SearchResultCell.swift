@@ -121,11 +121,16 @@ final class SearchResultCell: BaseCollectionViewCell {
         
         // 포스터 이미지 로드
         if let url = result.posterURL.safeImageURL {
-            posterImageView.kf.setImage(
-                with: url,
-                placeholder: UIImage(systemName: "photo")?
-                    .withTintColor(.ccSecondaryText, renderingMode: .alwaysOriginal)
+            posterImageView.setImage(with: url,
+                                     placeholder: UIImage(systemName: "photo"),
+                                     cacheStrategy: .memoryOnly
             )
+            // 킹피셔
+//            posterImageView.kf.setImage(
+//                with: url,
+//                placeholder: UIImage(systemName: "photo")?
+//                    .withTintColor(.ccSecondaryText, renderingMode: .alwaysOriginal)
+//            )
         } else {
             posterImageView.image = UIImage(systemName: "photo")?
                 .withTintColor(.ccSecondaryText, renderingMode: .alwaysOriginal)

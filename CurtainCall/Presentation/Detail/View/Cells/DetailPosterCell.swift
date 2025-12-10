@@ -91,6 +91,7 @@ final class DetailPosterCell: BaseCollectionViewCell {
     }
     
     func configure(with url: String) {
+        // 킹피셔
         if let imageURL = url.safeImageURL {
             posterImageView.kf.setImage(with: imageURL) { [weak self] result in
                 guard let self = self else { return }

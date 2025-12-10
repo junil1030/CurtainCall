@@ -91,21 +91,31 @@ final class PosterCell: BaseCollectionViewCell {
     
     func configure(with url: String) {
         if let imageURL = url.safeImageURL {
-            // 배경 이미지 로드
-            backgroundImageView.kf.setImage(
-                with: imageURL,
-                placeholder: UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal)
+            posterImageView.setImage(with: imageURL,
+                                     placeholder: UIImage(systemName: "photo"),
+                                     cacheStrategy: .memoryOnly
             )
             
-            // 작은 포스터 이미지 로드
-            posterImageView.kf.setImage(
-                with: imageURL,
-                placeholder: UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal),
-                options: [
-                    .transition(.fade(0.3)),
-                    .cacheOriginalImage
-                ]
+            posterImageView.setImage(with: imageURL,
+                                     placeholder: UIImage(systemName: "photo"),
+                                     cacheStrategy: .memoryOnly
             )
+            // 킹피셔
+            // 배경 이미지 로드
+//            backgroundImageView.kf.setImage(
+//                with: imageURL,
+//                placeholder: UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal)
+//            )
+            
+            // 작은 포스터 이미지 로드
+//            posterImageView.kf.setImage(
+//                with: imageURL,
+//                placeholder: UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal),
+//                options: [
+//                    .transition(.fade(0.3)),
+//                    .cacheOriginalImage
+//                ]
+//            )
         }
     }
 }

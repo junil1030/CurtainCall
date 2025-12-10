@@ -147,14 +147,19 @@ final class CardCell: BaseCollectionViewCell {
         
         // 포스터 이미지 로드
         if let url = data.imageURL.safeImageURL {
-            posterImageView.kf.setImage(
-                with: url,
-                placeholder: UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal),
-                options: [
-                    .transition(.fade(0.3)),
-                    .cacheOriginalImage
-                ]
+            posterImageView.setImage(with: url,
+                                     placeholder: UIImage(systemName: "photo"),
+                                     cacheStrategy: .both
             )
+            // 킹피셔
+//            posterImageView.kf.setImage(
+//                with: url,
+//                placeholder: UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal),
+//                options: [
+//                    .transition(.fade(0.3)),
+//                    .cacheOriginalImage
+//                ]
+//            )
         }
         
         if !isInitialLayoutCompleted {
