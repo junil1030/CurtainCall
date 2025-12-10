@@ -27,15 +27,12 @@ final class DefaultRealmProvider: RealmProvider {
     
     // MARK: - Init
     init() {
-        // App Groups 디렉토리 생성
+        // Image Cache 디렉토리 생성 (App Groups)
         AppGroupsContainer.createDirectoriesIfNeeded()
 
-        // App Groups 컨테이너 내 Realm 파일 경로
-        let fileURL = AppGroupsContainer.realmFileURL ?? {
-            // Fallback: 기존 경로
-            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            return documentsURL.appendingPathComponent("default.realm")
-        }()
+        // 기본 Documents 디렉토리에 Realm 파일 저장 (App Groups 사용 안 함)
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let fileURL = documentsURL.appendingPathComponent("default.realm")
 
         self.configuration = Realm.Configuration(
             fileURL: fileURL,

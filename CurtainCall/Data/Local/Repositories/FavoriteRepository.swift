@@ -113,6 +113,11 @@ final class FavoriteRepository: FavoriteRepositoryProtocol {
         // Widget 데이터 업데이트
         WidgetDataManager.shared.updateWidgetData()
 
+        // Live Activity 업데이트 (iOS 16.2+)
+        if #available(iOS 16.2, *) {
+            LiveActivityManager.shared.refreshLiveActivityFromRealm()
+        }
+
         return result
     }
     
@@ -133,6 +138,11 @@ final class FavoriteRepository: FavoriteRepositoryProtocol {
 
         // Widget 데이터 업데이트
         WidgetDataManager.shared.updateWidgetData()
+
+        // Live Activity 업데이트 (iOS 16.2+)
+        if #available(iOS 16.2, *) {
+            LiveActivityManager.shared.refreshLiveActivityFromRealm()
+        }
     }
     
     func clearAllFavorites() throws {
