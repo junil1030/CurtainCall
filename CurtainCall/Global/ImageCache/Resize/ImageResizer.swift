@@ -19,6 +19,7 @@ struct ImageResizer {
     /// - Returns: 리사이징된 이미지 (리사이징 불필요 시 원본 반환)
     static func resize(image: UIImage, targetSize: CGSize) -> UIImage {
         let originalSize = image.size
+        let originalMemorySize = estimateMemorySize(of: image)
 
         // 리사이징 필요 여부 확인
         guard shouldResize(originalSize: originalSize, targetSize: targetSize) else {
@@ -29,13 +30,17 @@ struct ImageResizer {
         // 실제 리사이징 크기 계산 (aspect ratio 유지)
         let resizedSize = calculateResizedSize(originalSize: originalSize, targetSize: targetSize)
 
-        Logger.data.debug("이미지 리사이징: \(Int(originalSize.width))x\(Int(originalSize.height)) → \(Int(resizedSize.width))x\(Int(resizedSize.height))")
-
         // UIGraphicsImageRenderer로 리사이징
         let renderer = UIGraphicsImageRenderer(size: resizedSize)
         let resizedImage = renderer.image { context in
             image.draw(in: CGRect(origin: .zero, size: resizedSize))
         }
+
+        let resizedMemorySize = estimateMemorySize(of: resizedImage)
+        let savedBytes = originalMemorySize - resizedMemorySize
+        let savedPercentage = (1.0 - Double(resizedMemorySize) / Double(originalMemorySize)) * 100
+
+        Logger.data.debug("이미지 리사이징: \(Int(originalSize.width))x\(Int(originalSize.height)) → \(Int(resizedSize.width))x\(Int(resizedSize.height)) | 메모리: \(formatBytes(originalMemorySize)) → \(formatBytes(resizedMemorySize)) (\(String(format: "%.1f", savedPercentage))% 절약, \(formatBytes(savedBytes)) 감소)")
 
         return resizedImage
     }
@@ -85,9 +90,17 @@ struct ImageResizer {
             return UIImage(data: data)
         }
 
-        Logger.data.debug("다운샘플링 완료: \(Int(originalWidth))x\(Int(originalHeight)) → \(Int(resizedSize.width))x\(Int(resizedSize.height))")
+        let resultImage = UIImage(cgImage: downsampledImage)
 
-        return UIImage(cgImage: downsampledImage)
+        // 원본을 메모리에 로드했을 때의 예상 크기 (width * height * 4 bytes per pixel for RGBA)
+        let originalMemorySize = Int(originalWidth * originalHeight * 4)
+        let downsampledMemorySize = estimateMemorySize(of: resultImage)
+        let savedBytes = originalMemorySize - downsampledMemorySize
+        let savedPercentage = (1.0 - Double(downsampledMemorySize) / Double(originalMemorySize)) * 100
+
+        Logger.data.debug("다운샘플링 완료: \(Int(originalWidth))x\(Int(originalHeight)) → \(Int(resizedSize.width))x\(Int(resizedSize.height)) | 메모리: \(formatBytes(originalMemorySize)) → \(formatBytes(downsampledMemorySize)) (\(String(format: "%.1f", savedPercentage))% 절약, \(formatBytes(savedBytes)) 감소)")
+
+        return resultImage
     }
 
     // MARK: - Private Methods
@@ -127,5 +140,34 @@ struct ImageResizer {
         let newHeight = originalSize.height * ratio
 
         return CGSize(width: newWidth, height: newHeight)
+    }
+
+    /// 이미지의 메모리 크기 추정
+    /// - Parameter image: 측정할 이미지
+    /// - Returns: 메모리 크기 (bytes)
+    private static func estimateMemorySize(of image: UIImage) -> Int {
+        guard let cgImage = image.cgImage else { return 0 }
+
+        let width = cgImage.width
+        let height = cgImage.height
+        let bytesPerPixel = cgImage.bitsPerPixel / 8
+
+        return width * height * bytesPerPixel
+    }
+
+    /// 바이트를 읽기 쉬운 형식으로 변환
+    /// - Parameter bytes: 바이트 수
+    /// - Returns: 포맷팅된 문자열 (예: "1.5 MB")
+    private static func formatBytes(_ bytes: Int) -> String {
+        let kb = 1024.0
+        let mb = kb * 1024.0
+
+        if bytes >= Int(mb) {
+            return String(format: "%.2f MB", Double(bytes) / mb)
+        } else if bytes >= Int(kb) {
+            return String(format: "%.2f KB", Double(bytes) / kb)
+        } else {
+            return "\(bytes) bytes"
+        }
     }
 }

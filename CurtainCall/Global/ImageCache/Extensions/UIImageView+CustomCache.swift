@@ -34,10 +34,12 @@ extension UIImageView {
     ///   - url: 이미지 URL
     ///   - placeholder: 플레이스홀더 이미지 (로딩 중 표시)
     ///   - targetSize: 타겟 크기 (nil이면 현재 bounds.size 사용)
+    ///   - cacheStrategy: 캐싱 전략 (기본값: .both)
     func setImage(
         with url: URL?,
         placeholder: UIImage? = nil,
-        targetSize: CGSize? = nil
+        targetSize: CGSize? = nil,
+        cacheStrategy: CacheStrategy = .both
     ) {
         // 이전 Task 취소
         cancelImageLoad()
@@ -74,7 +76,8 @@ extension UIImageView {
             // CustomImageCache로 이미지 로드
             if let loadedImage = await CustomImageCache.shared.loadImage(
                 url: url,
-                targetSize: finalTargetSize
+                targetSize: finalTargetSize,
+                cacheStrategy: cacheStrategy
             ) {
                 // Task 취소 확인 (로드 완료 후)
                 guard !Task.isCancelled else {

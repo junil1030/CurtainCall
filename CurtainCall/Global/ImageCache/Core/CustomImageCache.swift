@@ -96,8 +96,9 @@ final class CustomImageCache {
     /// - Parameters:
     ///   - url: 이미지 URL
     ///   - targetSize: 타겟 크기 (리사이징용)
+    ///   - cacheStrategy: 캐싱 전략 (기본값: .both)
     /// - Returns: 로드된 이미지 또는 nil
-    func loadImage(url: URL, targetSize: CGSize) async -> UIImage? {
+    func loadImage(url: URL, targetSize: CGSize, cacheStrategy: CacheStrategy = .both) async -> UIImage? {
         guard let cacheManager = cacheManager else {
             Logger.data.error("CacheManager가 초기화되지 않음")
             return nil
@@ -133,13 +134,21 @@ final class CustomImageCache {
                     return nil
                 }
 
-                // 캐시 저장
+                // 캐시 저장 (전략에 따라)
                 let newMetadata = CacheMetadata(
                     url: url.absoluteString,
                     etag: newETag,
                     targetSize: targetSize
                 )
-                await cacheManager.setImage(key: cacheKey, image: image, metadata: newMetadata)
+
+                switch cacheStrategy {
+                case .memoryOnly:
+                    await cacheManager.setImageMemoryOnly(key: cacheKey, image: image, metadata: newMetadata)
+                case .diskOnly:
+                    await cacheManager.setImageDiskOnly(key: cacheKey, image: image, metadata: newMetadata)
+                case .both:
+                    await cacheManager.setImage(key: cacheKey, image: image, metadata: newMetadata)
+                }
 
                 return image
 
@@ -173,11 +182,13 @@ final class CustomImageCache {
     ///   - url: 이미지 URL
     ///   - targetSize: 타겟 크기
     ///   - etag: ETag (선택)
+    ///   - cacheStrategy: 캐싱 전략 (기본값: .both)
     func saveImage(
         image: UIImage,
         url: URL,
         targetSize: CGSize,
-        etag: String? = nil
+        etag: String? = nil,
+        cacheStrategy: CacheStrategy = .both
     ) async {
         guard let cacheManager = cacheManager else { return }
 
@@ -188,7 +199,14 @@ final class CustomImageCache {
             targetSize: targetSize
         )
 
-        await cacheManager.setImage(key: cacheKey, image: image, metadata: metadata)
+        switch cacheStrategy {
+        case .memoryOnly:
+            await cacheManager.setImageMemoryOnly(key: cacheKey, image: image, metadata: metadata)
+        case .diskOnly:
+            await cacheManager.setImageDiskOnly(key: cacheKey, image: image, metadata: metadata)
+        case .both:
+            await cacheManager.setImage(key: cacheKey, image: image, metadata: metadata)
+        }
     }
 
     /// 메모리 캐시 삭제

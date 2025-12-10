@@ -75,7 +75,33 @@ actor CacheManager {
             await diskCache.set(key: key, data: data, metadata: metadata)
         }
 
-        Logger.data.debug("이미지 캐싱 완료: \(key)")
+        Logger.data.debug("이미지 캐싱 완료 (메모리+디스크): \(key)")
+    }
+
+    /// 이미지 저장 (메모리만)
+    /// - Parameters:
+    ///   - key: 캐시 키
+    ///   - image: 저장할 이미지
+    ///   - metadata: 메타데이터
+    func setImageMemoryOnly(key: String, image: UIImage, metadata: CacheMetadata) async {
+        // 메모리 캐시만 저장
+        await memoryCache.set(key: key, image: image, metadata: metadata)
+        Logger.data.debug("이미지 캐싱 완료 (메모리만): \(key)")
+    }
+
+    /// 이미지 저장 (디스크만)
+    /// - Parameters:
+    ///   - key: 캐시 키
+    ///   - image: 저장할 이미지
+    ///   - metadata: 메타데이터
+    func setImageDiskOnly(key: String, image: UIImage, metadata: CacheMetadata) async {
+        // 디스크 캐시만 저장 (이미지 데이터로 변환)
+        if let data = image.jpegData(compressionQuality: 0.9) {
+            await diskCache.set(key: key, data: data, metadata: metadata)
+        } else if let data = image.pngData() {
+            await diskCache.set(key: key, data: data, metadata: metadata)
+        }
+        Logger.data.debug("이미지 캐싱 완료 (디스크만): \(key)")
     }
 
     /// 메타데이터 가져오기
