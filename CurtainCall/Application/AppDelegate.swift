@@ -22,6 +22,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Widget 데이터 초기 업데이트
         WidgetDataManager.shared.updateWidgetData()
 
+        // Live Activity 초기 시작 (iOS 16.2+)
+        if #available(iOS 16.2, *) {
+            LiveActivityManager.shared.refreshLiveActivityFromRealm()
+        }
+
         return true
     }
 

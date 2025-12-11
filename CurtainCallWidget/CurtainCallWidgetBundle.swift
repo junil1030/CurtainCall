@@ -17,5 +17,10 @@ struct CurtainCallWidgetBundle: WidgetBundle {
         if #available(iOS 16.0, *) {
             CurtainCallLockScreenWidget()
         }
+
+        // iOS 16.2+ Live Activity
+        if #available(iOS 16.2, *) {
+            PerformanceLiveActivity()
+        }
     }
 }
