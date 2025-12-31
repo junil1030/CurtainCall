@@ -91,17 +91,27 @@ final class DetailPosterCell: BaseCollectionViewCell {
     }
     
     func configure(with url: String) {
-        // 킹피셔
         if let imageURL = url.safeImageURL {
-            posterImageView.kf.setImage(with: imageURL) { [weak self] result in
-                guard let self = self else { return }
-                
-                switch result {
-                case .success(let value):
-                    let screenWidth = UIScreen.main.bounds.width - 40
-                    let calculatedHeight = value.image.size.height * screenWidth / value.image.size.width
+            // placeholder 설정
+            posterImageView.image = UIImage(systemName: "photo")
+
+            // CustomImageCache를 사용하여 이미지 로드
+            Task { @MainActor in
+                let screenWidth = UIScreen.main.bounds.width - 40
+                let targetSize = CGSize(width: screenWidth, height: screenWidth * 4/3) // 대략적인 크기
+
+                if let loadedImage = await CustomImageCache.shared.loadImage(
+                    url: imageURL,
+                    targetSize: targetSize,
+                    cacheStrategy: .both
+                ) {
+                    // 이미지 크기 계산
+                    let calculatedHeight = loadedImage.size.height * screenWidth / loadedImage.size.width
                     self.imageHeight = calculatedHeight
-                    
+
+                    // 이미지 설정
+                    self.posterImageView.image = loadedImage
+
                     // expanded 상태라면 로드 직후 반영
                     if self.isExpanded {
                         self.posterImageView.snp.updateConstraints { make in
@@ -109,9 +119,6 @@ final class DetailPosterCell: BaseCollectionViewCell {
                         }
                         self.superview?.layoutIfNeeded()
                     }
-                    
-                case .failure:
-                    break
                 }
             }
         }
