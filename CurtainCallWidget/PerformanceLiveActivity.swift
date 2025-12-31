@@ -9,26 +9,6 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
-// MARK: - Activity Attributes
-@available(iOS 16.2, *)
-struct PerformanceActivityAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
-        // 동적으로 변하는 데이터
-        var dDay: Int // D-Day (양수: 시작 전, 음수: 진행 중, 0: 오늘 시작)
-        var remainingDays: Int // 공연 종료까지 남은 일수
-        var isStarted: Bool // 공연 시작 여부
-        var favoriteCount: Int // 전체 즐겨찾기 개수
-    }
-
-    // 고정 데이터 (Live Activity 생명주기 동안 변하지 않음)
-    var performanceId: String
-    var title: String
-    var facility: String
-    var startDate: String // "2025.12.16"
-    var endDate: String // "2026.03.30"
-    var genre: String
-}
-
 // MARK: - Live Activity Widget
 @available(iOS 16.2, *)
 struct PerformanceLiveActivity: Widget {
