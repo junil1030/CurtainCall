@@ -8,7 +8,6 @@
 import UIKit
 import RxSwift
 import SnapKit
-import Kingfisher
 
 final class CardCell: BaseCollectionViewCell {
     
@@ -151,15 +150,6 @@ final class CardCell: BaseCollectionViewCell {
                                      placeholder: UIImage(systemName: "photo"),
                                      cacheStrategy: .both
             )
-            // 킹피셔
-//            posterImageView.kf.setImage(
-//                with: url,
-//                placeholder: UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal),
-//                options: [
-//                    .transition(.fade(0.3)),
-//                    .cacheOriginalImage
-//                ]
-//            )
         }
         
         if !isInitialLayoutCompleted {

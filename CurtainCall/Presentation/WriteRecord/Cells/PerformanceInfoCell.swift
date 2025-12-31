@@ -129,15 +129,6 @@ final class PerformanceInfoCell: BaseCollectionViewCell {
                                      placeholder: UIImage(systemName: "photo"),
                                      cacheStrategy: .both
             )
-            // 킹피셔
-//            posterImageView.kf.setImage(
-//                with: url,
-//                placeholder: UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal),
-//                options: [
-//                    .transition(.fade(0.3)),
-//                    .cacheOriginalImage
-//                ]
-//            )
         } else {
             posterImageView.image = UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal)
         }

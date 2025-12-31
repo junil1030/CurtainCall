@@ -8,7 +8,6 @@
 import UIKit
 import RxSwift
 import SnapKit
-import Kingfisher
 
 protocol FavoriteCardCellDelegate: AnyObject {
     func favoriteCardCell(_ cell: FavoriteCardCell, didTapFavoriteButton performanceID: String)
@@ -168,16 +167,6 @@ final class FavoriteCardCell: BaseCollectionViewCell {
                                      placeholder: UIImage(systemName: "photo"),
                                      cacheStrategy: .both
             )
-            // 킹피셔
-//            posterImageView.kf.setImage(
-//                with: url,
-//                placeholder: UIImage(systemName: "photo.circle")?
-//                    .withTintColor(.ccPrimary, renderingMode: .alwaysOriginal),
-//                options: [
-//                    .transition(.fade(0.3)),
-//                    .cacheOriginalImage
-//                ]
-//            )
         } else {
             posterImageView.image = UIImage(systemName: "photo.circle")?
                 .withTintColor(.ccPrimary, renderingMode: .alwaysOriginal)

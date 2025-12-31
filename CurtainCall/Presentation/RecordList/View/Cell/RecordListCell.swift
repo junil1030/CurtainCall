@@ -8,7 +8,6 @@
 import UIKit
 import RxSwift
 import SnapKit
-import Kingfisher
 
 final class RecordListCell: BaseCollectionViewCell {
     
@@ -129,7 +128,6 @@ final class RecordListCell: BaseCollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         disposeBag = DisposeBag()
-//        posterImageView.kf.cancelDownloadTask()
         posterImageView.image = nil
         titleLabel.text = nil
         memoLabel.text = nil
@@ -208,15 +206,6 @@ final class RecordListCell: BaseCollectionViewCell {
                                      placeholder: UIImage(systemName: "photo"),
                                      cacheStrategy: .diskOnly
             )
-            // 킹피셔
-//            posterImageView.kf.setImage(
-//                with: url,
-//                placeholder: UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal),
-//                options: [
-//                    .transition(.fade(0.3)),
-//                    .cacheOriginalImage
-//                ]
-//            )
         } else {
             posterImageView.image = UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal)
         }

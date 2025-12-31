@@ -8,7 +8,6 @@
 import UIKit
 import RxSwift
 import SnapKit
-import Kingfisher
 
 final class SearchResultCell: BaseCollectionViewCell {
     
@@ -125,12 +124,6 @@ final class SearchResultCell: BaseCollectionViewCell {
                                      placeholder: UIImage(systemName: "photo"),
                                      cacheStrategy: .memoryOnly
             )
-            // 킹피셔
-//            posterImageView.kf.setImage(
-//                with: url,
-//                placeholder: UIImage(systemName: "photo")?
-//                    .withTintColor(.ccSecondaryText, renderingMode: .alwaysOriginal)
-//            )
         } else {
             posterImageView.image = UIImage(systemName: "photo")?
                 .withTintColor(.ccSecondaryText, renderingMode: .alwaysOriginal)
