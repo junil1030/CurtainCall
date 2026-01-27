@@ -125,16 +125,21 @@ final class FilterBottomSheetViewController: UIViewController {
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         setupUI()
         setupLayout()
+
+        // ⚠️ IMPORTANT: child view controller 추가 전에 미리 화면 밖으로 이동
+        // 이렇게 하지 않으면 child의 viewWillAppear가 호출될 때 화면에 보임
+        containerView.transform = CGAffineTransform(translationX: 0, y: view.bounds.height)
+
         setupActions()
         setupContent()
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
+
         showBottomSheet()
     }
     
@@ -274,17 +279,17 @@ final class FilterBottomSheetViewController: UIViewController {
             initialDate: initialDate,
             allowFuture: allowFuture
         )
-        
+
         addChild(datePickerVC)
         customDatePickerContainer.addSubview(datePickerVC.view)
         datePickerVC.didMove(toParent: self)
-        
+
         datePickerVC.view.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        
+
         customDatePickerVC = datePickerVC
-        
+
         datePickerVC.selectedDate
             .subscribe(with: self) { owner, date in
                 owner.selectionSubject.onNext(date)
@@ -317,7 +322,7 @@ final class FilterBottomSheetViewController: UIViewController {
     // MARK: - Animation
     private func showBottomSheet() {
         containerView.transform = CGAffineTransform(translationX: 0, y: containerView.bounds.height)
-        
+
         UIView.animate(
             withDuration: 0.3,
             delay: 0,
