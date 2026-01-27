@@ -8,27 +8,37 @@
 import Foundation
 
 final class FetchStatsUseCase: UseCase {
-    
+
+    // MARK: - Input
+    struct Input {
+        let period: StatsPeriod
+        let date: Date
+
+        init(period: StatsPeriod, date: Date = Date()) {
+            self.period = period
+            self.date = date
+        }
+    }
+
     // MARK: - Typealias
-    typealias Input = StatsPeriod
     typealias Output = StatsData
-    
+
     // MARK: - Properties
     private let repository: ViewingRecordRepositoryProtocol
-    
+
     // MARK: - Init
     init(repository: ViewingRecordRepositoryProtocol) {
         self.repository = repository
     }
-    
-    func execute(_ input: StatsPeriod) -> StatsData {
-        let (startDate, endDate) = DateCalculator.dateRange(for: input)
-        
+
+    func execute(_ input: Input) -> StatsData {
+        let (startDate, endDate) = DateCalculator.dateRange(for: input.period, from: input.date)
+
         // 1. 요약 정보 생성
-        let summary = createSummary(for: input, startDate: startDate, endDate: endDate)
-        
+        let summary = createSummary(for: input.period, startDate: startDate, endDate: endDate)
+
         // 2. 트렌드 데이터 생성
-        let trendData = createTrendData(for: input, startDate: startDate, endDate: endDate)
+        let trendData = createTrendData(for: input.period, startDate: startDate, endDate: endDate)
         
         // 3. 장르별 통계
         let genreStats = repository.getGenreStats(from: startDate, to: endDate)
@@ -40,7 +50,7 @@ final class FetchStatsUseCase: UseCase {
         let areaStats = repository.getAreaStats(from: startDate, to: endDate)
         
         return StatsData(
-            period: input,
+            period: input.period,
             summary: summary,
             trendData: trendData,
             genreStats: genreStats,
