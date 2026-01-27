@@ -9,6 +9,7 @@ import UIKit
 import SnapKit
 import RxSwift
 import RxCocoa
+import Foundation
 
 final class SegmentControlHeaderView: UICollectionReusableView {
     
@@ -40,12 +41,54 @@ final class SegmentControlHeaderView: UICollectionReusableView {
         view.backgroundColor = .ccBackground
         return view
     }()
-    
+
+    private let dateNavigationContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        return view
+    }()
+
+    private let previousButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "chevron.left"), for: .normal)
+        button.tintColor = .ccPrimary
+        return button
+    }()
+
+    private let nextButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
+        button.tintColor = .ccPrimary
+        return button
+    }()
+
+    private let dateLabel: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitleColor(.ccPrimaryText, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 15, weight: .medium)
+        return button
+    }()
+
     // MARK: - Observables
     private let periodSelectedSubject = PublishSubject<StatsPeriod>()
-    
+    private let previousPeriodTappedSubject = PublishSubject<Void>()
+    private let nextPeriodTappedSubject = PublishSubject<Void>()
+    private let dateLabelTappedSubject = PublishSubject<Void>()
+
     var periodSelected: Observable<StatsPeriod> {
         return periodSelectedSubject.asObservable()
+    }
+
+    var previousPeriodTapped: Observable<Void> {
+        return previousPeriodTappedSubject.asObservable()
+    }
+
+    var nextPeriodTapped: Observable<Void> {
+        return nextPeriodTappedSubject.asObservable()
+    }
+
+    var dateLabelTapped: Observable<Void> {
+        return dateLabelTappedSubject.asObservable()
     }
     
     // MARK: - Init
@@ -72,19 +115,46 @@ final class SegmentControlHeaderView: UICollectionReusableView {
     private func setupHierarchy() {
         addSubview(containerView)
         containerView.addSubview(segmentControl)
+        containerView.addSubview(dateNavigationContainer)
+
+        dateNavigationContainer.addSubview(previousButton)
+        dateNavigationContainer.addSubview(dateLabel)
+        dateNavigationContainer.addSubview(nextButton)
     }
-    
+
     private func setupLayout() {
         containerView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        
+
         segmentControl.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(12)
             make.leading.equalToSuperview().offset(16)
             make.trailing.equalToSuperview().offset(-16)
-            make.bottom.equalToSuperview().offset(-12)
             make.height.equalTo(44)
+        }
+
+        dateNavigationContainer.snp.makeConstraints { make in
+            make.top.equalTo(segmentControl.snp.bottom).offset(8)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview().offset(-12)
+            make.height.equalTo(36)
+        }
+
+        previousButton.snp.makeConstraints { make in
+            make.leading.equalToSuperview()
+            make.centerY.equalToSuperview()
+            make.width.height.equalTo(36)
+        }
+
+        dateLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+
+        nextButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview()
+            make.centerY.equalToSuperview()
+            make.width.height.equalTo(36)
         }
     }
     
@@ -104,14 +174,66 @@ final class SegmentControlHeaderView: UICollectionReusableView {
             }
             .bind(to: periodSelectedSubject)
             .disposed(by: disposeBag)
+
+        previousButton.rx.tap
+            .bind(to: previousPeriodTappedSubject)
+            .disposed(by: disposeBag)
+
+        nextButton.rx.tap
+            .bind(to: nextPeriodTappedSubject)
+            .disposed(by: disposeBag)
+
+        dateLabel.rx.tap
+            .bind(to: dateLabelTappedSubject)
+            .disposed(by: disposeBag)
     }
-    
+
     // MARK: - Public Methods
-    
+
     /// 현재 선택된 기간 설정
     func configure(selectedPeriod: StatsPeriod) {
         if let index = StatsPeriod.allCases.firstIndex(of: selectedPeriod) {
             segmentControl.selectedSegmentIndex = index
+        }
+    }
+
+    /// 날짜 라벨 업데이트
+    func configureDateLabel(for period: StatsPeriod, date: Date) {
+        let text: String
+        let isCurrentPeriod = isCurrentPeriod(for: period, date: date)
+
+        switch period {
+        case .weekly:
+            let (start, end) = DateCalculator.dateRange(for: .weekly, from: date)
+            text = "\(start.formatted("yyyy.MM.dd")) - \(end.formatted("yyyy.MM.dd"))"
+        case .monthly:
+            text = date.formatted("yyyy년 M월")
+        case .yearly:
+            text = date.formatted("yyyy년")
+        }
+
+        let displayText = isCurrentPeriod ? "\(text) (현재)" : text
+        dateLabel.setTitle(displayText, for: .normal)
+
+        // 다음 버튼 활성화 상태 업데이트
+        nextButton.isEnabled = !isCurrentPeriod
+        nextButton.alpha = isCurrentPeriod ? 0.3 : 1.0
+    }
+
+    /// 현재 기간인지 확인
+    private func isCurrentPeriod(for period: StatsPeriod, date: Date) -> Bool {
+        let calendar = Calendar.current
+        let now = Date()
+
+        switch period {
+        case .weekly:
+            let (currentStart, currentEnd) = DateCalculator.dateRange(for: .weekly, from: now)
+            let (selectedStart, _) = DateCalculator.dateRange(for: .weekly, from: date)
+            return calendar.isDate(currentStart, inSameDayAs: selectedStart)
+        case .monthly:
+            return calendar.isDate(date, equalTo: now, toGranularity: .month)
+        case .yearly:
+            return calendar.isDate(date, equalTo: now, toGranularity: .year)
         }
     }
 }

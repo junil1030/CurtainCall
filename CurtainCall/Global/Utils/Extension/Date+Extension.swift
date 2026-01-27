@@ -42,4 +42,13 @@ extension Date {
     func daysAfter(_ days: Int) -> Date {
         return Calendar.current.date(byAdding: .day, value: days, to: self) ?? self
     }
+
+    /// 커스텀 포맷으로 날짜 문자열 반환
+    func formatted(_ format: String) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+        return formatter.string(from: self)
+    }
 }

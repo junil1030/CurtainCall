@@ -33,9 +33,24 @@ final class StatsView: BaseView {
     
     // MARK: - Observables
     private let periodChangedSubject = PublishSubject<StatsPeriod>()
-    
+    private let previousPeriodTappedSubject = PublishSubject<Void>()
+    private let nextPeriodTappedSubject = PublishSubject<Void>()
+    private let dateLabelTappedSubject = PublishSubject<Void>()
+
     var periodChanged: Observable<StatsPeriod> {
         return periodChangedSubject.asObservable()
+    }
+
+    var previousPeriodTapped: Observable<Void> {
+        return previousPeriodTappedSubject.asObservable()
+    }
+
+    var nextPeriodTapped: Observable<Void> {
+        return nextPeriodTappedSubject.asObservable()
+    }
+
+    var dateLabelTapped: Observable<Void> {
+        return dateLabelTappedSubject.asObservable()
     }
     
     // MARK: - Override Methods
@@ -55,22 +70,33 @@ final class StatsView: BaseView {
     }
     
     // MARK: - PublicMethods
-    
+
     // 통계 데이터 업데이트
     func updateStats(sections: [StatsSection: [StatsItem]]) {
         var snapshot = Snapshot()
-        
+
         // 섹션 순서대로 추가
         let orderedSections: [StatsSection] = [.summary, .trend, .genre, .companion, .area]
-        
+
         for section in orderedSections {
             if let items = sections[section], !items.isEmpty {
                 snapshot.appendSections([section])
                 snapshot.appendItems(items, toSection: section)
             }
         }
-        
+
         dataSource.apply(snapshot, animatingDifferences: true)
+    }
+
+    // 날짜 라벨 업데이트
+    func updateDateLabel(for period: StatsPeriod, date: Date) {
+        // Summary 섹션의 헤더 뷰 찾기
+        if let headerView = collectionView.supplementaryView(
+            forElementKind: UICollectionView.elementKindSectionHeader,
+            at: IndexPath(item: 0, section: 0)
+        ) as? SegmentControlHeaderView {
+            headerView.configureDateLabel(for: period, date: date)
+        }
     }
     
     // MARK: - Private Methods
@@ -197,9 +223,21 @@ final class StatsView: BaseView {
             elementKind: UICollectionView.elementKindSectionHeader
         ) { [weak self] supplementaryView, elementKind, indexPath in
             guard let self = self else { return }
-            
+
             supplementaryView.periodSelected
                 .bind(to: self.periodChangedSubject)
+                .disposed(by: supplementaryView.disposeBag)
+
+            supplementaryView.previousPeriodTapped
+                .bind(to: self.previousPeriodTappedSubject)
+                .disposed(by: supplementaryView.disposeBag)
+
+            supplementaryView.nextPeriodTapped
+                .bind(to: self.nextPeriodTappedSubject)
+                .disposed(by: supplementaryView.disposeBag)
+
+            supplementaryView.dateLabelTapped
+                .bind(to: self.dateLabelTappedSubject)
                 .disposed(by: supplementaryView.disposeBag)
         }
     }
@@ -293,7 +331,7 @@ extension StatsView {
         
         let headerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(68)
+            heightDimension: .estimated(112)
         )
         let header = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: headerSize,
