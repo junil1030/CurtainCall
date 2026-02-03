@@ -74,6 +74,8 @@ final class DoublyLinkedList {
         // 이미 존재하면 제거 후 재삽입
         if let existingNode = hashMap[key] {
             removeNode(existingNode)
+            hashMap.removeValue(forKey: key)
+            count -= 1
         }
 
         let newNode = CacheNode(key: key, metadata: metadata)
