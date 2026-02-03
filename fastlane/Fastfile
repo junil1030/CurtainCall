@@ -16,7 +16,7 @@ platform :ios do
     run_tests(
       project: "CurtainCall.xcodeproj",
       scheme: "CurtainCall",
-      device: "iPhone 17 Pro (26.0.1)",
+      device: "iPhone 16 Pro",
       code_coverage: true,
       output_directory: "./test_output",
       buildlog_path: "./test_output/buildlogs"
