@@ -37,13 +37,6 @@
 			remoteGlobalIDString = F9EF18102E8506DC007B24D5;
 			remoteInfo = CurtainCall;
 		};
-		F9EF18322E8506DE007B24D5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F9EF18092E8506DC007B24D5 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = F9EF18102E8506DC007B24D5;
-			remoteInfo = CurtainCall;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -88,7 +81,6 @@
 		F91808712EE68327002D8FA4 /* CurtainCallWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CurtainCallWidgetExtension.entitlements; sourceTree = "<group>"; };
 		F9EF18112E8506DC007B24D5 /* CurtainCall.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CurtainCall.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9EF18272E8506DE007B24D5 /* CurtainCallTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CurtainCallTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		F9EF18312E8506DE007B24D5 /* CurtainCallUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CurtainCallUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -145,11 +137,6 @@
 			path = CurtainCallTests;
 			sourceTree = "<group>";
 		};
-		F9EF18342E8506DE007B24D5 /* CurtainCallUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = CurtainCallUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -185,13 +172,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F9EF182E2E8506DE007B24D5 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -210,7 +190,6 @@
 				F91808712EE68327002D8FA4 /* CurtainCallWidgetExtension.entitlements */,
 				F9EF18132E8506DC007B24D5 /* CurtainCall */,
 				F9EF182A2E8506DE007B24D5 /* CurtainCallTests */,
-				F9EF18342E8506DE007B24D5 /* CurtainCallUITests */,
 				F918085F2EE68311002D8FA4 /* CurtainCallWidget */,
 				F918085A2EE68311002D8FA4 /* Frameworks */,
 				F9EF18122E8506DC007B24D5 /* Products */,
@@ -223,7 +202,6 @@
 			children = (
 				F9EF18112E8506DC007B24D5 /* CurtainCall.app */,
 				F9EF18272E8506DE007B24D5 /* CurtainCallTests.xctest */,
-				F9EF18312E8506DE007B24D5 /* CurtainCallUITests.xctest */,
 				F91808592EE68311002D8FA4 /* CurtainCallWidgetExtension.appex */,
 			);
 			name = Products;
@@ -315,29 +293,6 @@
 			productReference = F9EF18272E8506DE007B24D5 /* CurtainCallTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		F9EF18302E8506DE007B24D5 /* CurtainCallUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = F9EF18422E8506DE007B24D5 /* Build configuration list for PBXNativeTarget "CurtainCallUITests" */;
-			buildPhases = (
-				F9EF182D2E8506DE007B24D5 /* Sources */,
-				F9EF182E2E8506DE007B24D5 /* Frameworks */,
-				F9EF182F2E8506DE007B24D5 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				F9EF18332E8506DE007B24D5 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				F9EF18342E8506DE007B24D5 /* CurtainCallUITests */,
-			);
-			name = CurtainCallUITests;
-			packageProductDependencies = (
-			);
-			productName = CurtainCallUITests;
-			productReference = F9EF18312E8506DE007B24D5 /* CurtainCallUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -355,10 +310,6 @@
 						CreatedOnToolsVersion = 16.4;
 					};
 					F9EF18262E8506DE007B24D5 = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = F9EF18102E8506DC007B24D5;
-					};
-					F9EF18302E8506DE007B24D5 = {
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = F9EF18102E8506DC007B24D5;
 					};
@@ -389,7 +340,6 @@
 			targets = (
 				F9EF18102E8506DC007B24D5 /* CurtainCall */,
 				F9EF18262E8506DE007B24D5 /* CurtainCallTests */,
-				F9EF18302E8506DE007B24D5 /* CurtainCallUITests */,
 				F91808582EE68311002D8FA4 /* CurtainCallWidgetExtension */,
 			);
 		};
@@ -411,13 +361,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F9EF18252E8506DE007B24D5 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F9EF182F2E8506DE007B24D5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -474,13 +417,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F9EF182D2E8506DE007B24D5 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -493,11 +429,6 @@
 			isa = PBXTargetDependency;
 			target = F9EF18102E8506DC007B24D5 /* CurtainCall */;
 			targetProxy = F9EF18282E8506DE007B24D5 /* PBXContainerItemProxy */;
-		};
-		F9EF18332E8506DE007B24D5 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F9EF18102E8506DC007B24D5 /* CurtainCall */;
-			targetProxy = F9EF18322E8506DE007B24D5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -515,7 +446,7 @@
 				INFOPLIST_FILE = CurtainCallWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = CurtainCallWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -526,11 +457,15 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -547,7 +482,7 @@
 				INFOPLIST_FILE = CurtainCallWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = CurtainCallWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -558,11 +493,15 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -781,13 +720,17 @@
 				CURRENT_PROJECT_VERSION = 31;
 				DEVELOPMENT_TEAM = MWBS4R8DBQ;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCallTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CurtainCall.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CurtainCall";
 			};
 			name = Debug;
@@ -800,48 +743,18 @@
 				CURRENT_PROJECT_VERSION = 31;
 				DEVELOPMENT_TEAM = MWBS4R8DBQ;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCallTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CurtainCall.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CurtainCall";
-			};
-			name = Release;
-		};
-		F9EF18432E8506DE007B24D5 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 31;
-				DEVELOPMENT_TEAM = MWBS4R8DBQ;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCallUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = CurtainCall;
-			};
-			name = Debug;
-		};
-		F9EF18442E8506DE007B24D5 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 31;
-				DEVELOPMENT_TEAM = MWBS4R8DBQ;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCallUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = CurtainCall;
 			};
 			name = Release;
 		};
@@ -880,15 +793,6 @@
 			buildConfigurations = (
 				F9EF18402E8506DE007B24D5 /* Debug */,
 				F9EF18412E8506DE007B24D5 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		F9EF18422E8506DE007B24D5 /* Build configuration list for PBXNativeTarget "CurtainCallUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				F9EF18432E8506DE007B24D5 /* Debug */,
-				F9EF18442E8506DE007B24D5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
