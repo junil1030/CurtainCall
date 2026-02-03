@@ -1,0 +1,998 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		F918085C2EE68311002D8FA4 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F918085B2EE68311002D8FA4 /* WidgetKit.framework */; };
+		F918085E2EE68311002D8FA4 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F918085D2EE68311002D8FA4 /* SwiftUI.framework */; };
+		F918086B2EE68313002D8FA4 /* CurtainCallWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F91808592EE68311002D8FA4 /* CurtainCallWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F91BF51B2E9F4AF0001A80C1 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = F91BF51A2E9F4AF0001A80C1 /* FirebaseCrashlytics */; };
+		F98674442E8DF758000E4BEC /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = F99A0D022E8D6C670095FF8E /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		F99A0D032E8D6C670095FF8E /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F99A0D022E8D6C670095FF8E /* RealmSwift */; };
+		F9B8325B2E9D21D40064B1D5 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = F9B8325A2E9D21D40064B1D5 /* FirebaseAnalytics */; };
+		F9B8325D2E9D21D40064B1D5 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = F9B8325C2E9D21D40064B1D5 /* FirebaseMessaging */; };
+		F9EF190C2E850FD9007B24D5 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = F9EF190B2E850FD9007B24D5 /* Alamofire */; };
+		F9EF19122E850FEE007B24D5 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = F9EF19112E850FEE007B24D5 /* SnapKit */; };
+		F9EF19152E851000007B24D5 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = F9EF19142E851000007B24D5 /* RxCocoa */; };
+		F9EF19172E851000007B24D5 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F9EF19162E851000007B24D5 /* RxSwift */; };
+		F9EF191A2E85101F007B24D5 /* Parsely in Frameworks */ = {isa = PBXBuildFile; productRef = F9EF19192E85101F007B24D5 /* Parsely */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F91808692EE68313002D8FA4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F9EF18092E8506DC007B24D5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F91808582EE68311002D8FA4;
+			remoteInfo = CurtainCallWidgetExtension;
+		};
+		F9EF18282E8506DE007B24D5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F9EF18092E8506DC007B24D5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F9EF18102E8506DC007B24D5;
+			remoteInfo = CurtainCall;
+		};
+		F9EF18322E8506DE007B24D5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F9EF18092E8506DC007B24D5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F9EF18102E8506DC007B24D5;
+			remoteInfo = CurtainCall;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F91808702EE68313002D8FA4 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				F918086B2EE68313002D8FA4 /* CurtainCallWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F918088B2EE6AD29002D8FA4 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F98674452E8DF758000E4BEC /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				F98674442E8DF758000E4BEC /* RealmSwift in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		F91808592EE68311002D8FA4 /* CurtainCallWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CurtainCallWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		F918085B2EE68311002D8FA4 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		F918085D2EE68311002D8FA4 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		F91808712EE68327002D8FA4 /* CurtainCallWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CurtainCallWidgetExtension.entitlements; sourceTree = "<group>"; };
+		F9EF18112E8506DC007B24D5 /* CurtainCall.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CurtainCall.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F9EF18272E8506DE007B24D5 /* CurtainCallTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CurtainCallTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F9EF18312E8506DE007B24D5 /* CurtainCallUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CurtainCallUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F918086F2EE68313002D8FA4 /* Exceptions for "CurtainCallWidget" folder in "CurtainCallWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F91808582EE68311002D8FA4 /* CurtainCallWidgetExtension */;
+		};
+		F91808902EE6ADA9002D8FA4 /* Exceptions for "CurtainCall" folder in "CurtainCallWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Domain/Models/Performance/PerformanceDetail.swift,
+				Global/Utils/Logger.swift,
+			);
+			target = F91808582EE68311002D8FA4 /* CurtainCallWidgetExtension */;
+		};
+		F9EF19072E850C2B007B24D5 /* Exceptions for "CurtainCall" folder in "CurtainCall" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Application/Info.plist,
+				Application/Secrets.xcconfig,
+			);
+			target = F9EF18102E8506DC007B24D5 /* CurtainCall */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		F918085F2EE68311002D8FA4 /* CurtainCallWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F918086F2EE68313002D8FA4 /* Exceptions for "CurtainCallWidget" folder in "CurtainCallWidgetExtension" target */,
+			);
+			path = CurtainCallWidget;
+			sourceTree = "<group>";
+		};
+		F918087F2EE6AC93002D8FA4 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		F9EF18132E8506DC007B24D5 /* CurtainCall */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F9EF19072E850C2B007B24D5 /* Exceptions for "CurtainCall" folder in "CurtainCall" target */,
+				F91808902EE6ADA9002D8FA4 /* Exceptions for "CurtainCall" folder in "CurtainCallWidgetExtension" target */,
+			);
+			path = CurtainCall;
+			sourceTree = "<group>";
+		};
+		F9EF182A2E8506DE007B24D5 /* CurtainCallTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CurtainCallTests;
+			sourceTree = "<group>";
+		};
+		F9EF18342E8506DE007B24D5 /* CurtainCallUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CurtainCallUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F91808562EE68311002D8FA4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F918085E2EE68311002D8FA4 /* SwiftUI.framework in Frameworks */,
+				F918085C2EE68311002D8FA4 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9EF180E2E8506DC007B24D5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F9B8325D2E9D21D40064B1D5 /* FirebaseMessaging in Frameworks */,
+				F9EF19122E850FEE007B24D5 /* SnapKit in Frameworks */,
+				F9B8325B2E9D21D40064B1D5 /* FirebaseAnalytics in Frameworks */,
+				F99A0D032E8D6C670095FF8E /* RealmSwift in Frameworks */,
+				F9EF19172E851000007B24D5 /* RxSwift in Frameworks */,
+				F9EF191A2E85101F007B24D5 /* Parsely in Frameworks */,
+				F91BF51B2E9F4AF0001A80C1 /* FirebaseCrashlytics in Frameworks */,
+				F9EF19152E851000007B24D5 /* RxCocoa in Frameworks */,
+				F9EF190C2E850FD9007B24D5 /* Alamofire in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9EF18242E8506DE007B24D5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9EF182E2E8506DE007B24D5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F918085A2EE68311002D8FA4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F918085B2EE68311002D8FA4 /* WidgetKit.framework */,
+				F918085D2EE68311002D8FA4 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F9EF18082E8506DC007B24D5 = {
+			isa = PBXGroup;
+			children = (
+				F91808712EE68327002D8FA4 /* CurtainCallWidgetExtension.entitlements */,
+				F9EF18132E8506DC007B24D5 /* CurtainCall */,
+				F9EF182A2E8506DE007B24D5 /* CurtainCallTests */,
+				F9EF18342E8506DE007B24D5 /* CurtainCallUITests */,
+				F918085F2EE68311002D8FA4 /* CurtainCallWidget */,
+				F918085A2EE68311002D8FA4 /* Frameworks */,
+				F9EF18122E8506DC007B24D5 /* Products */,
+				F918087F2EE6AC93002D8FA4 /* Shared */,
+			);
+			sourceTree = "<group>";
+		};
+		F9EF18122E8506DC007B24D5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F9EF18112E8506DC007B24D5 /* CurtainCall.app */,
+				F9EF18272E8506DE007B24D5 /* CurtainCallTests.xctest */,
+				F9EF18312E8506DE007B24D5 /* CurtainCallUITests.xctest */,
+				F91808592EE68311002D8FA4 /* CurtainCallWidgetExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F91808582EE68311002D8FA4 /* CurtainCallWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F918086C2EE68313002D8FA4 /* Build configuration list for PBXNativeTarget "CurtainCallWidgetExtension" */;
+			buildPhases = (
+				F91808552EE68311002D8FA4 /* Sources */,
+				F91808562EE68311002D8FA4 /* Frameworks */,
+				F91808572EE68311002D8FA4 /* Resources */,
+				F918088B2EE6AD29002D8FA4 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F918085F2EE68311002D8FA4 /* CurtainCallWidget */,
+				F918087F2EE6AC93002D8FA4 /* Shared */,
+			);
+			name = CurtainCallWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = CurtainCallWidgetExtension;
+			productReference = F91808592EE68311002D8FA4 /* CurtainCallWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		F9EF18102E8506DC007B24D5 /* CurtainCall */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F9EF183A2E8506DE007B24D5 /* Build configuration list for PBXNativeTarget "CurtainCall" */;
+			buildPhases = (
+				F9EF180D2E8506DC007B24D5 /* Sources */,
+				F9EF180E2E8506DC007B24D5 /* Frameworks */,
+				F9EF180F2E8506DC007B24D5 /* Resources */,
+				F91808702EE68313002D8FA4 /* Embed Foundation Extensions */,
+				F98674452E8DF758000E4BEC /* Embed Frameworks */,
+				F91BF0B22E9F2AB4001A80C1 /* Run Script */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F918086A2EE68313002D8FA4 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F918087F2EE6AC93002D8FA4 /* Shared */,
+				F9EF18132E8506DC007B24D5 /* CurtainCall */,
+			);
+			name = CurtainCall;
+			packageProductDependencies = (
+				F9EF190B2E850FD9007B24D5 /* Alamofire */,
+				F9EF19112E850FEE007B24D5 /* SnapKit */,
+				F9EF19142E851000007B24D5 /* RxCocoa */,
+				F9EF19162E851000007B24D5 /* RxSwift */,
+				F9EF19192E85101F007B24D5 /* Parsely */,
+				F99A0D022E8D6C670095FF8E /* RealmSwift */,
+				F9B8325A2E9D21D40064B1D5 /* FirebaseAnalytics */,
+				F9B8325C2E9D21D40064B1D5 /* FirebaseMessaging */,
+				F91BF51A2E9F4AF0001A80C1 /* FirebaseCrashlytics */,
+			);
+			productName = CurtainCall;
+			productReference = F9EF18112E8506DC007B24D5 /* CurtainCall.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F9EF18262E8506DE007B24D5 /* CurtainCallTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F9EF183F2E8506DE007B24D5 /* Build configuration list for PBXNativeTarget "CurtainCallTests" */;
+			buildPhases = (
+				F9EF18232E8506DE007B24D5 /* Sources */,
+				F9EF18242E8506DE007B24D5 /* Frameworks */,
+				F9EF18252E8506DE007B24D5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F9EF18292E8506DE007B24D5 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F9EF182A2E8506DE007B24D5 /* CurtainCallTests */,
+			);
+			name = CurtainCallTests;
+			packageProductDependencies = (
+			);
+			productName = CurtainCallTests;
+			productReference = F9EF18272E8506DE007B24D5 /* CurtainCallTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		F9EF18302E8506DE007B24D5 /* CurtainCallUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F9EF18422E8506DE007B24D5 /* Build configuration list for PBXNativeTarget "CurtainCallUITests" */;
+			buildPhases = (
+				F9EF182D2E8506DE007B24D5 /* Sources */,
+				F9EF182E2E8506DE007B24D5 /* Frameworks */,
+				F9EF182F2E8506DE007B24D5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F9EF18332E8506DE007B24D5 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F9EF18342E8506DE007B24D5 /* CurtainCallUITests */,
+			);
+			name = CurtainCallUITests;
+			packageProductDependencies = (
+			);
+			productName = CurtainCallUITests;
+			productReference = F9EF18312E8506DE007B24D5 /* CurtainCallUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F9EF18092E8506DC007B24D5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2610;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					F91808582EE68311002D8FA4 = {
+						CreatedOnToolsVersion = 26.1;
+					};
+					F9EF18102E8506DC007B24D5 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					F9EF18262E8506DE007B24D5 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = F9EF18102E8506DC007B24D5;
+					};
+					F9EF18302E8506DE007B24D5 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = F9EF18102E8506DC007B24D5;
+					};
+				};
+			};
+			buildConfigurationList = F9EF180C2E8506DC007B24D5 /* Build configuration list for PBXProject "CurtainCall" */;
+			developmentRegion = ko;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				ko,
+			);
+			mainGroup = F9EF18082E8506DC007B24D5;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F9EF190A2E850FD9007B24D5 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				F9EF19102E850FEE007B24D5 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				F9EF19132E851000007B24D5 /* XCRemoteSwiftPackageReference "RxSwift" */,
+				F9EF19182E85101F007B24D5 /* XCRemoteSwiftPackageReference "ParselyKit" */,
+				F99A0D012E8D6C670095FF8E /* XCRemoteSwiftPackageReference "realm-swift" */,
+				F9B832592E9D21D40064B1D5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = F9EF18122E8506DC007B24D5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F9EF18102E8506DC007B24D5 /* CurtainCall */,
+				F9EF18262E8506DE007B24D5 /* CurtainCallTests */,
+				F9EF18302E8506DE007B24D5 /* CurtainCallUITests */,
+				F91808582EE68311002D8FA4 /* CurtainCallWidgetExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F91808572EE68311002D8FA4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9EF180F2E8506DC007B24D5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9EF18252E8506DE007B24D5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9EF182F2E8506DE007B24D5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		F91BF0B22E9F2AB4001A80C1 /* Run Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
+				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+			);
+			name = "Run Script";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n# Firebase Crashlytics dSYM 업로드\n\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n\n  if [ \"${ENABLE_PREVIEWS}\" = \"NO\" ]; then\n      \"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n  fi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F91808552EE68311002D8FA4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9EF180D2E8506DC007B24D5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9EF18232E8506DE007B24D5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9EF182D2E8506DE007B24D5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F918086A2EE68313002D8FA4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F91808582EE68311002D8FA4 /* CurtainCallWidgetExtension */;
+			targetProxy = F91808692EE68313002D8FA4 /* PBXContainerItemProxy */;
+		};
+		F9EF18292E8506DE007B24D5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F9EF18102E8506DC007B24D5 /* CurtainCall */;
+			targetProxy = F9EF18282E8506DE007B24D5 /* PBXContainerItemProxy */;
+		};
+		F9EF18332E8506DE007B24D5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F9EF18102E8506DC007B24D5 /* CurtainCall */;
+			targetProxy = F9EF18322E8506DE007B24D5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		F918086D2EE68313002D8FA4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = CurtainCallWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 31;
+				DEVELOPMENT_TEAM = MWBS4R8DBQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CurtainCallWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CurtainCallWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCall.CurtainCallWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F918086E2EE68313002D8FA4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = CurtainCallWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 31;
+				DEVELOPMENT_TEAM = MWBS4R8DBQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CurtainCallWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CurtainCallWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCall.CurtainCallWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		F9EF183B2E8506DE007B24D5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = CurtainCall/CurtainCall.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 31;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = MWBS4R8DBQ;
+				ENABLE_DEBUG_DYLIB = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CurtainCall/Application/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "커튼콜";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 2.5.0;
+				OTHER_LDFLAGS = "-objc";
+				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCall;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		F9EF183C2E8506DE007B24D5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = CurtainCall/CurtainCall.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 31;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = MWBS4R8DBQ;
+				ENABLE_DEBUG_DYLIB = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CurtainCall/Application/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "커튼콜";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 2.5.0;
+				OTHER_LDFLAGS = "-objc";
+				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCall;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		F9EF183D2E8506DE007B24D5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = F9EF18132E8506DC007B24D5 /* CurtainCall */;
+			baseConfigurationReferenceRelativePath = Application/Secrets.xcconfig;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = MWBS4R8DBQ;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		F9EF183E2E8506DE007B24D5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = F9EF18132E8506DC007B24D5 /* CurtainCall */;
+			baseConfigurationReferenceRelativePath = Application/Secrets.xcconfig;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = MWBS4R8DBQ;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F9EF18402E8506DE007B24D5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 31;
+				DEVELOPMENT_TEAM = MWBS4R8DBQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCallTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CurtainCall.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CurtainCall";
+			};
+			name = Debug;
+		};
+		F9EF18412E8506DE007B24D5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 31;
+				DEVELOPMENT_TEAM = MWBS4R8DBQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCallTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CurtainCall.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CurtainCall";
+			};
+			name = Release;
+		};
+		F9EF18432E8506DE007B24D5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 31;
+				DEVELOPMENT_TEAM = MWBS4R8DBQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCallUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = CurtainCall;
+			};
+			name = Debug;
+		};
+		F9EF18442E8506DE007B24D5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 31;
+				DEVELOPMENT_TEAM = MWBS4R8DBQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCallUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = CurtainCall;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F918086C2EE68313002D8FA4 /* Build configuration list for PBXNativeTarget "CurtainCallWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F918086D2EE68313002D8FA4 /* Debug */,
+				F918086E2EE68313002D8FA4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F9EF180C2E8506DC007B24D5 /* Build configuration list for PBXProject "CurtainCall" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F9EF183D2E8506DE007B24D5 /* Debug */,
+				F9EF183E2E8506DE007B24D5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F9EF183A2E8506DE007B24D5 /* Build configuration list for PBXNativeTarget "CurtainCall" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F9EF183B2E8506DE007B24D5 /* Debug */,
+				F9EF183C2E8506DE007B24D5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F9EF183F2E8506DE007B24D5 /* Build configuration list for PBXNativeTarget "CurtainCallTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F9EF18402E8506DE007B24D5 /* Debug */,
+				F9EF18412E8506DE007B24D5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F9EF18422E8506DE007B24D5 /* Build configuration list for PBXNativeTarget "CurtainCallUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F9EF18432E8506DE007B24D5 /* Debug */,
+				F9EF18442E8506DE007B24D5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F99A0D012E8D6C670095FF8E /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/realm-swift.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		F9B832592E9D21D40064B1D5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.4.0;
+			};
+		};
+		F9EF190A2E850FD9007B24D5 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.10.2;
+			};
+		};
+		F9EF19102E850FEE007B24D5 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
+		F9EF19132E851000007B24D5 /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ReactiveX/RxSwift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.9.0;
+			};
+		};
+		F9EF19182E85101F007B24D5 /* XCRemoteSwiftPackageReference "ParselyKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ParselyKit/ParselyKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F91BF51A2E9F4AF0001A80C1 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9B832592E9D21D40064B1D5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		F99A0D022E8D6C670095FF8E /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F99A0D012E8D6C670095FF8E /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
+		};
+		F9B8325A2E9D21D40064B1D5 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9B832592E9D21D40064B1D5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		F9B8325C2E9D21D40064B1D5 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9B832592E9D21D40064B1D5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		F9EF190B2E850FD9007B24D5 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9EF190A2E850FD9007B24D5 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		F9EF19112E850FEE007B24D5 /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9EF19102E850FEE007B24D5 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+		F9EF19142E851000007B24D5 /* RxCocoa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9EF19132E851000007B24D5 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxCocoa;
+		};
+		F9EF19162E851000007B24D5 /* RxSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9EF19132E851000007B24D5 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxSwift;
+		};
+		F9EF19192E85101F007B24D5 /* Parsely */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9EF19182E85101F007B24D5 /* XCRemoteSwiftPackageReference "ParselyKit" */;
+			productName = Parsely;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = F9EF18092E8506DC007B24D5 /* Project object */;
+}
