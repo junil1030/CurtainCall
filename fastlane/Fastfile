@@ -54,6 +54,17 @@ platform :ios do
 
   desc "Upload a new build to TestFlight"
   lane :beta do
+    # Get version from git tag (if available)
+    version = ENV["GITHUB_REF_NAME"] || last_git_tag
+    if version && version.start_with?("v")
+      version_number = version.delete_prefix("v")
+      increment_version_number(
+        version_number: version_number,
+        xcodeproj: "CurtainCall.xcodeproj"
+      )
+      UI.success("📝 Set version to: #{version_number}")
+    end
+
     # Increment build number
     increment_build_number(
       build_number: latest_testflight_build_number + 1,
