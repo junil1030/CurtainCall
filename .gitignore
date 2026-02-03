@@ -121,6 +121,7 @@ vendor/bundle/
 build/
 *.ipa
 test_output/
+derived_data/
 
 # Code Injection
 # After new code Injection tools there's a generated folder /iOSInjectionProject

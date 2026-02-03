@@ -37,15 +37,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gems-
 
-      - name: Cache Swift Package Manager
+      - name: Cache Swift Package Manager & Build
         uses: actions/cache@v4
         with:
           path: |
-            ~/Library/Developer/Xcode/DerivedData
-            .build
-          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+            ~/Library/Caches/org.swift.swiftpm
+            derived_data
+          key: ${{ runner.os }}-xcode-${{ hashFiles('**/Package.resolved', 'CurtainCall.xcodeproj/project.pbxproj') }}
           restore-keys: |
-            ${{ runner.os }}-spm-
+            ${{ runner.os }}-xcode-
 
       - name: Install Ruby dependencies
         run: |
