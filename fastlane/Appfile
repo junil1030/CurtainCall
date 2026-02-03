@@ -1,0 +1,16 @@
+# Appfile for CurtainCall
+
+# App identifier
+app_identifier("com.junil.CurtainCall")
+
+# Apple ID for App Store Connect
+apple_id(ENV["APPLE_ID"])
+
+# iTunes Connect Team ID
+itc_team_id(ENV["ITC_TEAM_ID"])
+
+# Developer Portal Team ID
+team_id("MWBS4R8DBQ")
+
+# For more information about the Appfile, see:
+# https://docs.fastlane.tools/advanced/#appfile

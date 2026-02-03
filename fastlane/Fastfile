@@ -1,0 +1,157 @@
+# Fastfile for CurtainCall iOS App
+
+default_platform(:ios)
+
+platform :ios do
+  # MARK: - Environment Setup
+
+  before_all do
+    setup_ci if ENV['CI']
+  end
+
+  # MARK: - Test Lanes
+
+  desc "Run all tests"
+  lane :test do
+    run_tests(
+      project: "CurtainCall.xcodeproj",
+      scheme: "CurtainCall",
+      device: "iPhone 15",
+      code_coverage: true,
+      output_directory: "./test_output",
+      buildlog_path: "./test_output/buildlogs"
+    )
+  end
+
+  # MARK: - Build Lanes
+
+  desc "Build the app for Debug"
+  lane :build do
+    build_app(
+      project: "CurtainCall.xcodeproj",
+      scheme: "CurtainCall",
+      configuration: "Debug",
+      skip_codesigning: true,
+      skip_archive: true,
+      clean: true
+    )
+  end
+
+  desc "Build the app for Release"
+  lane :build_release do
+    build_app(
+      project: "CurtainCall.xcodeproj",
+      scheme: "CurtainCall",
+      configuration: "Release",
+      export_method: "app-store",
+      clean: true,
+      output_directory: "./build",
+      output_name: "CurtainCall.ipa"
+    )
+  end
+
+  # MARK: - TestFlight Deployment
+
+  desc "Upload a new build to TestFlight"
+  lane :beta do
+    # Increment build number
+    increment_build_number(
+      build_number: latest_testflight_build_number + 1,
+      xcodeproj: "CurtainCall.xcodeproj"
+    )
+
+    # Build the app
+    build_app(
+      project: "CurtainCall.xcodeproj",
+      scheme: "CurtainCall",
+      configuration: "Release",
+      export_method: "app-store",
+      clean: true,
+      output_directory: "./build",
+      output_name: "CurtainCall.ipa"
+    )
+
+    # Upload to TestFlight
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      distribute_external: false,
+      notify_external_testers: false
+    )
+
+    # Commit build number increment
+    commit_version_bump(
+      message: "chore: Bump build number to #{lane_context[SharedValues::BUILD_NUMBER]}",
+      xcodeproj: "CurtainCall.xcodeproj"
+    )
+
+    push_to_git_remote(
+      tags: false
+    )
+  end
+
+  # MARK: - App Store Deployment
+
+  desc "Upload a new build to App Store"
+  lane :release do
+    # Increment version number if needed
+    # increment_version_number
+
+    # Increment build number
+    increment_build_number(
+      build_number: latest_testflight_build_number + 1,
+      xcodeproj: "CurtainCall.xcodeproj"
+    )
+
+    # Build the app
+    build_app(
+      project: "CurtainCall.xcodeproj",
+      scheme: "CurtainCall",
+      configuration: "Release",
+      export_method: "app-store",
+      clean: true,
+      output_directory: "./build",
+      output_name: "CurtainCall.ipa"
+    )
+
+    # Upload to App Store
+    upload_to_app_store(
+      skip_metadata: true,
+      skip_screenshots: true,
+      submit_for_review: false,
+      automatic_release: false
+    )
+
+    # Commit build number increment
+    commit_version_bump(
+      message: "chore: Bump build number to #{lane_context[SharedValues::BUILD_NUMBER]} for App Store",
+      xcodeproj: "CurtainCall.xcodeproj"
+    )
+
+    push_to_git_remote(
+      tags: false
+    )
+  end
+
+  # MARK: - Utility Lanes
+
+  desc "Download certificates and provisioning profiles"
+  lane :sync_certificates do
+    match(
+      type: "appstore",
+      readonly: true
+    )
+  end
+
+  desc "Register new devices"
+  lane :register_devices do
+    register_devices(
+      devices_file: "./fastlane/devices.txt"
+    )
+  end
+
+  # MARK: - Error Handling
+
+  error do |lane, exception|
+    UI.error("Error in lane #{lane}: #{exception.message}")
+  end
+end
