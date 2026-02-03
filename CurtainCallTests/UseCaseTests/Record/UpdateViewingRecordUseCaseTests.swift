@@ -179,7 +179,7 @@ final class UpdateViewingRecordUseCaseTests: XCTestCase {
     // MARK: - Tests - Error Handling
     func test_execute_whenRecordNotFound_returnsFailure() {
         // Given
-        let nonExistentId = ObjectId().stringValue
+        let nonExistentId = UUID().uuidString
         let updateInput = ViewingRecordUpdateInput(
             recordId: nonExistentId,
             viewingDate: Date(),

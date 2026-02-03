@@ -6,7 +6,6 @@
 //
 
 import XCTest
-import RealmSwift
 @testable import CurtainCall
 
 final class GetViewingRecordByIdUseCaseTests: XCTestCase {
@@ -126,7 +125,7 @@ final class GetViewingRecordByIdUseCaseTests: XCTestCase {
     // MARK: - Tests - Not Found Cases
     func test_execute_whenRecordNotFound_returnsNil() {
         // Given
-        let nonExistentId = ObjectId().stringValue
+        let nonExistentId = UUID().uuidString
 
         // When
         let result = sut.execute(nonExistentId)
@@ -148,7 +147,7 @@ final class GetViewingRecordByIdUseCaseTests: XCTestCase {
 
     func test_execute_whenRepositoryIsEmpty_returnsNil() {
         // Given
-        let anyId = ObjectId().stringValue
+        let anyId = UUID().uuidString
 
         // When
         let result = sut.execute(anyId)

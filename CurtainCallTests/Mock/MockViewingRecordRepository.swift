@@ -49,10 +49,9 @@ final class MockViewingRecordRepository: ViewingRecordRepositoryProtocol {
     }
 
     func getRecord(by id: String) -> ViewingRecord? {
-        guard let objectId = try? ObjectId(string: id) else {
-            return nil
-        }
-        return records[objectId.stringValue]
+        // Realm의 object(forPrimaryKey:) 동작을 시뮬레이션
+        // String으로 직접 검색 (Mock에서는 ObjectId 변환 불필요)
+        return records[id]
     }
 
     // MARK: - Update
@@ -105,10 +104,8 @@ final class MockViewingRecordRepository: ViewingRecordRepositoryProtocol {
         if shouldThrowError {
             throw errorToThrow
         }
-        guard let objectId = try? ObjectId(string: id) else {
-            return
-        }
-        records.removeValue(forKey: objectId.stringValue)
+        // String으로 직접 삭제 (Mock에서는 ObjectId 변환 불필요)
+        records.removeValue(forKey: id)
     }
 
     func deleteAllRecords() throws {
@@ -122,14 +119,17 @@ final class MockViewingRecordRepository: ViewingRecordRepositoryProtocol {
     func getStatistics() -> ViewingStatistics {
         return ViewingStatistics(
             totalCount: records.count,
-            genreCount: [:],
-            monthlyCount: [:],
-            averageRating: 0.0
+            averageRating: 0.0,
+            genreCount: [:]
         )
     }
 
     func getStatsByPeriod(from startDate: Date, to endDate: Date) -> PeriodStatistics {
-        return PeriodStatistics(totalCount: 0, totalHours: 0.0, averageRating: 0.0, favoriteGenre: nil)
+        return PeriodStatistics(
+            totalCount: 0,
+            averageRating: 0.0,
+            previousCount: 0
+        )
     }
 
     func getWeekdayStats(from startDate: Date, to endDate: Date) -> [WeekdayStats] {

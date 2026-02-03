@@ -124,6 +124,8 @@ final class CacheMetadataTests: XCTestCase {
         var metadata = CacheMetadata(
             url: "https://test.com",
             cachedDate: Date(),
+            lastValidated: Date(),
+            accessCount: 1,
             lastAccessTime: Date(), // 방금 접근
             targetSize: CGSize(width: 300, height: 450)
         )
@@ -146,8 +148,9 @@ final class CacheMetadataTests: XCTestCase {
         let metadata = CacheMetadata(
             url: "https://test.com",
             cachedDate: oldDate,
-            lastAccessTime: oldDate,
+            lastValidated: oldDate,
             accessCount: 1, // 접근 1회
+            lastAccessTime: oldDate,
             targetSize: CGSize(width: 300, height: 450)
         )
 
@@ -163,24 +166,24 @@ final class CacheMetadataTests: XCTestCase {
         let recentMetadata = CacheMetadata(
             url: "https://recent.com",
             cachedDate: Date(),
-            lastAccessTime: Date(),
+            lastValidated: Date(),
             accessCount: 1,
+            lastAccessTime: Date(),
             targetSize: CGSize(width: 300, height: 450)
         )
 
         // Given - 오래되었지만 접근 횟수 많음
         let oldDate = Date().addingTimeInterval(-5 * 24 * 60 * 60)
-        var oldMetadata = CacheMetadata(
+        // recordAccess()를 호출하지 않고 accessCount만 높게 설정
+        // (recordAccess()는 lastAccessTime을 현재로 업데이트하므로)
+        let oldMetadata = CacheMetadata(
             url: "https://old.com",
             cachedDate: oldDate,
-            lastAccessTime: oldDate,
-            accessCount: 1,
+            lastValidated: oldDate,
+            accessCount: 50, // 높은 접근 횟수
+            lastAccessTime: oldDate, // 오래된 접근 시간 유지
             targetSize: CGSize(width: 300, height: 450)
         )
-
-        for _ in 1...50 {
-            oldMetadata.recordAccess()
-        }
 
         // When
         let recentScore = recentMetadata.calculateScore(maxAccessCount: 50)
