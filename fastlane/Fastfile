@@ -57,6 +57,17 @@ platform :ios do
 
   desc "Upload a new build to TestFlight"
   lane :beta do
+    # Import certificate and provisioning profile
+    import_certificate(
+      certificate_path: ENV["P12_PATH"],
+      certificate_password: ENV["P12_PASSWORD"],
+      keychain_name: "signing_temp.keychain"
+    )
+
+    install_provisioning_profile(
+      path: ENV["PROFILE_PATH"]
+    )
+
     # Get version from git tag (if available)
     version = ENV["GITHUB_REF_NAME"] || last_git_tag
     if version && version.start_with?("v")
