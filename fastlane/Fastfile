@@ -107,6 +107,7 @@ platform :ios do
       output_directory: "./build",
       output_name: "CurtainCall.ipa",
       buildlog_path: "./build/logs",
+      xcargs: "PROVISIONING_PROFILE_SPECIFIER_APP='CurtainCall_AppStore' PROVISIONING_PROFILE_SPECIFIER_WIDGET='CurtainCall_Widget_AppStore' -allowProvisioningUpdates",
       export_options: {
         provisioningProfiles: {
           "com.junil.CurtainCall" => "CurtainCall_AppStore",
