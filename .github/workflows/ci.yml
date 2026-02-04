@@ -45,19 +45,12 @@ jobs:
 
       - name: Create Secrets.xcconfig
         run: |
-          cat > CurtainCall/Application/Secrets.xcconfig << EOF
-          KOPIS_API_KEY = ${{ secrets.KOPIS_API_KEY }}
-          KOPIS_BASE_URL = http:/\$()/www.kopis.or.kr/openApi/restful
-          EOF
+          printf 'KOPIS_API_KEY = %s\nKOPIS_BASE_URL = http:/$()/www.kopis.or.kr/openApi/restful\n' "$KOPIS_API_KEY" > CurtainCall/Application/Secrets.xcconfig
         env:
           KOPIS_API_KEY: ${{ secrets.KOPIS_API_KEY }}
 
       - name: Run tests with Fastlane
         run: bundle exec fastlane test
-
-      - name: Find xcresult files
-        if: always()
-        run: find . -name "*.xcresult" -type d 2>/dev/null || echo "No xcresult found"
 
       - name: Upload test results
         if: always()

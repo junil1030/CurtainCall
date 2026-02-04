@@ -66,6 +66,13 @@ platform :ios do
       path: ENV["PROFILE_PATH"]
     )
 
+    # App Store Connect API Key
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_API_ISSUER_ID"],
+      key: ENV["APP_STORE_CONNECT_API_KEY_PATH"]
+    )
+
     # Get version from git tag (if available)
     version = ENV["GITHUB_REF_NAME"] || last_git_tag
     if version && version.start_with?("v")
@@ -116,8 +123,23 @@ platform :ios do
 
   desc "Upload a new build to App Store"
   lane :release do
-    # Increment version number if needed
-    # increment_version_number
+    # Import certificate and provisioning profile
+    import_certificate(
+      certificate_path: ENV["P12_PATH"],
+      certificate_password: ENV["P12_PASSWORD"],
+      keychain_name: "fastlane_tmp_keychain"
+    )
+
+    install_provisioning_profile(
+      path: ENV["PROFILE_PATH"]
+    )
+
+    # App Store Connect API Key
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_API_ISSUER_ID"],
+      key: ENV["APP_STORE_CONNECT_API_KEY_PATH"]
+    )
 
     # Increment build number
     increment_build_number(
