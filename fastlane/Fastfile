@@ -82,13 +82,15 @@ platform :ios do
 
     # Get version from git tag (if available)
     version = ENV["GITHUB_REF_NAME"] || last_git_tag
-    if version && version.start_with?("v")
-      version_number = version.delete_prefix("v")
-      increment_version_number(
-        version_number: version_number,
-        xcodeproj: "CurtainCall.xcodeproj"
-      )
-      UI.success("📝 Set version to: #{version_number}")
+    if version
+      version_number = version.delete_prefix("v")  # v가 있으면 제거, 없으면 그대로
+      if version_number =~ /^\d+\.\d+\.\d+$/  # 버전 형식 확인 (예: 2.5.1)
+        increment_version_number(
+          version_number: version_number,
+          xcodeproj: "CurtainCall.xcodeproj"
+        )
+        UI.success("📝 Set version to: #{version_number}")
+      end
     end
 
     # Increment build number
