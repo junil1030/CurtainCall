@@ -535,7 +535,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.5.0;
+				MARKETING_VERSION = 2.5.1;
 				OTHER_LDFLAGS = "-objc";
 				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCall;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -578,7 +578,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.5.0;
+				MARKETING_VERSION = 2.5.1;
 				OTHER_LDFLAGS = "-objc";
 				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCall;
 				PRODUCT_NAME = "$(TARGET_NAME)";
