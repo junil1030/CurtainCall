@@ -23,12 +23,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Show available Xcode versions
-        run: ls /Applications | grep Xcode
-
-      - name: Show default Xcode version
-        run: xcodebuild -version
-
       - name: Cache Ruby gems
         uses: actions/cache@v4
         with:
