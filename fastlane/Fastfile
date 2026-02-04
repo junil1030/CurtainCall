@@ -59,7 +59,7 @@ platform :ios do
     import_certificate(
       certificate_path: ENV["P12_PATH"],
       certificate_password: ENV["P12_PASSWORD"],
-      keychain_name: "signing_temp.keychain"
+      keychain_name: "fastlane_tmp_keychain"
     )
 
     install_provisioning_profile(
