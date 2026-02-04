@@ -105,7 +105,9 @@ platform :ios do
       derived_data_path: "./derived_data",
       export_method: "app-store",
       output_directory: "./build",
-      output_name: "CurtainCall.ipa"
+      output_name: "CurtainCall.ipa",
+      buildlog_path: "./build/logs",
+      xcargs: "-allowProvisioningUpdates"
     )
 
     # Upload to TestFlight
