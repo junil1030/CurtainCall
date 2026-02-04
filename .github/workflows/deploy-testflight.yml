@@ -64,7 +64,9 @@ jobs:
         run: |
           echo "${{ secrets.APPLE_CERTIFICATE_P12 }}" | base64 --decode > certificate.p12
           echo "${{ secrets.PROVISIONING_PROFILE }}" | base64 --decode > profile.mobileprovision
-          echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" | base64 --decode > api_key.p8
+          printf '%s' "$APP_STORE_CONNECT_API_KEY" > api_key.p8
+        env:
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
 
       - name: Run tests
         if: github.event.inputs.skip_tests != 'true'
