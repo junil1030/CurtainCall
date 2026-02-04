@@ -80,17 +80,34 @@ platform :ios do
       key_content: ENV["APP_STORE_CONNECT_API_KEY_CONTENT"]
     )
 
-    # Get version from git tag (if available)
+    # Get version from git tag or input
     version = ENV["GITHUB_REF_NAME"] || last_git_tag
+    UI.message("🔍 GITHUB_REF_NAME: #{ENV['GITHUB_REF_NAME']}")
+    UI.message("🔍 Raw version value: #{version}")
+
     if version
-      version_number = version.delete_prefix("v")  # v가 있으면 제거, 없으면 그대로
-      if version_number =~ /^\d+\.\d+\.\d+$/  # 버전 형식 확인 (예: 2.5.1)
+      version_number = version.delete_prefix("v")
+      UI.message("🔍 Version number after processing: #{version_number}")
+
+      if version_number =~ /^\d+\.\d+\.\d+$/
+        UI.success("📝 Setting version to: #{version_number}")
         increment_version_number(
           version_number: version_number,
           xcodeproj: "CurtainCall.xcodeproj"
         )
-        UI.success("📝 Set version to: #{version_number}")
+
+        # 위젯도 같은 버전으로 업데이트
+        increment_version_number(
+          version_number: version_number,
+          xcodeproj: "CurtainCall.xcodeproj",
+          target: "CurtainCallWidgetExtension"
+        )
+        UI.success("Version updated to: #{version_number}")
+      else
+        UI.error("Invalid version format: #{version_number}")
       end
+    else
+      UI.error("No version provided!")
     end
 
     # Increment build number
