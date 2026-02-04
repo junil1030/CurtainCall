@@ -112,15 +112,9 @@ platform :ios do
       notify_external_testers: false
     )
 
-    # Commit build number increment
-    commit_version_bump(
-      message: "chore: Bump build number to #{lane_context[SharedValues::BUILD_NUMBER]}",
-      xcodeproj: "CurtainCall.xcodeproj"
-    )
-
-    push_to_git_remote(
-      tags: false
-    )
+    # 빌드 번호는 latest_testflight_build_number + 1로 자동 계산되므로
+    # 커밋할 필요 없음
+    UI.success("✅ Successfully uploaded to TestFlight!")
   end
 
   # MARK: - App Store Deployment
@@ -177,15 +171,7 @@ platform :ios do
       automatic_release: false
     )
 
-    # Commit build number increment
-    commit_version_bump(
-      message: "chore: Bump build number to #{lane_context[SharedValues::BUILD_NUMBER]} for App Store",
-      xcodeproj: "CurtainCall.xcodeproj"
-    )
-
-    push_to_git_remote(
-      tags: false
-    )
+    UI.success("✅ Successfully uploaded to App Store!")
   end
 
   # MARK: - Utility Lanes
