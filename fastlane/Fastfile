@@ -107,7 +107,7 @@ platform :ios do
       output_directory: "./build",
       output_name: "CurtainCall.ipa",
       buildlog_path: "./build/logs",
-      xcargs: "-allowProvisioningUpdates"
+      xcargs: "CODE_SIGN_STYLE=Manual"
     )
 
     # Upload to TestFlight
