@@ -34,8 +34,7 @@ platform :ios do
       configuration: "Debug",
       derived_data_path: "./derived_data",
       skip_codesigning: true,
-      skip_archive: true,
-      clean: true
+      skip_archive: true
     )
   end
 
@@ -47,7 +46,6 @@ platform :ios do
       configuration: "Release",
       derived_data_path: "./derived_data",
       export_method: "app-store",
-      clean: true,
       output_directory: "./build",
       output_name: "CurtainCall.ipa"
     )
@@ -92,7 +90,6 @@ platform :ios do
       configuration: "Release",
       derived_data_path: "./derived_data",
       export_method: "app-store",
-      clean: true,
       output_directory: "./build",
       output_name: "CurtainCall.ipa"
     )
@@ -135,7 +132,6 @@ platform :ios do
       configuration: "Release",
       derived_data_path: "./derived_data",
       export_method: "app-store",
-      clean: true,
       output_directory: "./build",
       output_name: "CurtainCall.ipa"
     )
