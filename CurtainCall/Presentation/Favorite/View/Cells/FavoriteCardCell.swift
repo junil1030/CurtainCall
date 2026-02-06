@@ -8,6 +8,7 @@
 import UIKit
 import RxSwift
 import SnapKit
+import CachingKit
 
 protocol FavoriteCardCellDelegate: AnyObject {
     func favoriteCardCell(_ cell: FavoriteCardCell, didTapFavoriteButton performanceID: String)
@@ -163,9 +164,10 @@ final class FavoriteCardCell: BaseCollectionViewCell {
         
         // 포스터 이미지 로드
         if let url = data.imageURL.safeImageURL {
-            posterImageView.setImage(with: url,
-                                     placeholder: UIImage(systemName: "photo"),
-                                     cacheStrategy: .both
+            posterImageView.ck_setImage(
+                with: url,
+                placeholder: UIImage(systemName: "photo"),
+                cacheStrategy: .both
             )
         } else {
             posterImageView.image = UIImage(systemName: "photo.circle")?

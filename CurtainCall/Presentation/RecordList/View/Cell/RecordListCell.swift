@@ -8,6 +8,7 @@
 import UIKit
 import RxSwift
 import SnapKit
+import CachingKit
 
 final class RecordListCell: BaseCollectionViewCell {
     
@@ -202,9 +203,10 @@ final class RecordListCell: BaseCollectionViewCell {
     func configure(with record: ViewingRecordDTO) {
         // 포스터 이미지
         if let posterURL = record.posterURL, let url = posterURL.safeImageURL {
-            posterImageView.setImage(with: url,
-                                     placeholder: UIImage(systemName: "photo"),
-                                     cacheStrategy: .diskOnly
+            posterImageView.ck_setImage(
+                with: url,
+                placeholder: UIImage(systemName: "photo"),
+                cacheStrategy: .diskOnly
             )
         } else {
             posterImageView.image = UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal)

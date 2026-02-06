@@ -60,7 +60,7 @@ final class DetailView: BaseView {
             collectionView: collectionView
         ) { [weak self] collectionView, indexPath, item in
             guard let self = self else { return UICollectionViewCell() }
-            
+
             switch item {
             case .poster(let url):
                 let cell = collectionView.dequeueReusableCell(
@@ -69,21 +69,21 @@ final class DetailView: BaseView {
                 ) as! PosterCell
                 cell.configure(with: url)
                 return cell
-                
+
             case .tabContent(let detail):
                 let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: DetailTabContentCell.identifier,
                     for: indexPath
                 ) as! DetailTabContentCell
                 cell.configure(with: detail)
-                
+
                 // 예매 버튼 탭 이벤트 전달
                 cell.bookingSiteSelected
                     .bind(to: self.bookingSiteTappedSubject)
                     .disposed(by: cell.disposeBag)
-                
+
                 return cell
-                
+
             case .detailPoster(let url):
                 let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: DetailPosterCell.identifier,
@@ -93,6 +93,24 @@ final class DetailView: BaseView {
                 return cell
             }
         }
+
+        // 섹션 헤더 설정
+        dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
+            guard kind == UICollectionView.elementKindSectionHeader,
+                  let section = DetailSection(rawValue: indexPath.section),
+                  section == .detailPoster else {
+                return nil
+            }
+
+            let header = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind,
+                withReuseIdentifier: DetailPosterHeaderView.identifier,
+                for: indexPath
+            ) as! DetailPosterHeaderView
+
+            return header
+        }
+
         return dataSource
     }()
     
@@ -126,6 +144,11 @@ final class DetailView: BaseView {
         collectionView.register(PosterCell.self, forCellWithReuseIdentifier: PosterCell.identifier)
         collectionView.register(DetailTabContentCell.self, forCellWithReuseIdentifier: DetailTabContentCell.identifier)
         collectionView.register(DetailPosterCell.self, forCellWithReuseIdentifier: DetailPosterCell.identifier)
+        collectionView.register(
+            DetailPosterHeaderView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: DetailPosterHeaderView.identifier
+        )
     }
      
     private func bindActions() {
@@ -229,19 +252,33 @@ extension DetailView {
     private static func createDetailPosterSection() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(400)
+            heightDimension: .estimated(300)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
+
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(400)
+            heightDimension: .estimated(300)
         )
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+
         let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = 16
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 10, trailing: 20)
+        // 패딩 없이 붙여서 하나의 이미지처럼 보이게
+        section.interGroupSpacing = 0
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
+
+        // 섹션 헤더 (상세 정보 타이틀)
+        let headerSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .absolute(44)
+        )
+        let header = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: headerSize,
+            elementKind: UICollectionView.elementKindSectionHeader,
+            alignment: .top
+        )
+        section.boundarySupplementaryItems = [header]
+
         return section
     }
 }

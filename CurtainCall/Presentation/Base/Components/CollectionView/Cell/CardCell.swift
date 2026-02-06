@@ -8,6 +8,7 @@
 import UIKit
 import RxSwift
 import SnapKit
+import CachingKit
 
 final class CardCell: BaseCollectionViewCell {
     
@@ -146,9 +147,10 @@ final class CardCell: BaseCollectionViewCell {
         
         // 포스터 이미지 로드
         if let url = data.imageURL.safeImageURL {
-            posterImageView.setImage(with: url,
-                                     placeholder: UIImage(systemName: "photo"),
-                                     cacheStrategy: .both
+            posterImageView.ck_setImage(
+                with: url,
+                placeholder: UIImage(systemName: "photo"),
+                cacheStrategy: .both
             )
         }
         

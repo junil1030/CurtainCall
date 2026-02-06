@@ -8,6 +8,7 @@
 import UIKit
 import RxSwift
 import SnapKit
+import CachingKit
 
 final class SearchResultCell: BaseCollectionViewCell {
     
@@ -120,9 +121,10 @@ final class SearchResultCell: BaseCollectionViewCell {
         
         // 포스터 이미지 로드
         if let url = result.posterURL.safeImageURL {
-            posterImageView.setImage(with: url,
-                                     placeholder: UIImage(systemName: "photo"),
-                                     cacheStrategy: .memoryOnly
+            posterImageView.ck_setImage(
+                with: url,
+                placeholder: UIImage(systemName: "photo"),
+                cacheStrategy: .memoryOnly
             )
         } else {
             posterImageView.image = UIImage(systemName: "photo")?

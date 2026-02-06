@@ -8,6 +8,7 @@
 import UIKit
 import RxSwift
 import SnapKit
+import CachingKit
 
 final class PosterCell: BaseCollectionViewCell {
     
@@ -90,14 +91,16 @@ final class PosterCell: BaseCollectionViewCell {
     
     func configure(with url: String) {
         if let imageURL = url.safeImageURL {
-            backgroundImageView.setImage(with: imageURL,
-                                     placeholder: UIImage(systemName: "photo"),
-                                     cacheStrategy: .memoryOnly
+            backgroundImageView.ck_setImage(
+                with: imageURL,
+                placeholder: UIImage(systemName: "photo"),
+                cacheStrategy: .memoryOnly
             )
-            
-            posterImageView.setImage(with: imageURL,
-                                     placeholder: UIImage(systemName: "photo"),
-                                     cacheStrategy: .memoryOnly
+
+            posterImageView.ck_setImage(
+                with: imageURL,
+                placeholder: UIImage(systemName: "photo"),
+                cacheStrategy: .memoryOnly
             )
         }
     }

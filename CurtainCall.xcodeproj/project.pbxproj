@@ -20,6 +20,7 @@
 		F9EF19152E851000007B24D5 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = F9EF19142E851000007B24D5 /* RxCocoa */; };
 		F9EF19172E851000007B24D5 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F9EF19162E851000007B24D5 /* RxSwift */; };
 		F9EF191A2E85101F007B24D5 /* Parsely in Frameworks */ = {isa = PBXBuildFile; productRef = F9EF19192E85101F007B24D5 /* Parsely */; };
+		F9F3764B2F36237B00FED36B /* CachingKit in Frameworks */ = {isa = PBXBuildFile; productRef = F9F3764A2F36237B00FED36B /* CachingKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -156,6 +157,7 @@
 				F9B8325D2E9D21D40064B1D5 /* FirebaseMessaging in Frameworks */,
 				F9EF19122E850FEE007B24D5 /* SnapKit in Frameworks */,
 				F9B8325B2E9D21D40064B1D5 /* FirebaseAnalytics in Frameworks */,
+				F9F3764B2F36237B00FED36B /* CachingKit in Frameworks */,
 				F99A0D032E8D6C670095FF8E /* RealmSwift in Frameworks */,
 				F9EF19172E851000007B24D5 /* RxSwift in Frameworks */,
 				F9EF191A2E85101F007B24D5 /* Parsely in Frameworks */,
@@ -265,6 +267,7 @@
 				F9B8325A2E9D21D40064B1D5 /* FirebaseAnalytics */,
 				F9B8325C2E9D21D40064B1D5 /* FirebaseMessaging */,
 				F91BF51A2E9F4AF0001A80C1 /* FirebaseCrashlytics */,
+				F9F3764A2F36237B00FED36B /* CachingKit */,
 			);
 			productName = CurtainCall;
 			productReference = F9EF18112E8506DC007B24D5 /* CurtainCall.app */;
@@ -332,6 +335,7 @@
 				F9EF19182E85101F007B24D5 /* XCRemoteSwiftPackageReference "ParselyKit" */,
 				F99A0D012E8D6C670095FF8E /* XCRemoteSwiftPackageReference "realm-swift" */,
 				F9B832592E9D21D40064B1D5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				F9F376492F36237B00FED36B /* XCLocalSwiftPackageReference "../CachingKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F9EF18122E8506DC007B24D5 /* Products */;
@@ -535,7 +539,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.5.1;
+				MARKETING_VERSION = 2.5.2;
 				OTHER_LDFLAGS = "-objc";
 				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCall;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -578,7 +582,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.5.1;
+				MARKETING_VERSION = 2.5.2;
 				OTHER_LDFLAGS = "-objc";
 				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCall;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -809,6 +813,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		F9F376492F36237B00FED36B /* XCLocalSwiftPackageReference "../CachingKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../CachingKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		F99A0D012E8D6C670095FF8E /* XCRemoteSwiftPackageReference "realm-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -905,6 +916,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F9EF19182E85101F007B24D5 /* XCRemoteSwiftPackageReference "ParselyKit" */;
 			productName = Parsely;
+		};
+		F9F3764A2F36237B00FED36B /* CachingKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CachingKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

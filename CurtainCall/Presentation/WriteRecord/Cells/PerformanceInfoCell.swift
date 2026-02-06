@@ -8,6 +8,7 @@
 import UIKit
 import RxSwift
 import SnapKit
+import CachingKit
 
 final class PerformanceInfoCell: BaseCollectionViewCell {
     
@@ -125,9 +126,10 @@ final class PerformanceInfoCell: BaseCollectionViewCell {
         dateLabel.text = dateInfo
         
         if let posterURL = detail.posterURL, let url = posterURL.safeImageURL {
-            posterImageView.setImage(with: url,
-                                     placeholder: UIImage(systemName: "photo"),
-                                     cacheStrategy: .both
+            posterImageView.ck_setImage(
+                with: url,
+                placeholder: UIImage(systemName: "photo"),
+                cacheStrategy: .both
             )
         } else {
             posterImageView.image = UIImage(systemName: "photo.circle")?.withTintColor(.ccPrimary, renderingMode: .alwaysOriginal)
