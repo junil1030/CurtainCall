@@ -8,142 +8,96 @@
 import UIKit
 import SnapKit
 import RxSwift
+import CachingKit
 
 final class DetailPosterCell: BaseCollectionViewCell {
-    
+
     // MARK: - Properties
-    private var disposeBag = DisposeBag()
-    private var isExpanded = false
-    private var imageHeight: CGFloat = 0
-    private let collapsedHeight: CGFloat = 300
-    
+    private var imageAspectRatio: CGFloat = 1.0
+    private var currentURL: String?
+
     // MARK: - UI Components
-    private let containerView = UIView()
-    
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "상세 정보"
-        label.font = .ccHeadlineBold
-        label.textColor = .ccPrimaryText
-        return label
-    }()
-    
     private let posterImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
         imageView.backgroundColor = .systemGray6
         return imageView
     }()
-    
-    private lazy var toggleButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("펼쳐보기", for: .normal)
-        button.setTitleColor(.ccPrimary, for: .normal)
-        button.titleLabel?.font = .ccCallout
-        button.addTarget(self, action: #selector(toggleExpanded), for: .touchUpInside)
-        return button
-    }()
-    
+
     override func prepareForReuse() {
         super.prepareForReuse()
-        disposeBag = DisposeBag()
         posterImageView.image = nil
-        isExpanded = false
-        posterImageView.snp.updateConstraints { make in
-            make.height.equalTo(collapsedHeight)
-        }
+        posterImageView.ck_cancelImageLoad()
+        imageAspectRatio = 1.0
+        currentURL = nil
     }
-    
+
     override func setupHierarchy() {
         super.setupHierarchy()
-        
-        contentView.addSubview(containerView)
-        
-        [titleLabel, posterImageView, toggleButton].forEach {
-            containerView.addSubview($0)
-        }
+        contentView.addSubview(posterImageView)
     }
-    
+
     override func setupLayout() {
         super.setupLayout()
-        
-        containerView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
-            make.bottom.lessThanOrEqualToSuperview()
-        }
-        
-        titleLabel.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
-        }
-        
+
         posterImageView.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(12)
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(collapsedHeight)
-        }
-        
-        toggleButton.snp.makeConstraints { make in
-            make.top.equalTo(posterImageView.snp.bottom).offset(12)
-            make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview()
+            make.edges.equalToSuperview()
         }
     }
-    
+
+    // MARK: - Self-Sizing Support
+    override func preferredLayoutAttributesFitting(
+        _ layoutAttributes: UICollectionViewLayoutAttributes
+    ) -> UICollectionViewLayoutAttributes {
+        let attributes = super.preferredLayoutAttributesFitting(layoutAttributes)
+
+        // 너비는 고정, 높이는 이미지 비율에 따라 계산
+        let width = layoutAttributes.frame.width
+        let height = width / imageAspectRatio
+
+        attributes.frame.size = CGSize(width: width, height: height)
+        return attributes
+    }
+
+    // MARK: - Configure
     func configure(with url: String) {
-        if let imageURL = url.safeImageURL {
-            // placeholder 설정
-            posterImageView.image = UIImage(systemName: "photo")
+        currentURL = url
 
-            // CustomImageCache를 사용하여 이미지 로드
-            Task { @MainActor in
-                let screenWidth = UIScreen.main.bounds.width - 40
-                let targetSize = CGSize(width: screenWidth, height: screenWidth * 4/3) // 대략적인 크기
+        guard let imageURL = url.safeImageURL else { return }
 
-                if let loadedImage = await CustomImageCache.shared.loadImage(
-                    url: imageURL,
-                    targetSize: targetSize,
-                    cacheStrategy: .both
-                ) {
-                    // 이미지 크기 계산
-                    let calculatedHeight = loadedImage.size.height * screenWidth / loadedImage.size.width
-                    self.imageHeight = calculatedHeight
+        // placeholder 설정
+        posterImageView.image = UIImage(systemName: "photo")
 
-                    // 이미지 설정
-                    self.posterImageView.image = loadedImage
+        // CachingKit을 사용하여 이미지 로드
+        Task { @MainActor in
+            // 현재 셀이 재사용되어 다른 URL을 로드 중인지 확인
+            guard self.currentURL == url else { return }
 
-                    // expanded 상태라면 로드 직후 반영
-                    if self.isExpanded {
-                        self.posterImageView.snp.updateConstraints { make in
-                            make.height.equalTo(self.imageHeight)
-                        }
-                        self.superview?.layoutIfNeeded()
-                    }
+            let screenWidth = UIScreen.main.bounds.width
+            // 세로로 긴 이미지를 고려하여 충분한 높이 설정
+            let targetSize = CGSize(width: screenWidth, height: screenWidth * 3)
+
+            if let loadedImage = await CachingKit.shared.loadImage(
+                url: imageURL,
+                targetSize: targetSize,
+                cacheStrategy: .both
+            ) {
+                // 재사용 체크
+                guard self.currentURL == url else { return }
+
+                // 이미지 비율 계산 (width / height)
+                self.imageAspectRatio = loadedImage.size.width / loadedImage.size.height
+
+                // 이미지 설정
+                self.posterImageView.image = loadedImage
+
+                // 셀 크기 재계산 요청
+                self.invalidateIntrinsicContentSize()
+                if let collectionView = self.superview as? UICollectionView {
+                    collectionView.collectionViewLayout.invalidateLayout()
                 }
             }
-        }
-    }
-    
-    @objc private func toggleExpanded() {
-        isExpanded.toggle()
-        
-        let newHeight = isExpanded ? imageHeight : collapsedHeight
-        let buttonTitle = isExpanded ? "접기" : "펼쳐보기"
-        
-        posterImageView.snp.updateConstraints { make in
-            make.height.equalTo(newHeight)
-        }
-        
-        UIView.animate(withDuration: 0.3) { [weak self] in
-            guard let self = self else { return }
-            self.toggleButton.setTitle(buttonTitle, for: .normal)
-            self.contentView.setNeedsLayout()
-            self.superview?.layoutIfNeeded()
-        }
-        
-        if let collectionView = self.superview as? UICollectionView {
-            collectionView.performBatchUpdates(nil)
-            collectionView.collectionViewLayout.invalidateLayout()
         }
     }
 }
