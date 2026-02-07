@@ -1,5 +1,5 @@
 {
-  "originHash" : "033e42279360e10794243855991aab4001a27599e96d551c5df0c5c1069a2745",
+  "originHash" : "c8ac791d083cd70e9bb9220c102200bf41c8d37a3be63456c6f9c4b06176f13a",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -26,6 +26,15 @@
       "state" : {
         "revision" : "61b85103a1aeed8218f17c794687781505fbbef5",
         "version" : "11.2.0"
+      }
+    },
+    {
+      "identity" : "cachingkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/junil1030/CachingKit.git",
+      "state" : {
+        "revision" : "eacbbb8322b0a0faf4f82e989f1a938c526be8da",
+        "version" : "1.2.0"
       }
     },
     {

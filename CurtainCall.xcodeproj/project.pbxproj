@@ -335,7 +335,7 @@
 				F9EF19182E85101F007B24D5 /* XCRemoteSwiftPackageReference "ParselyKit" */,
 				F99A0D012E8D6C670095FF8E /* XCRemoteSwiftPackageReference "realm-swift" */,
 				F9B832592E9D21D40064B1D5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				F9F376492F36237B00FED36B /* XCLocalSwiftPackageReference "../CachingKit" */,
+				F9F376492F36237B00FED36B /* XCRemoteSwiftPackageReference "CachingKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F9EF18122E8506DC007B24D5 /* Products */;
@@ -813,14 +813,15 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		F9F376492F36237B00FED36B /* XCLocalSwiftPackageReference "../CachingKit" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../CachingKit;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
+		F9F376492F36237B00FED36B /* XCRemoteSwiftPackageReference "CachingKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/junil1030/CachingKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
 		F99A0D012E8D6C670095FF8E /* XCRemoteSwiftPackageReference "realm-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/realm/realm-swift.git";
@@ -919,6 +920,7 @@
 		};
 		F9F3764A2F36237B00FED36B /* CachingKit */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = F9F376492F36237B00FED36B /* XCRemoteSwiftPackageReference "CachingKit" */;
 			productName = CachingKit;
 		};
 /* End XCSwiftPackageProductDependency section */
