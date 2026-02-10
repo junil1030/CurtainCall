@@ -132,8 +132,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ParselyKit/ParselyKit.git",
       "state" : {
-        "revision" : "191f847fae53b9d3e9e6b90feda13628d065782e",
-        "version" : "1.1.2"
+        "revision" : "cafa5719e1c20ad7c96378d170a3347bb27f8612",
+        "version" : "1.0.0"
       }
     },
     {
