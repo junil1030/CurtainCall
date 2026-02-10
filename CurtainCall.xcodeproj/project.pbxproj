@@ -456,7 +456,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.5.1;
+				MARKETING_VERSION = 2.5.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCall.CurtainCallWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -494,7 +494,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.5.1;
+				MARKETING_VERSION = 2.5.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.junil.CurtainCall.CurtainCallWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
