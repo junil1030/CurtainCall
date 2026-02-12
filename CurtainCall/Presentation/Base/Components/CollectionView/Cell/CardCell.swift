@@ -16,6 +16,7 @@ final class CardCell: BaseCollectionViewCell {
     private var disposeBag = DisposeBag()
     private var currentPerformanceID: String?
     private var isInitialLayoutCompleted = false
+    private var imageLoadTask: Task<Void, Never>?
     
     // MARK: - UI Components
     private let posterImageView: UIImageView = {
@@ -84,6 +85,9 @@ final class CardCell: BaseCollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         disposeBag = DisposeBag()
+        imageLoadTask?.cancel()
+        imageLoadTask = nil
+        posterImageView.removeSkeletonShimmer()
         posterImageView.image = nil
         titleLabel.text = nil
         subtitleLabel.text = nil
@@ -95,14 +99,16 @@ final class CardCell: BaseCollectionViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        
+
         let cardHeight = bounds.height
         let fontSize = cardHeight / 6
         rankLabel.font = .nanumSquare(size: fontSize, isBold: true)
-        
+
+        posterImageView.updateSkeletonFrame()
+
         if !isInitialLayoutCompleted {
             isInitialLayoutCompleted = true
-            
+
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 self.posterImageView.addBottomGradient()
@@ -144,16 +150,39 @@ final class CardCell: BaseCollectionViewCell {
         subtitleLabel.text = data.subtitle
         rankLabel.text = data.badge
         periodLabel.text = data.period
-        
+
+        // 이전 이미지 로드 취소
+        imageLoadTask?.cancel()
+        posterImageView.image = nil
+
+        // 스켈레톤 시작
+        posterImageView.showSkeletonShimmer()
+
         // 포스터 이미지 로드
         if let url = data.imageURL.safeImageURL {
-            posterImageView.ck_setImage(
-                with: url,
-                placeholder: UIImage(systemName: "photo"),
-                cacheStrategy: .both
-            )
+            let performanceID = data.id
+            let targetSize = posterImageView.bounds.size.width > 0
+                ? posterImageView.bounds.size
+                : CGSize(width: 300, height: 400)
+
+            imageLoadTask = Task { @MainActor [weak self] in
+                guard !Task.isCancelled else { return }
+
+                let image = await CachingKit.shared.loadImage(
+                    url: url,
+                    targetSize: targetSize,
+                    cacheStrategy: .both
+                )
+
+                guard !Task.isCancelled,
+                      let self,
+                      self.currentPerformanceID == performanceID else { return }
+
+                self.posterImageView.removeSkeletonShimmer()
+                self.posterImageView.image = image
+            }
         }
-        
+
         if !isInitialLayoutCompleted {
             layoutIfNeeded()
         }
