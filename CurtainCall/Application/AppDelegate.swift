@@ -12,8 +12,14 @@ import FirebaseMessaging
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    
+    private var isRunningTests: Bool {
+        ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // Unit test 실행 시에는 앱 초기화 부작용(Firebase/APNs/LiveActivity)을 비활성화한다.
+        guard !isRunningTests else { return true }
 
         configureRealm()
         configureFirebase()

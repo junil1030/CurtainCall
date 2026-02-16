@@ -11,6 +11,10 @@ import RealmSwift
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    
+    private var isRunningTests: Bool {
+        ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    }
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -30,7 +34,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
 
         #if DEBUG
-        seedDummyViewingRecordsIfNeeded()
+        if !isRunningTests {
+            seedDummyViewingRecordsIfNeeded()
+        }
         #endif
     }
 
@@ -194,4 +200,3 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         return text.replacingOccurrences(of: "\\([^)]*\\)", with: "", options: .regularExpression)
     }
 }
-
