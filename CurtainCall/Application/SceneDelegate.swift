@@ -21,6 +21,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
 
+        // Unit test host 앱 실행 시 네트워크/DI 초기화 부작용을 차단한다.
+        if isRunningTests {
+            window?.rootViewController = UIViewController()
+            window?.makeKeyAndVisible()
+            return
+        }
+
         let mainTabBarController = MainTabBarController()
         window?.rootViewController = mainTabBarController
         window?.makeKeyAndVisible()

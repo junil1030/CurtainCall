@@ -46,6 +46,12 @@ jobs:
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3
 
+      - name: Verify KOPIS secrets injection
+        env:
+          KOPIS_API_KEY: ${{ secrets.KOPIS_API_KEY }}
+          KOPIS_BASE_URL: https://www.kopis.or.kr/openApi/restful/
+        run: bundle exec fastlane verify_secrets
+
       - name: Run tests with Fastlane
         env:
           KOPIS_API_KEY: ${{ secrets.KOPIS_API_KEY }}
