@@ -104,6 +104,13 @@ final class HomeViewController: BaseViewController {
                  owner.homeView.scrollToFirstCard()
              }
              .disposed(by: disposeBag)
+
+        output.error
+            .emit(with: self) { owner, error in
+                let message = "박스오피스 정보를 불러오지 못했습니다.\n\(error.localizedDescription)"
+                owner.showToast(message: message, type: .error)
+            }
+            .disposed(by: disposeBag)
         
         // 로딩 상태 처리 (추후 로딩 인디케이터 추가 시 사용)
         output.isLoading

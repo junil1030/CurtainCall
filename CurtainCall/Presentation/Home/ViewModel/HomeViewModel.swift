@@ -32,6 +32,7 @@ final class HomeViewModel: BaseViewModel {
         let cardItems: Driver<[CardItem]>
         let scrollToFirst: Signal<Void>
         let isLoading: Driver<Bool>
+        let error: Signal<NetworkError>
         let navigateToSearch: Signal<Void>
         let navigateToFavorite: Signal<Void>
     }
@@ -112,6 +113,7 @@ final class HomeViewModel: BaseViewModel {
             cardItems: cardItemsRelay.asDriver(),
             scrollToFirst: scrollToFirstRelay.asSignal(),
             isLoading: isLoadingRelay.asDriver(),
+            error: errorRelay.asSignal(),
             navigateToSearch: navigateToSearch,
             navigateToFavorite: navigateToFavorite
         )

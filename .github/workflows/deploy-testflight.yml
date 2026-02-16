@@ -54,12 +54,6 @@ jobs:
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3
 
-      - name: Create Secrets.xcconfig
-        run: |
-          printf 'KOPIS_API_KEY = %s\nKOPIS_BASE_URL = http:/$()/www.kopis.or.kr/openApi/restful\n' "$KOPIS_API_KEY" > CurtainCall/Application/Secrets.xcconfig
-        env:
-          KOPIS_API_KEY: ${{ secrets.KOPIS_API_KEY }}
-
       - name: Save certificates to disk
         run: |
           echo "${{ secrets.APPLE_CERTIFICATE_P12 }}" | base64 --decode > certificate.p12
@@ -68,10 +62,15 @@ jobs:
 
       - name: Run tests
         if: github.event.inputs.skip_tests != 'true'
+        env:
+          KOPIS_API_KEY: ${{ secrets.KOPIS_API_KEY }}
+          KOPIS_BASE_URL: https://www.kopis.or.kr/openApi/restful/
         run: bundle exec fastlane test
 
       - name: Deploy to TestFlight
         env:
+          KOPIS_API_KEY: ${{ secrets.KOPIS_API_KEY }}
+          KOPIS_BASE_URL: https://www.kopis.or.kr/openApi/restful/
           APPLE_ID: ${{ secrets.APPLE_ID }}
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}

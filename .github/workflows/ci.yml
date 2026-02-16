@@ -46,13 +46,10 @@ jobs:
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3
 
-      - name: Create Secrets.xcconfig
-        run: |
-          printf 'KOPIS_API_KEY = %s\nKOPIS_BASE_URL = http:/$()/www.kopis.or.kr/openApi/restful\n' "$KOPIS_API_KEY" > CurtainCall/Application/Secrets.xcconfig
+      - name: Run tests with Fastlane
         env:
           KOPIS_API_KEY: ${{ secrets.KOPIS_API_KEY }}
-
-      - name: Run tests with Fastlane
+          KOPIS_BASE_URL: https://www.kopis.or.kr/openApi/restful/
         run: bundle exec fastlane test
 
       - name: Upload test results
