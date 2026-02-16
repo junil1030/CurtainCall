@@ -23,6 +23,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Resolve Xcode version
+        id: xcode-version
+        run: |
+          XCODE_VERSION=$(xcodebuild -version | tr '\n' ' ' | sed 's/[[:space:]]\+/-/g')
+          echo "value=${XCODE_VERSION}" >> "$GITHUB_OUTPUT"
+
       - name: Cache Ruby gems
         uses: actions/cache@v4
         with:
@@ -31,15 +37,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gems-
 
-      - name: Cache Swift Package Manager & Build
+      - name: Cache Swift Package Manager
         uses: actions/cache@v4
         with:
-          path: |
-            ~/Library/Caches/org.swift.swiftpm
-            derived_data
-          key: ${{ runner.os }}-xcode-${{ hashFiles('**/Package.resolved', 'CurtainCall.xcodeproj/project.pbxproj') }}
+          path: ~/Library/Caches/org.swift.swiftpm
+          key: ${{ runner.os }}-spm-${{ steps.xcode-version.outputs.value }}-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
-            ${{ runner.os }}-xcode-
+            ${{ runner.os }}-spm-${{ steps.xcode-version.outputs.value }}-
 
       - name: Install Ruby dependencies
         run: |

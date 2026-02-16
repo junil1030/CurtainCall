@@ -94,6 +94,7 @@ platform :ios do
   desc "Run all tests"
   lane :test do
     prepare_secrets_xcconfig
+    sh("rm -rf ./derived_data/ModuleCache.noindex")
     run_tests(
       project: XCODEPROJ_PATH,
       scheme: "CurtainCall",
